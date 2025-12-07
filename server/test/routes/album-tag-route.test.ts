@@ -40,10 +40,6 @@ vi.mock('../../src/routes/auth-middleware', async () => ({
   optionalVerifyJwtClaim: createMiddleware(async (c, next) => await next()),
 }));
 
-vi.mock('../../src/utils/helpers', async () => ({
-  updateDatabaseAt: () => Promise.resolve(true),
-}));
-
 // Mock env
 const env = {
   DB: {},
