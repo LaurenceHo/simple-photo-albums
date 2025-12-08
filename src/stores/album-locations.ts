@@ -1,12 +1,5 @@
 import type { Album as AlbumItem, ApiResponse } from '@/schema';
 import { AggregateService } from '@/services/aggregate-service';
-import {
-  compareDbUpdatedTime,
-  fetchDbUpdatedTime,
-  getDataFromLocalStorage,
-  setDataIntoLocalStorage,
-} from '@/utils/helper';
-import { ALBUMS_WITH_LOCATION } from '@/utils/local-storage-key';
 import { useQuery } from '@tanstack/vue-query';
 import DOMPurify from 'dompurify';
 import type { Feature, Point } from 'geojson';
@@ -23,24 +16,9 @@ export interface AlbumsWithLocation {
   albums: AlbumItem[];
 }
 
-const _shouldRefetch = async (): Promise<boolean> => {
-  const stored = getDataFromLocalStorage(ALBUMS_WITH_LOCATION);
-  if (!stored) return true;
-  const { isLatest } = await compareDbUpdatedTime(stored.dbUpdatedTime, 'album');
-  return !isLatest;
-};
-
-/** Get albums with location and set to local storage */
-const _fetchAlbumsWithLocationAndSetToLocationStorage = async () => {
+/** Get albums with location */
+const fetchAlbumsWithLocation = async () => {
   try {
-    if (!(await _shouldRefetch())) {
-      const albumLocationsWithDBTime = getDataFromLocalStorage(
-        ALBUMS_WITH_LOCATION,
-      ) as AlbumsWithLocation;
-      return albumLocationsWithDBTime ? albumLocationsWithDBTime.albums : [];
-    }
-
-    const timeJson = await fetchDbUpdatedTime();
     const {
       data: albums,
       code,
@@ -52,16 +30,7 @@ const _fetchAlbumsWithLocationAndSetToLocationStorage = async () => {
       return [];
     }
 
-    if (albums) {
-      setDataIntoLocalStorage(ALBUMS_WITH_LOCATION, {
-        dbUpdatedTime: timeJson?.album || '',
-        albums,
-      });
-
-      return albums;
-    }
-
-    return [];
+    return albums ? albums : [];
   } catch (error) {
     console.error('Error fetching album locations:', error);
     throw error;
@@ -73,7 +42,7 @@ const cdnURL = import.meta.env.VITE_IMAGEKIT_CDN_URL as string;
 export const useAlbumLocationsStore = defineStore('albumLocations', () => {
   const { data, isFetching } = useQuery({
     queryKey: ['albumsWithLocation'],
-    queryFn: _fetchAlbumsWithLocationAndSetToLocationStorage,
+    queryFn: fetchAlbumsWithLocation,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });

@@ -83,7 +83,7 @@ const { isPending: isCreatingTag, mutate: createAlbumTag } = useMutation({
       detail: `Tag "${tagName.value}" created.`,
       life: 3000,
     });
-    await albumTagsStore.refetchAlbumTags(true);
+    await albumTagsStore.refetchAlbumTags();
     onReset();
   },
   onError: () => {
