@@ -345,7 +345,7 @@ const { isPending: isCreatingAlbum, mutate: createAlbum } = useMutation({
       setTimeout(async () => {
         resetAlbum();
         if (router.currentRoute.value.params.year === album.year) {
-          await queryClient.invalidateQueries({ queryKey: ['fetchAlbumsByYears', album.year] });
+          await queryClient.invalidateQueries({ queryKey: ['countAlbumsByYear', 'fetchAlbumsByYears', album.year] });
         } else {
           await router.push({ name: 'albumsByYear', params: { year: album.year } });
         }

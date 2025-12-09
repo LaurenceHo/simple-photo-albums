@@ -20,7 +20,7 @@ const fetchTravelRecords = async (): Promise<TravelRecord[]> => {
       return [];
     }
 
-    return travelRecords ? travelRecords : [];
+    return travelRecords ?? [];
   } catch (error) {
     console.error('Error fetching travel records:', error);
     throw error;

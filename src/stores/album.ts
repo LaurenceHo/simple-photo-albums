@@ -40,7 +40,7 @@ const fetchAlbumsByYears = async (year: string) => {
       return [];
     }
 
-    return albums ? albums : [];
+    return albums ?? [];
   } catch (error) {
     console.error('Error fetching albums:', error);
     throw error;

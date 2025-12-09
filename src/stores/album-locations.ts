@@ -30,7 +30,7 @@ const fetchAlbumsWithLocation = async () => {
       return [];
     }
 
-    return albums ? albums : [];
+    return albums ?? [];
   } catch (error) {
     console.error('Error fetching album locations:', error);
     throw error;

@@ -17,7 +17,7 @@ const fetchAlbumTags = async (): Promise<AlbumTag[]> => {
       return [];
     }
 
-    return tags ? tags : [];
+    return tags ?? [];
   } catch (error) {
     console.error('Error fetching album tags:', error);
     throw error;

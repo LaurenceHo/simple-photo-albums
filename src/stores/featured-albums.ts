@@ -15,7 +15,7 @@ const fetchFeaturedAlbums = async () => {
     return [];
   }
 
-  return albums ? albums : [];
+  return albums ?? [];
 };
 
 export const useFeaturedAlbumsStore = defineStore('featuredAlbums', () => {

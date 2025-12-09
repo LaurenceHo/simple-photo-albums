@@ -31,7 +31,7 @@ export const usePhotoStore = defineStore('photo', () => {
         if (code === 401 || code === 403) {
           localStorage.removeItem(FILTERED_ALBUMS_BY_YEAR);
         }
-        setTimeout(() => window.location.assign('/'), 3000);
+        setTimeout(() => globalThis.location.assign('/'), 3000);
         // Return empty to prevent breaking components
         return { photos: [], album: { ...currentAlbum.value } };
       }
