@@ -59,7 +59,7 @@ import { AlbumService } from '@/services/album-service';
 import { useAlbumStore, useDialogStore } from '@/stores';
 import { initialAlbum } from '@/stores/album';
 import { IconAlertCircle, IconDotsVertical, IconEdit, IconTrash } from '@tabler/icons-vue';
-import { useMutation } from '@tanstack/vue-query';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { Button, Dialog, Menu } from 'primevue';
 import { useToast } from 'primevue/usetoast';
 import { ref, toRefs } from 'vue';
@@ -73,6 +73,7 @@ const props = defineProps({
   },
 });
 
+const queryClient = useQueryClient();
 const { albumItem } = toRefs(props);
 const route = useRoute();
 const toast = useToast();
@@ -105,7 +106,11 @@ const {
       detail: 'Album deleted.',
       life: 3000,
     });
-    await refetchAlbums(route.params.year as string, true);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['countAlbumsByYear'] }),
+      refetchAlbums(route.params.year as string, true)
+
+    ]);
     deleteAlbumDialog.value = false;
   },
   onError: () => {
