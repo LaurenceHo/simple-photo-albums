@@ -61,6 +61,15 @@ export abstract class BaseController implements IBaseController {
     return c.json(response, 403);
   }
 
+    public conflictError(c: Context, message = 'Document already exists') {
+    const response: ApiResponse<null> = {
+      code: 409,
+      status: 'Document already exists',
+      message,
+    };
+    return c.json(response, 409);
+  }
+
   public fail(c: Context, message: string) {
     const response: ApiResponse<null> = {
       code: 500,

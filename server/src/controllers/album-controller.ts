@@ -45,7 +45,7 @@ export default class AlbumController extends BaseController {
       // Check if album already exists
       const existing = await albumService.getById(album.id);
       if (existing) {
-        return this.clientError(c, 'Album already exists');
+        return this.conflictError(c, 'Album already exists');
       }
 
       await albumService.create(album);
