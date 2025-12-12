@@ -88,7 +88,7 @@ describe('AlbumService', () => {
         ok: false,
         statusText: 'Bad Request',
         json: vi.fn().mockResolvedValue({
-          code: '400',
+          code: 400,
           status: 'Bad Request',
           message: 'Bad Request',
         }),
@@ -128,7 +128,7 @@ describe('AlbumService', () => {
         ok: false,
         statusText: 'Not Found',
         json: vi.fn().mockResolvedValue({
-          code: '404',
+          code: 404,
           status: 'Not Found',
           message: 'Not Found',
         }),
@@ -167,7 +167,7 @@ describe('AlbumService', () => {
         ok: false,
         statusText: 'Not Found',
         json: vi.fn().mockResolvedValue({
-          code: '404',
+          code: 404,
           status: 'Not Found',
           message: 'Not Found',
         }),

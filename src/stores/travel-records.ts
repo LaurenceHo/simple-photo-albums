@@ -47,10 +47,10 @@ export const useTravelRecordsStore = defineStore('travelRecords', () => {
 
     (data.value ?? []).forEach((record) => {
       if (
-        !record.departure?.location?.latitude ||
-        !record.departure?.location?.longitude ||
-        !record.destination?.location?.latitude ||
-        !record.destination?.location?.longitude
+        typeof record.departure?.location?.latitude !== 'number' ||
+        typeof record.departure?.location?.longitude !== 'number' ||
+        typeof record.destination?.location?.latitude !== 'number' ||
+        typeof record.destination?.location?.longitude !== 'number'
       ) {
         console.warn(`Skipping travel record with ID ${record.id} due to missing coordinates`);
         return;
