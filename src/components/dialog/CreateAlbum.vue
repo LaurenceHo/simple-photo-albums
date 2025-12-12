@@ -190,6 +190,7 @@
 import PhotoLocationMap from '@/components/PhotoLocationMap.vue';
 import SelectTags from '@/components/select/SelectTags.vue';
 import type { Album, Place } from '@/schema';
+import ResponseError from '@/schema/response-error';
 import { AlbumService } from '@/services/album-service';
 import { AlbumTagService } from '@/services/album-tag-service';
 import { LocationService } from '@/services/location-service';
@@ -345,18 +346,29 @@ const { isPending: isCreatingAlbum, mutate: createAlbum } = useMutation({
       setTimeout(async () => {
         resetAlbum();
         if (router.currentRoute.value.params.year === album.year) {
-          await queryClient.invalidateQueries({ queryKey: ['fetchAlbumsByYears', album.year] });
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['countAlbumsByYear'] }),
+            queryClient.invalidateQueries({ queryKey: ['fetchAlbumsByYears', album.year] }),
+          ]);
         } else {
-          await router.push({ name: 'albumsByYear', params: { year: album.year } });
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['countAlbumsByYear'] }),
+            router.push({ name: 'albumsByYear', params: { year: album.year } }),
+          ]);
         }
       }, 2000);
     }
   },
-  onError: () => {
+  onError: (error: ResponseError) => {
+    const errorMessage =
+      error.code === 409
+        ? error.message
+        : 'Error while creating/updating album. Please try again later.';
+
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Error while creating/updating album. Please try again later.',
+      detail: errorMessage,
       life: 3000,
     });
   },

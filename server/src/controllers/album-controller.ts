@@ -5,7 +5,6 @@ import { Album } from '../types/album';
 import { UserPermission } from '../types/user-permission.js';
 import {
   emptyS3Folder,
-  updateDatabaseAt,
   uploadObject,
   verifyIfIsAdmin,
 } from '../utils/helpers.js';
@@ -46,12 +45,10 @@ export default class AlbumController extends BaseController {
       // Check if album already exists
       const existing = await albumService.getById(album.id);
       if (existing) {
-        return this.clientError(c, 'Album already exists');
+        return this.conflictError(c, 'Album already exists');
       }
 
       await albumService.create(album);
-
-      await updateDatabaseAt('album');
       // Create folder in S3
       await uploadObject(album.id + '/', null);
       return this.ok(c, 'Album created');
@@ -71,7 +68,6 @@ export default class AlbumController extends BaseController {
       const albumService = new AlbumService(c.env.DB);
 
       await albumService.update(album.id, album);
-      await updateDatabaseAt('album');
 
       return this.ok(c, 'Album updated');
     } catch (err: any) {
@@ -92,7 +88,6 @@ export default class AlbumController extends BaseController {
       if (result) {
         // Delete album from database
         await albumService.delete(requestBody.id);
-        await updateDatabaseAt('album');
         return this.ok(c, 'Album deleted');
       } else {
         return this.fail(c, 'Failed to delete photo album');

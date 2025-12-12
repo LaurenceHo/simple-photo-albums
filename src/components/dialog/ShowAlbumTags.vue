@@ -114,7 +114,7 @@ const { mutate: deleteAlbumTag, reset } = useMutation({
       detail: `Tag "${tagName.value}" deleted.`,
       life: 3000,
     });
-    await albumTagsStore.refetchAlbumTags(true);
+    await albumTagsStore.refetchAlbumTags();
     await refetchAlbums(paramsYear.value || filteredAlbumsByYear?.year, true);
     tagName.value = '';
   },

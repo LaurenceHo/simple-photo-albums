@@ -1,14 +1,7 @@
 import type { TravelRecord } from '@/schema';
 import { TravelRecordService } from '@/services/travel-record-service';
-import {
-  compareDbUpdatedTime,
-  fetchDbUpdatedTime,
-  getDataFromLocalStorage,
-  interpolateGreatCircle,
-  setDataIntoLocalStorage,
-} from '@/utils/helper';
-import { TRAVEL_RECORDS } from '@/utils/local-storage-key';
-import { useQuery, useQueryClient } from '@tanstack/vue-query';
+import { interpolateGreatCircle } from '@/utils/helper';
+import { useQuery } from '@tanstack/vue-query';
 import type { Feature, FeatureCollection, LineString, Position } from 'geojson';
 import { defineStore } from 'pinia';
 import { computed } from 'vue';
@@ -18,25 +11,8 @@ export interface TravelRecords {
   travelRecords: TravelRecord[];
 }
 
-const _shouldRefetch = async (forceUpdate = false): Promise<boolean> => {
-  const stored = getDataFromLocalStorage(TRAVEL_RECORDS);
-  if (!stored) return true;
-  if (forceUpdate) return true;
-  const { isLatest } = await compareDbUpdatedTime(stored.dbUpdatedTime, 'travel');
-  return !isLatest;
-};
-
-const _fetchTravelRecordsAndSetToLocalStorage = async (
-  forceRefetch: boolean = false,
-): Promise<TravelRecord[]> => {
+const fetchTravelRecords = async (): Promise<TravelRecord[]> => {
   try {
-    // Bypass _shouldRefetch if forceRefetch is true
-    if (!(await _shouldRefetch(forceRefetch))) {
-      const travelRecordsWithDBTime = getDataFromLocalStorage(TRAVEL_RECORDS) as TravelRecords;
-      return travelRecordsWithDBTime ? travelRecordsWithDBTime.travelRecords : [];
-    }
-
-    const timeJson = await fetchDbUpdatedTime();
     const { data: travelRecords, code, message } = await TravelRecordService.getTravelRecords();
 
     if (code !== 200) {
@@ -44,15 +20,7 @@ const _fetchTravelRecordsAndSetToLocalStorage = async (
       return [];
     }
 
-    if (travelRecords) {
-      setDataIntoLocalStorage(TRAVEL_RECORDS, {
-        dbUpdatedTime: timeJson?.travel || '',
-        travelRecords,
-      });
-      return travelRecords;
-    }
-
-    return [];
+    return travelRecords ?? [];
   } catch (error) {
     console.error('Error fetching travel records:', error);
     throw error;
@@ -60,58 +28,43 @@ const _fetchTravelRecordsAndSetToLocalStorage = async (
 };
 
 export const useTravelRecordsStore = defineStore('travelRecords', () => {
-  const queryClient = useQueryClient();
-
   const {
     isFetching,
     data,
     error,
-    refetch: refetchQuery,
+    refetch: refetchTravelRecords,
   } = useQuery({
     queryKey: ['getTravelRecords'],
-    queryFn: () => _fetchTravelRecordsAndSetToLocalStorage(false), // Default to no force refetch
+    queryFn: fetchTravelRecords,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: 0,
   });
 
-  // Custom refetch function with forceRefetch flag
-  const refetchTravelRecords = async (forceRefetch = false) => {
-    if (forceRefetch) {
-      // Invalidate cache to ensure fresh query
-      await queryClient.invalidateQueries({ queryKey: ['getTravelRecords'] });
-      // Update query data with forceRefetch
-      return queryClient.fetchQuery({
-        queryKey: ['getTravelRecords'],
-        queryFn: () => _fetchTravelRecordsAndSetToLocalStorage(true),
-      });
-    }
-    // Default refetch without forcing
-    return refetchQuery();
-  };
-
   const travelRecordGeoJson = computed<FeatureCollection<LineString>>(() => {
     const seenRoutes = new Set<string>();
     const features: Feature<LineString>[] = [];
 
-    (data.value ?? []).forEach(record => {
+    (data.value ?? []).forEach((record) => {
       if (
-        !record.departure?.location?.latitude || !record.departure?.location?.longitude ||
-        !record.destination?.location?.latitude || !record.destination?.location?.longitude
+        typeof record.departure?.location?.latitude !== 'number' ||
+        typeof record.departure?.location?.longitude !== 'number' ||
+        typeof record.destination?.location?.latitude !== 'number' ||
+        typeof record.destination?.location?.longitude !== 'number'
       ) {
         console.warn(`Skipping travel record with ID ${record.id} due to missing coordinates`);
         return;
       }
 
-      const start = [
-        record.departure.location.longitude,
-        record.departure.location.latitude
-      ] as [number, number];
+      const start = [record.departure.location.longitude, record.departure.location.latitude] as [
+        number,
+        number,
+      ];
 
-      const end = [
-        record.destination.location.longitude,
-        record.destination.location.latitude
-      ] as [number, number];
+      const end = [record.destination.location.longitude, record.destination.location.latitude] as [
+        number,
+        number,
+      ];
 
       // Create a unique key for the route regardless of direction
       const sortedLng = [start[0], end[0]].sort((a, b) => a - b);

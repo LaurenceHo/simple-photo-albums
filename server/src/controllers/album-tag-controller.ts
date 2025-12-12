@@ -3,7 +3,6 @@ import { HonoEnv } from '../env.js';
 import AlbumTagService from '../services/album-tag-service.js';
 import { AlbumTag } from '../types/album.js';
 import { UserPermission } from '../types/user-permission.js';
-import { updateDatabaseAt } from '../utils/helpers.js';
 import { BaseController } from './base-controller.js';
 
 export default class AlbumTagController extends BaseController {
@@ -33,7 +32,6 @@ export default class AlbumTagController extends BaseController {
     try {
       await albumTagService.create(tagsToCreate);
 
-      await updateDatabaseAt('album');
       return this.ok(c, 'Album tag created');
     } catch (err) {
       console.error(`Failed to create album tag: ${err}`);
@@ -48,7 +46,6 @@ export default class AlbumTagController extends BaseController {
       console.log('##### Delete tag: %s', tag);
       await albumTagService.delete(tag);
 
-      await updateDatabaseAt('album');
       return this.ok(c, 'Album tag deleted');
     } catch (err) {
       console.error(`Failed to delete album tag: ${err}`);

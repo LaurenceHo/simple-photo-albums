@@ -1,4 +1,5 @@
 import type { Album, ApiResponse, ResponseStatus } from '@/schema';
+import ResponseError from '@/schema/response-error';
 import { ApiBaseUrl } from '@/services/api-base-url';
 import { BaseApiRequestService } from '@/services/base-api-request-service';
 
@@ -14,7 +15,8 @@ export const AlbumService = {
   createAlbum: async (album: Album): Promise<ResponseStatus> => {
     const response = await BaseApiRequestService.perform('POST', `${ApiBaseUrl}/albums`, album);
     if (!response.ok) {
-      throw new Error(response.statusText);
+      const errorBody = await response.json();
+      throw new ResponseError(errorBody.code, errorBody.status, errorBody.message);
     }
     return response.json();
   },
@@ -22,16 +24,21 @@ export const AlbumService = {
   updateAlbum: async (album: Album): Promise<ResponseStatus> => {
     const response = await BaseApiRequestService.perform('PUT', `${ApiBaseUrl}/albums`, album);
     if (!response.ok) {
-      throw new Error(response.statusText);
+      const errorBody = await response.json();
+      throw new ResponseError(errorBody.code, errorBody.status, errorBody.message);
     }
     return response.json();
   },
 
   deleteAlbum: async (id: string, year: string): Promise<ResponseStatus> => {
-    const response = await BaseApiRequestService.perform('DELETE', `${ApiBaseUrl}/albums`, { id, year });
+    const response = await BaseApiRequestService.perform('DELETE', `${ApiBaseUrl}/albums`, {
+      id,
+      year,
+    });
     if (!response.ok) {
-      throw new Error(response.statusText);
+      const errorBody = await response.json();
+      throw new ResponseError(errorBody.code, errorBody.status, errorBody.message);
     }
     return response.json();
-  }
+  },
 };

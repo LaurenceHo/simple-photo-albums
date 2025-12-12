@@ -1,12 +1,6 @@
 import type { Album } from '@/schema';
 import { AlbumService } from '@/services/album-service';
-import {
-  compareDbUpdatedTime,
-  fetchDbUpdatedTime,
-  getDataFromLocalStorage,
-  setDataIntoLocalStorage,
-  sortByKey,
-} from '@/utils/helper';
+import { getDataFromLocalStorage, sortByKey } from '@/utils/helper';
 import { FILTERED_ALBUMS_BY_YEAR } from '@/utils/local-storage-key';
 import { useQuery, useQueryClient } from '@tanstack/vue-query';
 import { defineStore } from 'pinia';
@@ -37,25 +31,8 @@ export interface AlbumFilterState {
   sortOrder: 'asc' | 'desc';
 }
 
-const _shouldRefetchAlbums = async (year?: string, forceUpdate = false): Promise<boolean> => {
-  const stored = getDataFromLocalStorage(FILTERED_ALBUMS_BY_YEAR) as FilteredAlbumsByYear;
-  if (!stored) return true;
-  if (forceUpdate) return true;
-  const { isLatest } = await compareDbUpdatedTime(stored.dbUpdatedTime, 'album');
-  if (!isLatest) return true;
-  return year !== undefined && year !== stored.year;
-};
-
-const _fetchAlbumsAndSetToLocalStorage = async (year: string, forceUpdate: boolean) => {
+const fetchAlbumsByYears = async (year: string) => {
   try {
-    if (!(await _shouldRefetchAlbums(year, forceUpdate))) {
-      const albumLocationsWithDBTime = getDataFromLocalStorage(
-        FILTERED_ALBUMS_BY_YEAR,
-      ) as FilteredAlbumsByYear;
-      return albumLocationsWithDBTime ? albumLocationsWithDBTime.albums : [];
-    }
-
-    const timeJson = await fetchDbUpdatedTime();
     const { data: albums, code, message } = await AlbumService.getAlbumsByYear(year);
 
     if (code !== 200) {
@@ -63,17 +40,7 @@ const _fetchAlbumsAndSetToLocalStorage = async (year: string, forceUpdate: boole
       return [];
     }
 
-    if (albums) {
-      const filteredAlbumsByYear = {
-        dbUpdatedTime: timeJson?.album || '',
-        year,
-        albums,
-      };
-      setDataIntoLocalStorage(FILTERED_ALBUMS_BY_YEAR, filteredAlbumsByYear);
-      return albums;
-    }
-
-    return [];
+    return albums ?? [];
   } catch (error) {
     console.error('Error fetching albums:', error);
     throw error;
@@ -109,13 +76,7 @@ export const useAlbumStore = defineStore('album', () => {
     refetch: refetchQuery,
   } = useQuery({
     queryKey, // Use the computed queryKey
-    queryFn: async () => {
-      const albums = await _fetchAlbumsAndSetToLocalStorage(selectedYear.value, false);
-      filteredAlbumsByYear.value = getDataFromLocalStorage(
-        FILTERED_ALBUMS_BY_YEAR,
-      ) as FilteredAlbumsByYear;
-      return albums;
-    },
+    queryFn: () => fetchAlbumsByYears(selectedYear.value),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     enabled: isEnabled,
@@ -137,7 +98,7 @@ export const useAlbumStore = defineStore('album', () => {
     if (forceRefetch) {
       return queryClient.fetchQuery({
         queryKey: ['fetchAlbumsByYears', year],
-        queryFn: () => _fetchAlbumsAndSetToLocalStorage(year, true),
+        queryFn: () => fetchAlbumsByYears(year),
       });
     }
     return refetchQuery();

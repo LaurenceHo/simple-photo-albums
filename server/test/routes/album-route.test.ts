@@ -57,7 +57,6 @@ vi.mock('../../src/routes/auth-middleware', async () => ({
 }));
 
 vi.mock('../../src/utils/helpers', async () => ({
-  updateDatabaseAt: () => Promise.resolve(true),
   emptyS3Folder: () => Promise.resolve(true),
   uploadObject: () => Promise.resolve(true),
   verifyIfIsAdmin: () => true,

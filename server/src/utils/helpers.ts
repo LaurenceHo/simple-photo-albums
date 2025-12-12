@@ -8,23 +8,6 @@ import S3Service from '../services/s3-service.js';
 
 const s3BucketName = process.env['AWS_S3_BUCKET_NAME'];
 
-export const updateDatabaseAt = async (type: 'album' | 'travel') => {
-  const s3Service = new S3Service();
-  const result: { album: string; travel: string } = await s3Service.read({
-    Bucket: s3BucketName,
-    Key: 'updateDatabaseAt.json',
-  });
-
-  await uploadObject(
-    'updateDatabaseAt.json',
-    JSON.stringify({
-      ...result,
-      ...(type === 'album' && { album: new Date().toISOString() }),
-      ...(type === 'travel' && { travel: new Date().toISOString() }),
-    }),
-  );
-};
-
 //https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/s3-example-photo-album-full.html
 export const uploadObject = async (filePath: string, object: any) => {
   console.log(`##### S3 destination file path: ${filePath}`);
@@ -36,10 +19,6 @@ export const uploadObject = async (filePath: string, object: any) => {
       Bucket: s3BucketName,
       Key: filePath,
     };
-
-    if (filePath === 'updateDatabaseAt.json') {
-      putObject.CacheControl = 'no-cache';
-    }
 
     return await s3Service.create(putObject);
   } catch (err) {

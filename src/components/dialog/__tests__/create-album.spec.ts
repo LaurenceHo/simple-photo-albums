@@ -22,6 +22,7 @@ vi.mock('@/services/album-service', () => ({
 vi.mock('@/services/album-tag-service', () => ({
   AlbumTagService: {
     createAlbumTags: vi.fn().mockResolvedValue({ code: 200 }),
+    getAlbumTags: vi.fn().mockResolvedValue({ code: 200, data: [] }),
   },
 }));
 
@@ -347,5 +348,59 @@ describe('CreateAlbum', () => {
     autoComplete.vm.$emit('complete', { query: '' });
     await flushPromises();
     expect(LocationService.searchPlaces).not.toHaveBeenCalled();
+  });
+
+  it('invalidates separate query keys on success', async () => {
+    // Reset store state to ensure clean slate from previous tests
+    const albumStore = useAlbumStore();
+    albumStore.albumToBeUpdate = {
+      year: '2025',
+      id: '',
+      albumName: '',
+      albumCover: '',
+      description: '',
+      tags: [],
+      isPrivate: true,
+    };
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-01-01'));
+    // Spy on invalidateQueries
+    vi.spyOn(queryClient, 'invalidateQueries');
+
+    const wrapper = mountComponent();
+    const mockAlbum = {
+      year: '2025',
+      id: 'test-album',
+      albumName: 'Test Album',
+      description: 'Test Description',
+      isPrivate: true,
+      tags: [],
+    };
+
+    // Ensure we are on the correct route to trigger invalidation
+    await router.push({ name: 'albumsByYear', params: { year: '2025' } });
+
+    // Fill in form
+    await wrapper.find('[data-test-id="input-album-id"]').setValue(mockAlbum.id);
+    await wrapper.find('[data-test-id="input-album-name"]').setValue(mockAlbum.albumName);
+
+    // Fill other fields
+    await wrapper.find('[data-test-id="input-album-desc"]').setValue(mockAlbum.description);
+
+    // Submit form
+    await wrapper.find('form').trigger('submit');
+    await flushPromises();
+
+    // Advance time by 2000ms
+    vi.advanceTimersByTime(2000);
+    await flushPromises();
+
+    // Check invalidations
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['countAlbumsByYear'] });
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['fetchAlbumsByYears', '2025'],
+    });
+
+    vi.useRealTimers();
   });
 });

@@ -3,7 +3,7 @@ import { HonoEnv } from '../env.js';
 import TravelRecordService from '../services/travel-record-service.js';
 import { TravelRecord } from '../types/travel-record';
 import { UserPermission } from '../types/user-permission.js';
-import { haversineDistance, isValidCoordination, updateDatabaseAt } from '../utils/helpers.js';
+import { haversineDistance, isValidCoordination } from '../utils/helpers.js';
 import { BaseController } from './base-controller.js';
 
 export default class TravelRecordController extends BaseController {
@@ -61,7 +61,6 @@ export default class TravelRecordController extends BaseController {
 
     try {
       await travelRecordService.create(payload);
-      await updateDatabaseAt('travel');
       return this.ok(c, 'Travel record created');
     } catch (err: any) {
       console.error(`Failed to create travel record in D1: ${err.message}`);
@@ -85,7 +84,6 @@ export default class TravelRecordController extends BaseController {
 
     try {
       await travelRecordService.update(payload.id, payload);
-      await updateDatabaseAt('travel');
       return this.ok(c, 'Travel record updated');
     } catch (err: any) {
       console.error(`Failed to update travel record in D1: ${err.message}`);
@@ -100,7 +98,6 @@ export default class TravelRecordController extends BaseController {
 
     try {
       await travelRecordService.delete(recordId);
-      await updateDatabaseAt('travel');
       return this.ok(c, 'Travel record deleted');
     } catch (err: any) {
       console.error(`Failed to delete travel record in D1: ${err.message}`);
