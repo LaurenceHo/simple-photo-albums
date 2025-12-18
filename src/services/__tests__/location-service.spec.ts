@@ -6,8 +6,8 @@ import { LocationService } from '../location-service';
 // Mock the BaseApiRequestService
 vi.mock('@/services/base-api-request-service', () => ({
   BaseApiRequestService: {
-    perform: vi.fn()
-  }
+    perform: vi.fn(),
+  },
 }));
 
 describe('LocationService', () => {
@@ -25,14 +25,14 @@ describe('LocationService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'GET',
-        `${ApiBaseUrl}/location/search?textQuery=${encodeURIComponent(searchText)}`
+        `${ApiBaseUrl}/location/search?textQuery=${encodeURIComponent(searchText)}`,
       );
     });
 
     it('should return the JSON response from the API when successful', async () => {
       const mockPlaces = [
         { id: '1', name: 'New York City', country: 'USA' },
-        { id: '2', name: 'New York Mills', country: 'USA' }
+        { id: '2', name: 'New York Mills', country: 'USA' },
       ];
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockPlaces) };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
@@ -58,7 +58,7 @@ describe('LocationService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'GET',
-        `${ApiBaseUrl}/location/search?textQuery=${encodeURIComponent(searchText)}`
+        `${ApiBaseUrl}/location/search?textQuery=${encodeURIComponent(searchText)}`,
       );
     });
 
@@ -69,7 +69,10 @@ describe('LocationService', () => {
 
       await LocationService.searchPlaces(searchText);
 
-      expect(BaseApiRequestService.perform).toHaveBeenCalledWith('GET', `${ApiBaseUrl}/location/search?textQuery=`);
+      expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
+        'GET',
+        `${ApiBaseUrl}/location/search?textQuery=`,
+      );
     });
   });
 });

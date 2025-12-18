@@ -6,8 +6,8 @@ import { AlbumTagService } from '../album-tag-service';
 // Mock the BaseApiRequestService
 vi.mock('@/services/base-api-request-service', () => ({
   BaseApiRequestService: {
-    perform: vi.fn()
-  }
+    perform: vi.fn(),
+  },
 }));
 
 describe('AlbumTagService', () => {
@@ -51,7 +51,11 @@ describe('AlbumTagService', () => {
 
       await AlbumTagService.createAlbumTags(mockTags);
 
-      expect(BaseApiRequestService.perform).toHaveBeenCalledWith('POST', `${ApiBaseUrl}/albumTags`, mockTags);
+      expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
+        'POST',
+        `${ApiBaseUrl}/albumTags`,
+        mockTags,
+      );
     });
 
     it('should return the ResponseStatus from the API', async () => {
@@ -68,7 +72,9 @@ describe('AlbumTagService', () => {
       const mockResponse = { ok: false, statusText: 'Bad Request' };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
 
-      await expect(AlbumTagService.createAlbumTags([{ tag: 'New Tag' }])).rejects.toThrow('Bad Request');
+      await expect(AlbumTagService.createAlbumTags([{ tag: 'New Tag' }])).rejects.toThrow(
+        'Bad Request',
+      );
     });
   });
 
@@ -79,7 +85,10 @@ describe('AlbumTagService', () => {
 
       await AlbumTagService.deleteAlbumTag('1');
 
-      expect(BaseApiRequestService.perform).toHaveBeenCalledWith('DELETE', `${ApiBaseUrl}/albumTags/1`);
+      expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
+        'DELETE',
+        `${ApiBaseUrl}/albumTags/1`,
+      );
     });
 
     it('should return the ResponseStatus from the API', async () => {

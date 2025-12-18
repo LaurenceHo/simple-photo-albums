@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tailwindcss-primeui";
+@import 'tailwindcss';
+@import 'tailwindcss-primeui';
 @custom-variant dark (&:where(.dark, .dark *));
 
 .album-list-paginator .p-paginator {

@@ -6,7 +6,7 @@ export const LocationService = {
   searchPlaces: async (text: string): Promise<ApiResponse<Place[]>> => {
     const response = await BaseApiRequestService.perform(
       'GET',
-      `${ApiBaseUrl}/location/search?textQuery=${encodeURIComponent(text || '')}`
+      `${ApiBaseUrl}/location/search?textQuery=${encodeURIComponent(text || '')}`,
     );
 
     if (!response.ok) {
@@ -14,5 +14,5 @@ export const LocationService = {
     }
 
     return response.json();
-  }
+  },
 };

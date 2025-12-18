@@ -4,16 +4,20 @@ import { z } from 'zod';
 export const AlbumsByYearSchema = z.array(
   z.object({
     year: z.string(),
-    count: z.number()
-  })
+    count: z.number(),
+  }),
 );
 
-export const AggregateTypeSchema = z.enum(['albumsWithLocation', 'countAlbumsByYear', 'featuredAlbums']);
+export const AggregateTypeSchema = z.enum([
+  'albumsWithLocation',
+  'countAlbumsByYear',
+  'featuredAlbums',
+]);
 
 const DataAggregateValueMapSchema = z.object({
   albumsWithLocation: z.array(AlbumSchema),
   countAlbumsByYear: AlbumsByYearSchema,
-  featuredAlbums: z.array(AlbumSchema)
+  featuredAlbums: z.array(AlbumSchema),
 });
 
 export type AggregateType = z.infer<typeof AggregateTypeSchema>;

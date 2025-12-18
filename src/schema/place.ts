@@ -5,8 +5,8 @@ export const PlaceSchema = z.object({
   formattedAddress: z.string().min(1),
   location: z.object({
     latitude: z.number(),
-    longitude: z.number()
-  })
+    longitude: z.number(),
+  }),
 });
 
 export type Place = z.infer<typeof PlaceSchema>;

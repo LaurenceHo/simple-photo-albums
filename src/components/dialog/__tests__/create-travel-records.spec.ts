@@ -1,15 +1,13 @@
 import CreateTravelRecordsDialog from '@/components/dialog/CreateTravelRecords.vue';
 import { setupQueryMocks } from '@/mocks/setup-query-mock';
 import { LocationService } from '@/services/location-service';
-import { useTravelRecordsStore, useDialogStore } from '@/stores';
+import { useDialogStore } from '@/stores';
 import { createTestingPinia } from '@pinia/testing';
-import { useMutation, useQuery } from '@tanstack/vue-query';
 import { flushPromises, mount } from '@vue/test-utils';
 import AutoComplete from 'primevue/autocomplete';
 import PrimeVue from 'primevue/config';
 import { useToast } from 'primevue/usetoast';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ref } from 'vue';
 
 vi.mock('@tanstack/vue-query', () => ({
   useQuery: vi.fn(),

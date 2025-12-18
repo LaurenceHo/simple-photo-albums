@@ -2,7 +2,7 @@
   <div id="panorama" class="rounded-md" style="width: 100%; height: 50%"></div>
 </template>
 <script lang="ts" setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, toRefs } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue';
 
 interface PannellumViewer {
   destroy(): void;

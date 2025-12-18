@@ -73,8 +73,15 @@
       <div class="flex items-center">
         <IconAlertCircle :size="40" class="flex-shrink-0 pr-2 text-red-400" />
         <span class="text-lg font-semibold" data-test-id="confirm-delete-album-dialog-title">
-          {{ slotProps.message.message }} {{ selectedRecord?.travelDate ? new Date(selectedRecord.travelDate).toLocaleDateString() : '--' }} fly from
-          "{{ selectedRecord?.departure?.displayName }}" to "{{ selectedRecord?.destination?.displayName }}"?
+          {{ slotProps.message.message }}
+          {{
+            selectedRecord?.travelDate
+              ? new Date(selectedRecord.travelDate).toLocaleDateString()
+              : '--'
+          }}
+          fly from "{{ selectedRecord?.departure?.displayName }}" to "{{
+            selectedRecord?.destination?.displayName
+          }}"?
         </span>
       </div>
     </template>

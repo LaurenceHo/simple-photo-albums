@@ -1,6 +1,6 @@
 import { Context } from 'hono';
-import { BaseController as IBaseController } from '../types/models.js';
 import { ApiResponse } from '../types/api-response.js';
+import { BaseController as IBaseController } from '../types/models.js';
 
 export abstract class BaseController implements IBaseController {
   abstract findAll(c: Context): Promise<Response>;
@@ -61,7 +61,7 @@ export abstract class BaseController implements IBaseController {
     return c.json(response, 403);
   }
 
-    public conflictError(c: Context, message = 'Document already exists') {
+  public conflictError(c: Context, message = 'Document already exists') {
     const response: ApiResponse<null> = {
       code: 409,
       status: 'Document already exists',

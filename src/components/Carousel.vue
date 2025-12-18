@@ -1,5 +1,5 @@
 <template>
-  <div class="embla relative mb-8 md:mb-4 lg:mb-8 xl:mb-12">
+  <div class="embla relative">
     <div ref="emblaRef" class="embla__viewport">
       <div class="embla__container">
         <template v-for="albumItem in featuredAlbums" :key="albumItem.id">

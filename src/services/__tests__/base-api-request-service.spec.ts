@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BaseApiRequestService } from '../base-api-request-service';
 
 global.fetch = vi.fn();
@@ -54,7 +54,7 @@ describe('BaseApiRequestService', () => {
       mode: 'cors',
       credentials: 'include',
       cache: 'no-cache',
-      headers: expect.any(Object)
+      headers: expect.any(Object),
     });
   });
 
@@ -69,7 +69,7 @@ describe('BaseApiRequestService', () => {
       credentials: 'include',
       cache: 'no-cache',
       headers: expect.any(Object),
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -88,7 +88,7 @@ describe('BaseApiRequestService', () => {
       credentials: 'include',
       cache: 'no-cache',
       headers: expect.any(Object),
-      body: expect.any(URLSearchParams)
+      body: expect.any(URLSearchParams),
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -107,7 +107,7 @@ describe('BaseApiRequestService', () => {
       credentials: 'include',
       cache: 'no-cache',
       headers: expect.any(Object),
-      body: expect.any(FormData)
+      body: expect.any(FormData),
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -124,7 +124,7 @@ describe('BaseApiRequestService', () => {
       mode: 'cors',
       credentials: 'include',
       cache: 'no-cache',
-      headers: expect.any(Object)
+      headers: expect.any(Object),
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -138,8 +138,8 @@ describe('BaseApiRequestService', () => {
     expect(fetch).toHaveBeenCalledWith(
       url,
       expect.objectContaining({
-        method: 'GET'
-      })
+        method: 'GET',
+      }),
     );
   });
 
@@ -151,8 +151,8 @@ describe('BaseApiRequestService', () => {
       url,
       expect.objectContaining({
         method: 'GET',
-        headers: expect.any(MockHeaders)
-      })
+        headers: expect.any(MockHeaders),
+      }),
     );
 
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -169,7 +169,7 @@ describe('BaseApiRequestService', () => {
       mode: 'cors',
       credentials: 'include',
       cache: 'no-cache',
-      headers: expect.any(Object)
+      headers: expect.any(Object),
     });
 
     expect(fetch).toHaveBeenCalledTimes(1);

@@ -1,36 +1,4 @@
 <template>
-  <div class="flex flex-wrap justify-between pt-2">
-    <div class="flex grow sm:flex-none">
-      <Button outlined severity="secondary" @click="toggleSortOrder">
-        <template #icon>
-          <template v-if="sortOrder === 'asc'">
-            <IconSortAscendingLetters :size="24" />
-          </template>
-          <template v-else>
-            <IconSortDescendingLetters :size="24" />
-          </template>
-        </template>
-      </Button>
-      <SelectYear
-        :selected-year="paramsYear || filteredAlbumsByYear?.year || 'na'"
-        extra-class="ml-2 grow sm:w-auto sm:flex-none"
-        @select-year="setSelectedYear"
-      />
-      <SelectTags extra-class="ml-2 grow sm:w-auto sm:flex-none" @select-tags="setSelectedTags" />
-    </div>
-    <div class="album-list-paginator grow pt-2 sm:flex-none sm:pt-0">
-      <Paginator
-        v-model:rows="itemsPerPage"
-        :rows-per-page-options="[10, 20, 30]"
-        :total-records="totalItems"
-        @page="onPageChange"
-      />
-    </div>
-  </div>
-  <div v-if="isAdmin" class="flex items-center pt-4">
-    Only show private album
-    <ToggleSwitch v-model="privateOnly" class="ml-2" data-test-id="album-private-toggle" />
-  </div>
   <div v-if="isFetchingFeaturedAlbums" class="py-4">
     <Skeleton class="mb-4" height="2rem" width="10rem" />
     <div class="flex">
@@ -38,10 +6,18 @@
       <Skeleton :size="isXSmallDevice ? '10rem' : '13rem'"></Skeleton>
     </div>
   </div>
-  <div v-else-if="featuredAlbums && featuredAlbums.length > 0" class="py-4">
-    <h1 class="pb-4 text-3xl font-bold">Featured</h1>
+  <Panel
+    v-else-if="featuredAlbums && featuredAlbums.length > 0"
+    v-model:collapsed="isFeaturedCollapsed"
+    toggleable
+    class="my-4"
+    data-test-id="featured-albums-panel"
+  >
+    <template #header>
+      <span class="text-xl font-bold">Featured</span>
+    </template>
     <Carousel :featured-albums="featuredAlbums" />
-  </div>
+  </Panel>
   <div v-if="isFetchingAlbums" class="grid grid-cols-1 gap-2 pt-4 md:grid-cols-2 xl:grid-cols-3">
     <div
       v-for="n in 3"
@@ -56,6 +32,39 @@
     </div>
   </div>
   <template v-else>
+    <div class="flex flex-wrap justify-between pt-2">
+      <div class="flex grow sm:flex-none">
+        <Button outlined severity="secondary" @click="toggleSortOrder">
+          <template #icon>
+            <template v-if="sortOrder === 'asc'">
+              <IconSortAscendingLetters :size="24" />
+            </template>
+            <template v-else>
+              <IconSortDescendingLetters :size="24" />
+            </template>
+          </template>
+        </Button>
+        <SelectYear
+          :selected-year="paramsYear || filteredAlbumsByYear?.year || 'na'"
+          extra-class="ml-2 grow sm:w-auto sm:flex-none"
+          @select-year="setSelectedYear"
+        />
+        <SelectTags extra-class="ml-2 grow sm:w-auto sm:flex-none" @select-tags="setSelectedTags" />
+      </div>
+      <div class="album-list-paginator grow pt-2 sm:flex-none sm:pt-0">
+        <Paginator
+          v-model:rows="itemsPerPage"
+          :rows-per-page-options="[10, 20, 30]"
+          :total-records="totalItems"
+          @page="onPageChange"
+        />
+      </div>
+    </div>
+    <div v-if="isAdmin" class="flex items-center py-4">
+      Only show private album
+      <ToggleSwitch v-model="privateOnly" class="ml-2" data-test-id="album-private-toggle" />
+    </div>
+
     <template v-if="chunkAlbumList.length > 0">
       ({{ totalItems }} album{{ totalItems > 1 ? 's' : '' }})
       <div class="grid grid-cols-1 gap-2 pt-2 md:grid-cols-2 xl:grid-cols-3">
@@ -88,7 +97,15 @@ import {
 } from '@/stores';
 import { IconSortAscendingLetters, IconSortDescendingLetters } from '@tabler/icons-vue';
 import { storeToRefs } from 'pinia';
-import { Button, type PageState, Paginator, ScrollTop, Skeleton, ToggleSwitch } from 'primevue';
+import {
+  Button,
+  type PageState,
+  Paginator,
+  Panel,
+  ScrollTop,
+  Skeleton,
+  ToggleSwitch,
+} from 'primevue';
 import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -120,6 +137,9 @@ onMounted(() => {
     albumStore.setSelectedYear(route.params.year as string);
   }
 });
+
+// UI state
+const isFeaturedCollapsed = ref(false);
 
 // Pagination state
 const pageNumber = ref(1);

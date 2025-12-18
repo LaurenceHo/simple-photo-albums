@@ -81,6 +81,7 @@ describe('AlbumList.vue', () => {
           SelectYear: true,
           SelectTags: true,
           Paginator: true,
+          Panel: true,
           ToggleSwitch: true,
           Skeleton: true,
           Carousel: true,
@@ -160,7 +161,10 @@ describe('AlbumList.vue', () => {
   it('displays featured albums when available', async () => {
     const wrapper = createWrapper();
     await wrapper.vm.$nextTick();
-    expect(wrapper.findComponent({ name: 'Carousel' }).exists()).toBe(true);
+    // The featured albums are now wrapped in a Panel component
+    const panel = wrapper.findComponent({ name: 'Panel' });
+    expect(panel.exists()).toBe(true);
+    expect(panel.attributes('data-test-id')).toBe('featured-albums-panel');
   });
 
   it('displays a skeleton loader when fetching albums', async () => {

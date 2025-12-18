@@ -1,11 +1,11 @@
-import PrimeVue from 'primevue/config';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mount } from '@vue/test-utils';
 import UploadPhotos from '@/components/UploadPhotos.vue';
-import Button from 'primevue/button';
-import Message from 'primevue/message';
 import useFileList from '@/composables/use-file-list';
 import useFileUploader from '@/composables/use-file-uploader';
+import { mount } from '@vue/test-utils';
+import Button from 'primevue/button';
+import PrimeVue from 'primevue/config';
+import Message from 'primevue/message';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
 
 // Mock composables - hoisted to top

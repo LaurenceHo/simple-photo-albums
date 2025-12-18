@@ -13,9 +13,9 @@ export const searchPlaces = http.get('/api/location/search?textQuery=**', async 
         formattedAddress: 'Paris, France',
         location: {
           latitude: 48.857547499999995,
-          longitude: 2.3513764999999998
-        }
-      }
-    ]
+          longitude: 2.3513764999999998,
+        },
+      },
+    ],
   });
 });

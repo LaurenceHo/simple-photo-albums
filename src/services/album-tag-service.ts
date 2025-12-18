@@ -20,10 +20,13 @@ export const AlbumTagService = {
   },
 
   deleteAlbumTag: async (tagId: string): Promise<ResponseStatus> => {
-    const response = await BaseApiRequestService.perform('DELETE', `${ApiBaseUrl}/albumTags/${tagId}`);
+    const response = await BaseApiRequestService.perform(
+      'DELETE',
+      `${ApiBaseUrl}/albumTags/${tagId}`,
+    );
     if (!response.ok) {
       throw new Error(response.statusText);
     }
     return response.json();
-  }
+  },
 };

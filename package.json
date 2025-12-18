@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --port=9000 --open",
-    "format": "prettier --ignore-path .gitignore --write src/** --ignore-unknown",
+    "format": "prettier --write src/ --ignore-unknown --ignore-path .gitignore",
     "lint": "eslint --fix",
     "msw": "vite --mode MSW --open",
     "prepare": "husky",

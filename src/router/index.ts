@@ -14,35 +14,35 @@ const router = createRouter({
         {
           path: '/albums',
           name: 'albums',
-          component: AlbumListView
+          component: AlbumListView,
         },
         {
           path: '/albums/:year',
           name: 'albumsByYear',
-          component: AlbumListView
+          component: AlbumListView,
         },
         {
           path: '/album/:year/:albumId',
           name: 'photosByAlbum',
-          component: () => import('../views/PhotoList.vue')
-        }
-      ]
+          component: () => import('../views/PhotoList.vue'),
+        },
+      ],
     },
     {
       path: '/map/albums',
       name: 'albumMap',
-      component: () => import('../views/AlbumMap.vue')
+      component: () => import('../views/AlbumMap.vue'),
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/Login.vue')
+      component: () => import('../views/Login.vue'),
     },
     {
       path: '/:catchAll(.*)*',
-      component: () => import('../views/Error404.vue')
-    }
-  ]
+      component: () => import('../views/Error404.vue'),
+    },
+  ],
 });
 
 export default router;

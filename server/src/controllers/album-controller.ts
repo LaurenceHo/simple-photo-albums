@@ -3,11 +3,7 @@ import { HonoEnv } from '../env.js';
 import AlbumService from '../services/album-service.js';
 import { Album } from '../types/album';
 import { UserPermission } from '../types/user-permission.js';
-import {
-  emptyS3Folder,
-  uploadObject,
-  verifyIfIsAdmin,
-} from '../utils/helpers.js';
+import { emptyS3Folder, uploadObject, verifyIfIsAdmin } from '../utils/helpers.js';
 import { BaseController } from './base-controller.js';
 
 export default class AlbumController extends BaseController {

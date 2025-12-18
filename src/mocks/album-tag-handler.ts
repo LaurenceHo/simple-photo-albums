@@ -9,21 +9,21 @@ export const getAlbumTags = http.get('/api/albumTags', async () => {
     message: 'ok',
     data: [
       {
-        tag: 'tag3'
+        tag: 'tag3',
       },
       {
-        tag: 'test-tag-1'
+        tag: 'test-tag-1',
       },
       {
-        tag: 'tag1'
+        tag: 'tag1',
       },
       {
-        tag: 'demo'
+        tag: 'demo',
       },
       {
-        tag: 'tag2'
-      }
-    ]
+        tag: 'tag2',
+      },
+    ],
   });
 });
 
@@ -33,7 +33,7 @@ export const createAlbumTag = http.post('/api/albumTags', async () => {
   return HttpResponse.json({
     code: 200,
     status: 'Success',
-    message: 'ok'
+    message: 'ok',
   });
 
   // return new HttpResponse(null, {
@@ -48,7 +48,7 @@ export const deleteAlbumTag = http.delete('/api/albumTags/**', async () => {
   return HttpResponse.json({
     code: 200,
     status: 'Success',
-    message: 'ok'
+    message: 'ok',
   });
 
   // return new HttpResponse(null, {

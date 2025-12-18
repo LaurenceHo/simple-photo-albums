@@ -15,10 +15,10 @@ import {
   uploadPhotos,
 } from '@/mocks/photos-handler';
 import {
-  getTravelRecords,
-  deleteTravelRecord,
-  updateTravelRecords,
   createTravelRecords,
+  deleteTravelRecord,
+  getTravelRecords,
+  updateTravelRecords,
 } from '@/mocks/travel-records-handler';
 import { http, passthrough } from 'msw';
 

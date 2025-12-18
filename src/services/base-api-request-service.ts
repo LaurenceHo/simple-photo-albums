@@ -6,7 +6,7 @@ export const BaseApiRequestService = {
     urlPath: string,
     requestJsonBody?: any,
     urlencodedParams?: any,
-    formParams?: any
+    formParams?: any,
   ): Promise<any> => {
     const headers = new Headers({ Accept: '*/*' });
 
@@ -39,5 +39,5 @@ export const BaseApiRequestService = {
     requestOptions.headers = headers;
 
     return fetch(urlPath, requestOptions);
-  }
+  },
 };

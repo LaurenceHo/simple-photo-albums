@@ -6,8 +6,8 @@ import { AuthService } from '../auth-service';
 // Mock the BaseApiRequestService
 vi.mock('@/services/base-api-request-service', () => ({
   BaseApiRequestService: {
-    perform: vi.fn()
-  }
+    perform: vi.fn(),
+  },
 }));
 
 describe('AuthService', () => {
@@ -48,7 +48,7 @@ describe('AuthService', () => {
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'POST',
         `${ApiBaseUrl}/auth/verifyIdToken`,
-        { token: mockToken, state: mockState }
+        { token: mockToken, state: mockState },
       );
     });
 
@@ -66,7 +66,9 @@ describe('AuthService', () => {
       const mockResponse = { ok: false, statusText: 'Unauthorized' };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
 
-      await expect(AuthService.login('invalid-token', 'invalid-state')).rejects.toThrow('Unauthorized');
+      await expect(AuthService.login('invalid-token', 'invalid-state')).rejects.toThrow(
+        'Unauthorized',
+      );
     });
   });
 
@@ -77,7 +79,10 @@ describe('AuthService', () => {
 
       await AuthService.getUserInfo();
 
-      expect(BaseApiRequestService.perform).toHaveBeenCalledWith('GET', `${ApiBaseUrl}/auth/userInfo`);
+      expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
+        'GET',
+        `${ApiBaseUrl}/auth/userInfo`,
+      );
     });
 
     it('should return the JSON response from the API', async () => {
@@ -91,7 +96,10 @@ describe('AuthService', () => {
     });
 
     it('should not throw an error if the API request fails', async () => {
-      const mockResponse = { ok: false, json: vi.fn().mockResolvedValue({ error: 'Unauthorized' }) };
+      const mockResponse = {
+        ok: false,
+        json: vi.fn().mockResolvedValue({ error: 'Unauthorized' }),
+      };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
 
       const result = await AuthService.getUserInfo();
@@ -107,7 +115,10 @@ describe('AuthService', () => {
 
       await AuthService.logout();
 
-      expect(BaseApiRequestService.perform).toHaveBeenCalledWith('POST', `${ApiBaseUrl}/auth/logout`);
+      expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
+        'POST',
+        `${ApiBaseUrl}/auth/logout`,
+      );
     });
 
     it('should not return anything if logout is successful', async () => {

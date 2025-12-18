@@ -4,17 +4,17 @@ import { z } from 'zod';
 
 const PhotoResponseSchema = z.object({
   photos: z.array(PhotoSchema),
-  album: AlbumSchema
+  album: AlbumSchema,
 });
 
 const ResponseStatusSchema = z.object({
   code: z.number(),
   status: z.string(),
-  message: z.string().optional()
+  message: z.string().optional(),
 });
 
 const ApiResponseSchema = ResponseStatusSchema.extend({
-  data: z.unknown().optional()
+  data: z.unknown().optional(),
 });
 
 export type ResponseStatus = z.infer<typeof ResponseStatusSchema>;
