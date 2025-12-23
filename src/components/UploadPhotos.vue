@@ -73,7 +73,7 @@
         :disabled="isUploading || validFiles.length === 0"
         data-test-id="upload-file-button"
         label="Upload"
-        @click="uploadFiles(validFiles)"
+        @click="uploadFiles(albumId)"
       />
       <Button
         v-if="isCompleteUploading"
@@ -88,8 +88,9 @@
 <script lang="ts" setup>
 import DropZone from '@/components/file-uploader/DropZone.vue';
 import FilePreview from '@/components/file-uploader/FilePreview.vue';
-import { useFileList, useFileUploader } from '@/composables';
+import { useUploadStore } from '@/stores/upload';
 import { IconX } from '@tabler/icons-vue';
+import { storeToRefs } from 'pinia';
 import { Button, Message } from 'primevue';
 import { computed, ref, toRefs, watch } from 'vue';
 
@@ -103,10 +104,9 @@ const props = defineProps({
 });
 
 const { albumId } = toRefs(props);
-const { files, addFiles, removeFile } = useFileList();
-const { setIsCompleteUploading, createUploader, isUploading, isCompleteUploading, overwrite } =
-  useFileUploader();
-const { uploadFiles } = createUploader(albumId.value);
+const uploadStore = useUploadStore();
+const { files, isUploading, isCompleteUploading } = storeToRefs(uploadStore);
+const { addFiles, removeFile, uploadFiles, clearFiles } = uploadStore;
 
 const isValidDrag = ref(true);
 
@@ -124,12 +124,8 @@ const onInputChange = (e: Event) => {
   }
 };
 
-const clearFiles = () => (files.value = []);
-
 const closeUploader = () => {
-  overwrite.value = false;
   clearFiles();
-  setIsCompleteUploading(false);
   emits('closePhotoUploader');
 };
 
