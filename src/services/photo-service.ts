@@ -20,11 +20,14 @@ export const PhotoService = {
   },
 
   uploadPhotos: async (file: File, albumId: string, filename?: string): Promise<ResponseStatus> => {
+    const queryParams = new URLSearchParams({
+      filename: filename || file.name,
+      mimeType: file.type,
+    });
+
     const response = await BaseApiRequestService.perform(
       'GET',
-      `${ApiBaseUrl}/photos/upload/${albumId}?filename=${filename || file.name}&mimeType=${
-        file.type
-      }`,
+      `${ApiBaseUrl}/photos/upload/${albumId}?${queryParams.toString()}`,
     );
 
     if (!response.ok) {
