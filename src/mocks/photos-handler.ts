@@ -5,29 +5,29 @@ const imageCDNUrl = import.meta.env.VITE_IMAGEKIT_CDN_URL;
 export const getPhotos = http.get('/api/photos/**', async ({ params }) => {
   await delay();
 
-  if (params[0] === 'na/test-album-1') {
+  if (params[0] === 'na/demo-album-4') {
     return HttpResponse.json({
       code: 200,
       status: 'Success',
       message: 'ok',
       data: {
         album: {
-          isFeatured: false,
+          id: 'demo-album-4',
+          year: 'na',
+          albumName: 'This is demo album 4',
+          description: 'This is an album description',
           albumCover: 'demo-album-4/2024-05-02 18.28.53.jpg',
-          isPrivate: true,
+          isPrivate: false,
+          isFeatured: true,
           place: {
             formattedAddress: 'Valencia, Spain',
             displayName: 'Valencia',
             location: {
               latitude: 39.4699075,
-              longitude: -0.37628809999999996,
+              longitude: -0.3762881,
             },
           },
-          year: 'na',
-          albumName: 'This is test album 1',
-          description: 'This is a private album description',
-          id: 'test-album-1',
-          tags: ['tag1'],
+          tags: [],
         },
         photos: [
           {
@@ -88,23 +88,22 @@ export const getPhotos = http.get('/api/photos/**', async ({ params }) => {
     message: 'ok',
     data: {
       album: {
-        albumCover: 'demo-album3/batch_elks-8430545.jpg',
+        id: 'demo-album3',
+        year: 'na',
+        albumName: 'this is demo-album-3',
+        description: '',
+        albumCover: 'demo-album3/batch_dog-8378909.jpg',
         isPrivate: false,
-        isFeatured: true,
-        updatedAt: '2024-07-20T21:47:57.009Z',
+        isFeatured: false,
         place: {
           formattedAddress: 'George Town, Penang, Malaysia',
           displayName: 'George Town',
           location: {
-            latitude: 5.414130699999999,
+            latitude: 5.4141307,
             longitude: 100.3287506,
           },
         },
-        year: 'na',
-        albumName: 'this is demo-album-3',
-        description: 'Some description',
-        id: 'demo-album3',
-        tags: ['tag1', 'tag2'],
+        tags: ['testtag1'],
       },
       photos: [
         {
@@ -225,7 +224,7 @@ export const getPhotos = http.get('/api/photos/**', async ({ params }) => {
           url: `${imageCDNUrl}/demo-album3/sheep-7943526_1280.jpg`,
           key: 'demo-album3/sheep-7943526_1280.jpg',
           size: 211220,
-          lastModified: '2024-07-24T21:49:44.000Z',
+          lastModified: '2024-10-06T02:50:50.000Z',
         },
       ],
     },

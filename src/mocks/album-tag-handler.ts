@@ -9,19 +9,13 @@ export const getAlbumTags = http.get('/api/albumTags', async () => {
     message: 'ok',
     data: [
       {
-        tag: 'tag3',
-      },
-      {
-        tag: 'test-tag-1',
-      },
-      {
-        tag: 'tag1',
-      },
-      {
         tag: 'demo',
       },
       {
-        tag: 'tag2',
+        tag: 'testtag1',
+      },
+      {
+        tag: 'testtag2',
       },
     ],
   });

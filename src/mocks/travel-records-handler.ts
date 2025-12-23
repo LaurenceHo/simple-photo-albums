@@ -1,243 +1,221 @@
 import { delay, http, HttpResponse } from 'msw';
 
 export const mockTravelRecords = [
-  // Route 1: Taipei to Tokyo
   {
-    travelDate: '2025-04-03T02:39:56.439Z',
+    id: '14257dd6-6e41-408d-b3e2-691ceb946591',
+    travelDate: '2025-10-31T11:00:00.000Z',
     departure: {
-      formattedAddress: 'Taipei, Taiwan',
-      displayName: 'Taipei',
-      location: {
-        latitude: 25.033,
-        longitude: 121.5654,
-      },
-    },
-    destination: {
-      formattedAddress: 'Tokyo, Japan',
       displayName: 'Tokyo',
-      location: {
-        latitude: 35.6895,
-        longitude: 139.6917,
-      },
-    },
-    id: 'Taipei#Tokyo',
-  },
-  // Route 2: Tokyo to LA
-  {
-    travelDate: '2025-04-03T05:39:56.439Z',
-    departure: {
       formattedAddress: 'Tokyo, Japan',
+      location: {
+        latitude: 35.6764225,
+        longitude: 139.650027,
+      },
+    },
+    destination: {
+      displayName: 'Los Angeles',
+      formattedAddress: 'Los Angeles, CA, USA',
+      location: {
+        latitude: 34.0549076,
+        longitude: -118.24264299999999,
+      },
+    },
+    transportType: 'flight',
+    airline: null,
+    flightNumber: null,
+    distance: 8819,
+  },
+  {
+    id: 'a1f2e0b6-9357-4517-b3aa-83cc5ccfdfe9',
+    travelDate: '2025-09-30T11:00:00.000Z',
+    departure: {
+      displayName: 'Paris',
+      formattedAddress: 'Paris, France',
+      location: {
+        latitude: 48.857547499999995,
+        longitude: 2.3513764999999998,
+      },
+    },
+    destination: {
+      displayName: 'Sarajevo',
+      formattedAddress: 'Sarajevo, Bosnia and Herzegovina',
+      location: {
+        latitude: 43.856258600000004,
+        longitude: 18.4130763,
+      },
+    },
+    transportType: 'flight',
+    airline: null,
+    flightNumber: null,
+    distance: 1349,
+  },
+  {
+    id: '98e0e046-5cc0-4755-be1c-b016cd3bbacc',
+    travelDate: '2025-08-31T12:00:00.000Z',
+    departure: {
+      displayName: 'Auckland',
+      formattedAddress: 'Auckland, New Zealand',
+      location: {
+        latitude: -36.85088270000001,
+        longitude: 174.7644881,
+      },
+    },
+    destination: {
+      displayName: 'Doha',
+      formattedAddress: 'Doha, Qatar',
+      location: {
+        latitude: 25.285447299999998,
+        longitude: 51.531039799999995,
+      },
+    },
+    transportType: 'flight',
+    airline: null,
+    flightNumber: null,
+    distance: 14538,
+  },
+  {
+    id: 'fe9285c8-0ce4-4fdc-a33d-83d00e2a698a',
+    travelDate: '2025-09-01T12:00:00.000Z',
+    departure: {
+      displayName: 'Doha',
+      formattedAddress: 'Doha, Qatar',
+      location: {
+        latitude: 25.285447299999998,
+        longitude: 51.531039799999995,
+      },
+    },
+    destination: {
+      displayName: 'Paris',
+      formattedAddress: 'Paris, France',
+      location: {
+        latitude: 48.857547499999995,
+        longitude: 2.3513764999999998,
+      },
+    },
+    transportType: 'flight',
+    airline: null,
+    flightNumber: null,
+    distance: 4973,
+  },
+  {
+    id: 'ebc3375c-5420-4f32-9434-2c968ec15b7e',
+    travelDate: '2025-10-06T11:00:00.000Z',
+    departure: {
+      displayName: 'Sarajevo',
+      formattedAddress: 'Sarajevo, Bosnia and Herzegovina',
+      location: {
+        latitude: 43.856258600000004,
+        longitude: 18.4130763,
+      },
+    },
+    destination: {
+      displayName: 'Istanbul',
+      formattedAddress: 'Istanbul, İstanbul, Türkiye',
+      location: {
+        latitude: 41.0082376,
+        longitude: 28.9783589,
+      },
+    },
+    transportType: 'flight',
+    airline: null,
+    flightNumber: null,
+    distance: 922,
+  },
+  {
+    id: '218eb36b-3dec-47cf-935e-c72821638af8',
+    travelDate: '2025-10-14T11:00:00.000Z',
+    departure: {
+      displayName: 'Auckland',
+      formattedAddress: 'Auckland, New Zealand',
+      location: {
+        latitude: -36.85088270000001,
+        longitude: 174.7644881,
+      },
+    },
+    destination: {
+      displayName: 'Brisbane',
+      formattedAddress: 'Brisbane QLD, Australia',
+      location: {
+        latitude: -27.4704528,
+        longitude: 153.0260341,
+      },
+    },
+    transportType: 'flight',
+    airline: null,
+    flightNumber: null,
+    distance: 2289,
+  },
+  {
+    id: '5f4f07b7-ddaf-48b5-87b3-b3acd45ddb46',
+    travelDate: '2025-10-15T11:00:00.000Z',
+    departure: {
+      displayName: 'Brisbane',
+      formattedAddress: 'Brisbane QLD, Australia',
+      location: {
+        latitude: -27.4704528,
+        longitude: 153.0260341,
+      },
+    },
+    destination: {
       displayName: 'Tokyo',
+      formattedAddress: 'Tokyo, Japan',
       location: {
-        latitude: 35.6895,
-        longitude: 139.6917,
+        latitude: 35.6764225,
+        longitude: 139.650027,
       },
     },
-    destination: {
-      formattedAddress: 'LA, USA',
-      displayName: 'LA',
-      location: {
-        latitude: 34.0522,
-        longitude: -118.2437,
-      },
-    },
-    id: 'Tokyo#LA',
-  },
-  // Route 3: Auckland to Hawaii
-  {
-    travelDate: '2025-04-04T02:39:56.439Z',
-    departure: {
-      formattedAddress: 'Auckland, New Zealand',
-      displayName: 'Auckland',
-      location: {
-        latitude: -36.8484,
-        longitude: 174.7633,
-      },
-    },
-    destination: {
-      formattedAddress: 'Hawaii, USA',
-      displayName: 'Hawaii',
-      location: {
-        latitude: 21.3069,
-        longitude: -157.8583,
-      },
-    },
-    id: 'Auckland#Hawaii',
-  },
-  // Route 4: Taipei to Chiang Mai
-  {
-    travelDate: '2025-04-05T02:39:56.439Z',
-    departure: {
-      formattedAddress: 'Taipei, Taiwan',
-      displayName: 'Taipei',
-      location: {
-        latitude: 25.033,
-        longitude: 121.5654,
-      },
-    },
-    destination: {
-      formattedAddress: 'Chiang Mai, Thailand',
-      displayName: 'Chiang Mai',
-      location: {
-        latitude: 18.7877,
-        longitude: 98.9925,
-      },
-    },
-    id: 'Taipei#ChiangMai',
     transportType: 'flight',
+    airline: null,
+    flightNumber: null,
+    distance: 7160,
   },
-  // Route 5: Taipei to Doha
   {
-    travelDate: '2025-04-06T02:39:56.439Z',
+    id: '2025-11-09#London#Paris',
+    travelDate: '2025-11-09T11:00:00.000Z',
     departure: {
-      formattedAddress: 'Taipei, Taiwan',
-      displayName: 'Taipei',
+      displayName: 'London',
+      formattedAddress: 'London, UK',
       location: {
-        latitude: 25.033,
-        longitude: 121.5654,
+        latitude: 51.5072178,
+        longitude: -0.12758619999999998,
       },
     },
     destination: {
-      formattedAddress: 'Doha, Qatar',
-      displayName: 'Doha',
+      displayName: 'Paris',
+      formattedAddress: 'Paris, France',
       location: {
-        latitude: 25.276,
-        longitude: 51.531,
+        latitude: 48.857547499999995,
+        longitude: 2.3513764999999998,
       },
     },
-    id: 'Taipei#Doha',
-    transportType: 'flight',
-  },
-  // Route 6: Auckland to Sydney
-  {
-    travelDate: '2025-04-07T02:39:56.439Z',
-    departure: {
-      formattedAddress: 'Auckland, New Zealand',
-      displayName: 'Auckland',
-      location: {
-        latitude: -36.8484,
-        longitude: 174.7633,
-      },
-    },
-    destination: {
-      formattedAddress: 'Sydney, Australia',
-      displayName: 'Sydney',
-      location: {
-        latitude: -33.8651,
-        longitude: 151.2093,
-      },
-    },
-    id: 'Auckland#Sydney',
-    transportType: 'flight',
-  },
-  // Route 7: Auckland to Melbourne
-  {
-    travelDate: '2025-04-08T02:39:56.439Z',
-    departure: {
-      formattedAddress: 'Auckland, New Zealand',
-      displayName: 'Auckland',
-      location: {
-        latitude: -36.8484,
-        longitude: 174.7633,
-      },
-    },
-    destination: {
-      formattedAddress: 'Melbourne, Australia',
-      displayName: 'Melbourne',
-      location: {
-        latitude: -37.8136,
-        longitude: 144.9631,
-      },
-    },
-    id: 'Auckland#Melbourne',
-    transportType: 'flight',
-  },
-  // Route 8: Doha to Milan
-  {
-    travelDate: '2025-04-09T02:39:56.439Z',
-    departure: {
-      formattedAddress: 'Doha, Qatar',
-      displayName: 'Doha',
-      location: {
-        latitude: 25.276,
-        longitude: 51.531,
-      },
-    },
-    destination: {
-      formattedAddress: 'Milan, Italy',
-      displayName: 'Milan',
-      location: {
-        latitude: 45.4642,
-        longitude: 9.1899,
-      },
-    },
-    id: 'Doha#Milan',
-    transportType: 'flight',
-  },
-  // Route 9: LA to Atlanta
-  {
-    travelDate: '2025-04-10T02:39:56.439Z',
-    departure: {
-      formattedAddress: 'LA, USA',
-      displayName: 'LA',
-      location: {
-        latitude: 34.0522,
-        longitude: -118.2437,
-      },
-    },
-    destination: {
-      formattedAddress: 'Atlanta, USA',
-      displayName: 'Atlanta',
-      location: {
-        latitude: 33.749,
-        longitude: -84.388,
-      },
-    },
-    id: 'LA#Atlanta',
-    transportType: 'flight',
-  },
-  // Route 10: Atlanta to Lima
-  {
-    travelDate: '2025-04-11T02:39:56.439Z',
-    departure: {
-      formattedAddress: 'Atlanta, USA',
-      displayName: 'Atlanta',
-      location: {
-        latitude: 33.749,
-        longitude: -84.388,
-      },
-    },
-    destination: {
-      formattedAddress: 'Lima, Peru',
-      displayName: 'Lima',
-      location: {
-        latitude: -12.0464,
-        longitude: -77.0428,
-      },
-    },
-    id: 'Atlanta#Lima',
-    transportType: 'flight',
-  },
-  {
-    travelDate: '2025-04-12T02:39:56.439Z',
-    departure: {
-      formattedAddress: 'Milan, Italy',
-      displayName: 'Milan',
-      location: {
-        latitude: 45.4642,
-        longitude: 9.1899,
-      },
-    },
-    destination: {
-      formattedAddress: 'Vienna, Austria',
-      displayName: 'Vienna',
-      location: {
-        latitude: 48.2081743,
-        longitude: 16.3738189,
-      },
-    },
-    id: 'Milan#Vienna',
     transportType: 'train',
+    airline: null,
+    flightNumber: null,
+    distance: 343,
+  },
+  {
+    id: '2025-11-30#Sarajevo#Bar',
+    travelDate: '2025-11-30T11:00:00.000Z',
+    departure: {
+      displayName: 'Sarajevo',
+      formattedAddress: 'Sarajevo, Bosnia and Herzegovina',
+      location: {
+        latitude: 43.856258600000004,
+        longitude: 18.4130763,
+      },
+    },
+    destination: {
+      displayName: 'Bar',
+      formattedAddress: 'Bar, Montenegro',
+      location: {
+        latitude: 42.0912106,
+        longitude: 19.089904,
+      },
+    },
+    transportType: 'bus',
+    airline: null,
+    flightNumber: null,
+    distance: 204,
   },
 ];
 
