@@ -19,10 +19,12 @@ export const PhotoService = {
     return response.json();
   },
 
-  uploadPhotos: async (file: File, albumId: string): Promise<ResponseStatus> => {
+  uploadPhotos: async (file: File, albumId: string, filename?: string): Promise<ResponseStatus> => {
     const response = await BaseApiRequestService.perform(
       'GET',
-      `${ApiBaseUrl}/photos/upload/${albumId}?filename=${file.name}&mimeType=${file.type}`,
+      `${ApiBaseUrl}/photos/upload/${albumId}?filename=${filename || file.name}&mimeType=${
+        file.type
+      }`,
     );
 
     if (!response.ok) {
@@ -31,7 +33,7 @@ export const PhotoService = {
 
     const { data } = (await response.json()) as ApiResponse<{ uploadUrl: string }>;
 
-    if (!data || !data.uploadUrl) {
+    if (!data?.uploadUrl) {
       throw new Error('Upload URL not found');
     }
 

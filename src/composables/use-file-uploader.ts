@@ -7,6 +7,10 @@ const isUploading = ref(false);
 const isCompleteUploading = ref(false);
 const overwrite = ref(false);
 
+const sanitiseFilename = (filename: string) => {
+  return filename.replaceAll(/[^a-zA-Z0-9._-]/g, '_');
+};
+
 export default function useFileUploader() {
   const { findPhotoIndex } = usePhotoStore();
 
@@ -25,7 +29,8 @@ export default function useFileUploader() {
     let response;
     if (file.id.includes('image') && (overwrite.value || (!overwrite.value && !file.exists))) {
       try {
-        response = await PhotoService.uploadPhotos(file.file, albumId);
+        const uniqueFileName = sanitiseFilename(file.file.name);
+        response = await PhotoService.uploadPhotos(file.file, albumId, uniqueFileName);
         file.status = response.status === 'Success';
       } catch (error) {
         console.error(error);
