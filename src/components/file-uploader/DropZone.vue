@@ -39,8 +39,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ALLOWED_FILE_TYPE } from '@/composables/use-file-list';
-import useFileUploader from '@/composables/use-file-uploader';
+import { ALLOWED_FILE_TYPE, useUploadStore } from '@/stores/upload';
+import { storeToRefs } from 'pinia';
 import Card from 'primevue/card';
 import Checkbox from 'primevue/checkbox';
 import Divider from 'primevue/divider';
@@ -54,7 +54,8 @@ const emits = defineEmits<{
   (e: 'valid-drag', isValid: boolean): void;
 }>();
 
-const { overwrite, isUploading } = useFileUploader();
+const uploadStore = useUploadStore();
+const { overwrite, isUploading } = storeToRefs(uploadStore);
 const toast = useToast();
 
 const active = ref(false);

@@ -70,7 +70,7 @@ If you change S3 bucket name, don't forget to update the configuration in ImageK
 
 ### Mapbox API key
 
-This project uses Mapbox to display the [map](https://d3r2s5zwkwj75c.cloudfront.net/map/albums). You can get your own Mapbox API key [here](https://account.mapbox.com/auth/signup/). Once you have your own Mapbox API key, replace this property `VITE_MAPBOX_API_KEY` with your real information in `.env.example` and modify file name to `.env`.
+This project uses Mapbox to display the [map](https://dqhkiwysc6ltq.cloudfront.net/map/albums). You can get your own Mapbox API key [here](https://account.mapbox.com/auth/signup/). Once you have your own Mapbox API key, replace this property `VITE_MAPBOX_API_KEY` with your real information in `.env.example` and modify file name to `.env`.
 
 ### Google OAuth 2.0 client ID
 

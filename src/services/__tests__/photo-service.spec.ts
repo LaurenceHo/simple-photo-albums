@@ -67,7 +67,29 @@ describe('PhotoService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'GET',
-        `${ApiBaseUrl}/photos/upload/${albumId}?filename=${file.name}&mimeType=${file.type}`,
+        `${ApiBaseUrl}/photos/upload/${albumId}?filename=${file.name}&mimeType=${encodeURIComponent(
+          file.type,
+        )}`,
+      );
+    });
+
+    it('should correctly encode special characters in filename', async () => {
+      const file = new File([''], 'test #1.jpg', { type: 'image/jpeg' });
+      const albumId = '123';
+      const mockApiResponse = {
+        ok: true,
+        json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://s3-presigned-url' } }),
+      };
+      const mockS3Response = { ok: true };
+      (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
+      (global.fetch as any).mockResolvedValue(mockS3Response);
+
+      await PhotoService.uploadPhotos(file, albumId);
+
+      const params = new URLSearchParams({ filename: file.name, mimeType: file.type });
+      expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
+        'GET',
+        `${ApiBaseUrl}/photos/upload/${albumId}?${params.toString()}`,
       );
     });
 
