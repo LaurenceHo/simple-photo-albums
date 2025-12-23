@@ -2,6 +2,7 @@ import UploadPhotos from '@/components/UploadPhotos.vue';
 import { useUploadStore } from '@/stores/upload';
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
 import Button from 'primevue/button';
 import PrimeVue from 'primevue/config';
 import Message from 'primevue/message';
@@ -178,5 +179,41 @@ describe('UploadPhotos.vue', () => {
 
     await wrapper.find('[data-test-id="upload-file-button"]').trigger('click');
     expect(store.uploadFiles).toHaveBeenCalledWith(mockAlbumId);
+  });
+
+  it('revokes object URLs when files are removed or cleared', async () => {
+    setActivePinia(createPinia());
+    const store = useUploadStore();
+    const revokeSpy = vi.fn();
+    global.URL.revokeObjectURL = revokeSpy;
+
+    // Test removeFile
+    global.URL.createObjectURL = vi.fn(() => 'blob:test-url');
+    const file1 = new File([''], 'test1.png', { type: 'image/png' });
+    store.addFiles([file1]);
+    const uploadFile1 = store.files[0];
+    if (!uploadFile1) throw new Error('File 1 not added');
+    const url1 = uploadFile1.url;
+
+    store.removeFile(uploadFile1);
+    expect(revokeSpy).toHaveBeenCalledWith(url1);
+    expect(uploadFile1.url).toBe('');
+
+    // Test clearFiles
+    revokeSpy.mockClear();
+    const file2 = new File([''], 'test2.png', { type: 'image/png' });
+    const file3 = new File([''], 'test3.png', { type: 'image/png' });
+    store.addFiles([file2, file3]);
+    const uploadFile2 = store.files[0];
+    const uploadFile3 = store.files[1];
+    if (!uploadFile2 || !uploadFile3) throw new Error('Files 2/3 not added');
+
+    const url2 = uploadFile2.url;
+    const url3 = uploadFile3.url;
+
+    store.clearFiles();
+    expect(revokeSpy).toHaveBeenCalledTimes(2);
+    expect(revokeSpy).toHaveBeenCalledWith(url2);
+    expect(revokeSpy).toHaveBeenCalledWith(url3);
   });
 });

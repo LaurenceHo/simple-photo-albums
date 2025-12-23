@@ -60,11 +60,21 @@ export const useUploadStore = defineStore('upload', () => {
     const index = files.value.indexOf(file);
 
     if (index > -1) {
+      if (file.url) {
+        URL.revokeObjectURL(file.url);
+        file.url = '';
+      }
       files.value.splice(index, 1);
     }
   };
 
   const clearFiles = () => {
+    files.value.forEach((file) => {
+      if (file.url) {
+        URL.revokeObjectURL(file.url);
+        file.url = '';
+      }
+    });
     files.value = [];
     isCompleteUploading.value = false;
     isUploading.value = false;
