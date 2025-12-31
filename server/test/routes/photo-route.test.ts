@@ -31,7 +31,7 @@ vi.mock('@aws-sdk/s3-request-presigner', () => ({
 }));
 
 vi.mock('../../src/utils/helpers', async () => ({
-  deleteObjects: () => Promise.resolve(true),
+  deleteObjects: vi.fn(),
   uploadObject: () => Promise.resolve(true),
 }));
 
@@ -39,7 +39,6 @@ vi.mock('../../src/services/album-service', async () => {
   const { mockAlbumList } = await import('../mock-data');
   return {
     default: class {
-      constructor(db: any) {}
       async getById(id: string) {
         if (id === 'test') {
           return mockAlbumList[0];
@@ -91,38 +90,61 @@ describe('photo route', () => {
       expect(body.data.uploadUrl).toBeDefined();
     });
   });
+});
 
-  describe('Move photo', () => {
-    it('should return 200', async () => {
-      const response = await app.request(
-        '/api/photos',
-        {
-          method: 'PUT',
-          body: JSON.stringify({
-            albumId: 'Test-album',
-            destinationAlbumId: 'test-album-1',
-            photoKeys: ['test-photo-1'],
-          }),
-          headers: { 'Content-Type': 'application/json' },
-        },
-        env,
-      );
-      expect(response.status).toBe(200);
-      const body = await response.json();
-      expect(body).toEqual({
-        code: 200,
-        status: 'Success',
-        message: 'Photo moved',
-      });
-    });
+describe('Move photo', () => {
+  it('should return 200', async () => {
+    // Mock deleteObjects to resolve true
+    const { deleteObjects } = await import('../../src/utils/helpers');
+    vi.mocked(deleteObjects).mockResolvedValue(true);
 
-    // Validation tests commented out
-    /*
-    it('should return 422 bad request', async () => {
-      const response = await app.request('/api/photos', { method: 'PUT' }, env);
-      expect(response.status).toBe(422);
+    const response = await app.request(
+      '/api/photos',
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          albumId: 'Test-album',
+          destinationAlbumId: 'test-album-1',
+          photoKeys: ['test-photo-1'],
+        }),
+        headers: { 'Content-Type': 'application/json' },
+      },
+      env,
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toEqual({
+      code: 200,
+      status: 'Success',
+      message: 'Photo moved',
     });
-    */
+  });
+
+  it('should batch delete when moving multiple photos', async () => {
+    // Mock deleteObjects to resolve true
+    const { deleteObjects } = await import('../../src/utils/helpers');
+    // Reset limits to ensure clean state
+    vi.mocked(deleteObjects).mockClear();
+    vi.mocked(deleteObjects).mockResolvedValue(true);
+
+    const response = await app.request(
+      '/api/photos',
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          albumId: 'Test-album',
+          destinationAlbumId: 'test-album-1',
+          photoKeys: ['p1', 'p2', 'p3'],
+        }),
+        headers: { 'Content-Type': 'application/json' },
+      },
+      env,
+    );
+
+    expect(response.status).toBe(200);
+    expect(deleteObjects).toHaveBeenCalledTimes(1);
+    // The keys passed to deleteObjects should be the source keys
+    expect(deleteObjects).toHaveBeenCalledWith(['Test-album/p1', 'Test-album/p2', 'Test-album/p3']);
   });
 
   describe('Rename photo', () => {
@@ -150,12 +172,6 @@ describe('photo route', () => {
     });
 
     // Validation tests commented out
-    /*
-    it('should return 422 bad request', async () => {
-      const response = await app.request('/api/photos/rename', { method: 'PUT' }, env);
-      expect(response.status).toBe(422);
-    });
-    */
   });
 
   describe('delete delete', () => {
@@ -182,11 +198,5 @@ describe('photo route', () => {
     });
 
     // Validation tests commented out
-    /*
-    it('should return 422', async () => {
-      const response = await app.request('/api/photos', { method: 'DELETE' }, env);
-      expect(response.status).toBe(422);
-    });
-    */
   });
 });

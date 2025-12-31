@@ -123,46 +123,37 @@ export default class PhotoController extends BaseController {
     const s3Service = new S3Service();
     const bucketName = c.env.AWS_S3_BUCKET_NAME;
 
-    const promises: Promise<any>[] = [];
-    photoKeys.forEach((photoKey) => {
+    const copyPromises = photoKeys.map(async (photoKey) => {
       const sourcePhotoKey = `${albumId}/${photoKey}`;
-
-      const promise = new Promise((resolve, reject) => {
-        s3Service
-          .copy({
-            Bucket: bucketName,
-            CopySource: `/${bucketName}/${sourcePhotoKey}`,
-            Key: `${destinationAlbumId}/${photoKey}`,
-          })
-          .then((result) => {
-            if (result) {
-              deleteObjects([sourcePhotoKey])
-                .then((result) => {
-                  if (result) {
-                    console.log('##### Photo moved: %s', sourcePhotoKey);
-                    resolve('Photo moved');
-                  } else {
-                    reject('Failed to delete photo');
-                  }
-                })
-                .catch((err: Error) => {
-                  reject(err);
-                });
-            }
-          })
-          .catch((err: Error) => {
-            reject(err);
-          });
-      });
-
-      promises.push(promise);
+      try {
+        const result = await s3Service.copy({
+          Bucket: bucketName,
+          CopySource: `/${bucketName}/${sourcePhotoKey}`,
+          Key: `${destinationAlbumId}/${photoKey}`,
+        });
+        return result ? sourcePhotoKey : null;
+      } catch (e) {
+        console.error(`Failed to copy photo ${sourcePhotoKey}:`, e);
+        return null;
+      }
     });
 
     try {
-      await Promise.all(promises);
+      const results = await Promise.all(copyPromises);
+      const successfulSourceKeys = results.filter((key): key is string => key !== null);
+
+      if (successfulSourceKeys.length > 0) {
+        await deleteObjects(successfulSourceKeys);
+        console.log(`##### Photos moved: ${successfulSourceKeys.join(', ')}`);
+      }
+
+      if (successfulSourceKeys.length === 0 && photoKeys.length > 0) {
+        return this.fail(c, 'Failed to move any photos');
+      }
+
       return this.ok(c, 'Photo moved');
     } catch (err: any) {
-      console.error('Failed to move photos: %s', err);
+      console.error(`Failed to move photos: ${err}`);
       return this.fail(c, 'Failed to move photos');
     }
   };

@@ -23,7 +23,7 @@ export const uploadObject = async (filePath: string, object: any) => {
     return await s3Service.create(putObject);
   } catch (err) {
     console.error(`Failed to upload photo: ${err}`);
-    throw Error('Error when uploading photo');
+    throw new Error('Error when uploading photo');
   }
 };
 
@@ -40,7 +40,7 @@ export const deleteObjects = async (objectKeys: string[]) => {
     return await s3Service.delete(deleteParams);
   } catch (err) {
     console.error(`Failed to delete photos: ${err}`);
-    throw Error('Error when deleting photos');
+    throw new Error('Error when deleting photos');
   }
 };
 
@@ -63,7 +63,7 @@ export const emptyS3Folder = async (folderName: string) => {
     return await deleteObjects(listedObjectArray);
   } catch (err) {
     console.error(`Failed to empty S3 folder: ${err}`);
-    throw Error('Error when emptying S3 folder');
+    throw new Error('Error when emptying S3 folder');
   }
 };
 
@@ -127,7 +127,7 @@ export const haversineDistance = (
   // Only throw for non-number types (string, null, undefined, object)
   for (const input of inputs) {
     if (typeof input !== 'number') {
-      throw new Error('All inputs must be numbers');
+      throw new TypeError('All inputs must be numbers');
     }
   }
 
