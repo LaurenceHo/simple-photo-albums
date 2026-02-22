@@ -92,4 +92,3 @@ export const mockSignedCookies = async () => {
   );
   return token;
 };
-};
