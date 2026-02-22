@@ -38,7 +38,7 @@ const setup = () => {
     }
 
     getItem(key: string) {
-      return this.store[key] || null;
+      return this.store[key] ?? null;
     }
 
     setItem(key: string, value: string) {
