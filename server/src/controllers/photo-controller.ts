@@ -2,7 +2,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Context } from 'hono';
 import { getCookie } from 'hono/cookie';
-import jwt from 'jsonwebtoken';
+import { verifyJwt } from '../utils/jwt.js';
 import { get, isEmpty } from 'radash';
 import { HonoEnv } from '../env.js';
 import { cleanJwtCookie } from '../routes/auth-middleware.js';
@@ -33,7 +33,7 @@ export default class PhotoController extends BaseController {
           const token = getCookie(c, 'jwt');
           if (token) {
             try {
-              const decodedPayload = jwt.verify(token, c.env.JWT_SECRET) as UserPermission;
+              const decodedPayload = await verifyJwt<UserPermission>(token, c.env.JWT_SECRET);
               const isAdmin = get(decodedPayload, 'role') === 'admin';
               if (!isAdmin) {
                 return cleanJwtCookie(c, 'Unauthorized action.', 403);

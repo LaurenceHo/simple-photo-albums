@@ -1,4 +1,3 @@
-import { createMiddleware } from 'hono/factory';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import app from '../../src/index';
 import { Album } from '../../src/types/album';
@@ -47,14 +46,17 @@ vi.mock('../../src/services/album-service', async () => {
   };
 });
 
-vi.mock('../../src/routes/auth-middleware', async () => ({
-  verifyJwtClaim: createMiddleware(async (c, next) => {
-    c.set('user', { role: 'admin', email: 'test@test.com' });
-    await next();
-  }),
-  verifyUserPermission: createMiddleware(async (c, next) => await next()),
-  optionalVerifyJwtClaim: createMiddleware(async (c, next) => await next()),
-}));
+vi.mock('../../src/routes/auth-middleware', async () => {
+  const { createMiddleware } = await import('hono/factory');
+  return {
+    verifyJwtClaim: createMiddleware(async (c, next) => {
+      c.set('user', { role: 'admin', email: 'test@test.com' });
+      await next();
+    }),
+    verifyUserPermission: createMiddleware(async (c, next) => await next()),
+    optionalVerifyJwtClaim: createMiddleware(async (c, next) => await next()),
+  };
+});
 
 vi.mock('../../src/utils/helpers', async () => ({
   emptyS3Folder: () => Promise.resolve(true),

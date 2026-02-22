@@ -271,7 +271,7 @@ const photoStyle = ref((route.query['photoStyle'] as string) || 'grid'); // Grid
 
 onUnmounted(() => {
   showPhotoUploader.value = false;
-  showMap.value.hide();
+  showMap.value?.hide();
   setSelectedPhotos([]);
 });
 

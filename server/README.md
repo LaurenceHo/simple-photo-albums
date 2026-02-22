@@ -98,10 +98,10 @@ wrangler d1 execute photo-albums-db --remote --file=./migrations/0000_initial.sq
 ### Run the worker locally
 
 ```bash
-bun run dev
+bun run start:wrangler
 ```
 
-This command runs `wrangler dev`, which starts the worker on a local server.
+This command runs `wrangler dev --local`, which starts the worker on a local server.
 
 ### Run unit tests
 
