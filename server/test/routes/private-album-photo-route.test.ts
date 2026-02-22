@@ -66,7 +66,7 @@ describe('private album route', () => {
 
   it('should return correct photos', async () => {
     process.env.JWT_SECRET = 'test-secret';
-    const token = mockSignedCookies();
+    const token = await mockSignedCookies();
     const response = await app.request(
       '/api/photos/2024/test',
       {

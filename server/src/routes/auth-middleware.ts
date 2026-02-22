@@ -1,7 +1,7 @@
 import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
 import { createMiddleware } from 'hono/factory';
-import jwt from 'jsonwebtoken';
+import { verifyJwt } from '../utils/jwt.js';
 import { HonoEnv } from '../env.js';
 import { UserPermission } from '../types/user-permission';
 
@@ -35,7 +35,7 @@ export const verifyJwtClaim = createMiddleware<HonoEnv>(async (c, next) => {
   const token = getCookie(c, 'jwt');
   if (token) {
     try {
-      const user = jwt.verify(token, c.env.JWT_SECRET) as UserPermission;
+      const user = await verifyJwt<UserPermission>(token, c.env.JWT_SECRET);
       c.set('user', user);
       return await next();
     } catch (error) {
@@ -50,7 +50,7 @@ export const optionalVerifyJwtClaim = createMiddleware<HonoEnv>(async (c, next) 
   const token = getCookie(c, 'jwt');
   if (token) {
     try {
-      const user = jwt.verify(token, c.env.JWT_SECRET) as UserPermission;
+      const user = await verifyJwt<UserPermission>(token, c.env.JWT_SECRET);
       c.set('user', user);
     } catch (error) {
       // Ignore invalid token

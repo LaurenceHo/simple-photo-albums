@@ -11,7 +11,7 @@
     "format": "prettier --write src/ test/ --ignore-unknown --ignore-path .gitignore",
     "lint": "eslint --fix",
     "start:wrangler": "wrangler dev --local",
-    "test:server": "vitest run",
+    "test:server": "NODE_OPTIONS='--require ./test/slowbuffer-polyfill.cjs' vitest run",
     "types:server": "tsc --noEmit"
   },
   "dependencies": {
@@ -21,7 +21,7 @@
     "@xmldom/xmldom": "^0.8.11",
     "google-auth-library": "10.5.0",
     "hono": "^4.6.12",
-    "jsonwebtoken": "^9.0.2",
+    "jose": "^6.1.3",
     "radash": "^12.1.1",
     "zod": "4.1.12"
   },
@@ -30,7 +30,6 @@
     "@eslint/js": "^9.39.1",
     "@tsconfig/node22": "^22.0.5",
     "@tsconfig/strictest": "^2.0.8",
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.19.1",
     "aws-sdk-client-mock": "^4.1.0",
     "eslint": "^9.39.1",
