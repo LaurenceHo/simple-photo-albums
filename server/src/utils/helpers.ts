@@ -1,7 +1,7 @@
 import { DeleteObjectsCommandInput, PutObjectCommandInput } from '@aws-sdk/client-s3';
 import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
-import jwt from 'jsonwebtoken';
+import { verifyJwt } from './jwt.js';
 import { get, isEmpty } from 'radash';
 import { HonoEnv } from '../env.js';
 import S3Service from '../services/s3-service.js';
@@ -93,13 +93,13 @@ export const perform = async (
   return await response.json();
 };
 
-export const verifyIfIsAdmin = (c: Context<HonoEnv>) => {
+export const verifyIfIsAdmin = async (c: Context<HonoEnv>) => {
   let isAdmin = false;
   const token = getCookie(c, 'jwt');
 
   if (token) {
     try {
-      const decodedPayload = jwt.verify(token, c.env.JWT_SECRET);
+      const decodedPayload = await verifyJwt(token, c.env.JWT_SECRET);
       isAdmin = get(decodedPayload, 'role') === 'admin';
     } catch (error) {
       setCookie(c, 'jwt', '', { maxAge: 0, path: '/' });

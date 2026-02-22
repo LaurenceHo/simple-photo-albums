@@ -1,4 +1,3 @@
-import { createMiddleware } from 'hono/factory';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import app from '../../src/index';
 
@@ -21,24 +20,27 @@ vi.mock('../../src/services/album-tag-service', async () => {
   };
 });
 
-vi.mock('../../src/routes/auth-middleware', async () => ({
-  verifyJwtClaim: createMiddleware(async (c, next) => {
-    if (mockAuth) {
-      c.set('user', { role: 'admin' });
-      await next();
-    } else {
-      return c.json({ message: 'Authentication failed. Please login.' }, 401);
-    }
-  }),
-  verifyUserPermission: createMiddleware(async (c, next) => {
-    if (mockAuth) {
-      await next();
-    } else {
-      return c.json({ message: 'Unauthorized action' }, 403);
-    }
-  }),
-  optionalVerifyJwtClaim: createMiddleware(async (c, next) => await next()),
-}));
+vi.mock('../../src/routes/auth-middleware', async () => {
+  const { createMiddleware } = await import('hono/factory');
+  return {
+    verifyJwtClaim: createMiddleware(async (c, next) => {
+      if (mockAuth) {
+        c.set('user', { role: 'admin' });
+        await next();
+      } else {
+        return c.json({ message: 'Authentication failed. Please login.' }, 401);
+      }
+    }),
+    verifyUserPermission: createMiddleware(async (c, next) => {
+      if (mockAuth) {
+        await next();
+      } else {
+        return c.json({ message: 'Unauthorized action' }, 403);
+      }
+    }),
+    optionalVerifyJwtClaim: createMiddleware(async (c, next) => await next()),
+  };
+});
 
 // Mock env
 const env = {

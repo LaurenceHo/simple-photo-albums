@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import { signJwt } from '../src/utils/jwt.js';
 
 export const mockAlbumList = [
   {
@@ -83,9 +83,12 @@ const mockUserPermission = {
   displayName: 'test-user',
 };
 
-export const mockSignedCookies = () => {
-  const token = jwt.sign(mockUserPermission, process.env['JWT_SECRET'] as string, {
-    expiresIn: '7d',
-  });
+export const mockSignedCookies = async () => {
+  const secret = process.env['JWT_SECRET'];
+  if (!secret) throw new Error('JWT_SECRET is not set in test environment');
+  const token = await signJwt(
+    mockUserPermission as unknown as Record<string, unknown>,
+    secret,
+  );
   return token;
 };

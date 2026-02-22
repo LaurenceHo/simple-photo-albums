@@ -12,7 +12,7 @@ export default class AlbumController extends BaseController {
     const albumService = new AlbumService(c.env.DB);
 
     try {
-      const isAdmin = verifyIfIsAdmin(c);
+      const isAdmin = await verifyIfIsAdmin(c);
 
       const query: any = { year };
       if (!isAdmin) {

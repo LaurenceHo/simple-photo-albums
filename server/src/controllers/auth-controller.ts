@@ -1,7 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
 import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
-import jwt from 'jsonwebtoken';
+import { signJwt, verifyJwt } from '../utils/jwt.js';
 import { HonoEnv } from '../env.js';
 import { setJwtCookies } from '../routes/auth-middleware.js';
 import UserService from '../services/user-service.js';
@@ -24,7 +24,7 @@ export default class AuthController extends BaseController {
       }
 
       try {
-        const decoded = jwt.verify(token, c.env.JWT_SECRET) as UserPermission;
+        const decoded = await verifyJwt<UserPermission>(token, c.env.JWT_SECRET);
         return this.ok<UserPermission>(c, 'ok', decoded);
       } catch (error: any) {
         console.log('Invalid JWT:', error);
@@ -72,9 +72,10 @@ export default class AuthController extends BaseController {
 
       if (userPermission) {
         // 5. Sign JWT and set cookies
-        const jwtToken = jwt.sign(userPermission, c.env.JWT_SECRET, {
-          expiresIn: '7d',
-        });
+        const jwtToken = await signJwt(
+          userPermission as unknown as Record<string, unknown>,
+          c.env.JWT_SECRET,
+        );
 
         await setJwtCookies(c, jwtToken);
         return this.ok<UserPermission>(c, 'ok', userPermission);

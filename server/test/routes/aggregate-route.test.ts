@@ -52,7 +52,7 @@ process.env.JWT_SECRET = 'test-secret';
 
 describe("aggregate route when it's admin", () => {
   it('should return album list', async () => {
-    const token = mockSignedCookies();
+    const token = await mockSignedCookies();
     const response = await app.request(
       '/api/aggregate/albumsWithLocation',
       {
@@ -73,7 +73,7 @@ describe("aggregate route when it's admin", () => {
   });
 
   it('should return count albums include private album', async () => {
-    const token = mockSignedCookies();
+    const token = await mockSignedCookies();
     const response = await app.request(
       '/api/aggregate/countAlbumsByYear',
       {
