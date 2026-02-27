@@ -162,7 +162,7 @@ describe('AlbumList.vue', () => {
     const wrapper = createWrapper();
     await wrapper.vm.$nextTick();
     // The featured albums are now wrapped in a Panel component
-    const panel = wrapper.findComponent({ name: 'Panel' });
+    const panel = wrapper.findComponent({ name: 'CollapsiblePanel' });
     expect(panel.exists()).toBe(true);
     expect(panel.attributes('data-test-id')).toBe('featured-albums-panel');
   });

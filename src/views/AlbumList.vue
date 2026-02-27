@@ -6,10 +6,9 @@
       <Skeleton :size="isXSmallDevice ? '10rem' : '13rem'"></Skeleton>
     </div>
   </div>
-  <Panel
+  <CollapsiblePanel
     v-else-if="featuredAlbums && featuredAlbums.length > 0"
     v-model:collapsed="isFeaturedCollapsed"
-    toggleable
     class="my-4"
     data-test-id="featured-albums-panel"
   >
@@ -17,7 +16,7 @@
       <span class="text-xl font-bold">Featured</span>
     </template>
     <Carousel :featured-albums="featuredAlbums" />
-  </Panel>
+  </CollapsiblePanel>
   <div v-if="isFetchingAlbums" class="grid grid-cols-1 gap-2 pt-4 md:grid-cols-2 xl:grid-cols-3">
     <div
       v-for="n in 3"
@@ -25,7 +24,7 @@
       class="flex h-28 items-center rounded-md border border-gray-300 p-3 sm:h-36"
     >
       <Skeleton :size="isXSmallDevice ? '6rem' : '7rem'" />
-      <div class="ml-3 flex-grow">
+      <div class="ml-3 grow">
         <Skeleton class="mb-2" width="10rem" />
         <Skeleton />
       </div>
@@ -85,6 +84,7 @@
 <script lang="ts" setup>
 import Album from '@/components/Album.vue';
 import Carousel from '@/components/Carousel.vue';
+import CollapsiblePanel from '@/components/CollapsiblePanel.vue';
 import { CreateAlbum, CreateAlbumTag, ShowAlbumTags } from '@/components/dialog';
 import SelectTags from '@/components/select/SelectTags.vue';
 import SelectYear from '@/components/select/SelectYear.vue';
@@ -101,7 +101,6 @@ import {
   Button,
   type PageState,
   Paginator,
-  Panel,
   ScrollTop,
   Skeleton,
   ToggleSwitch,

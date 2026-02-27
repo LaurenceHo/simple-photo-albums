@@ -3,7 +3,7 @@
     class="album-list-item flex h-28 cursor-pointer items-center rounded-md border border-gray-300 p-3 sm:h-36"
     data-test-id="list-album-item"
   >
-    <div class="relative flex-shrink-0" @click="goToAlbum">
+    <div class="relative shrink-0" @click="goToAlbum">
       <SquareImage
         v-if="albumItem['albumCover']"
         :alt="`photo album: ${albumItem.albumName}`"
@@ -22,7 +22,7 @@
         class="absolute top-1 left-1 text-pink-400"
       />
     </div>
-    <div class="ml-3 min-w-0 flex-grow" @click="goToAlbum">
+    <div class="ml-3 min-w-0 grow" @click="goToAlbum">
       <h3 class="truncate text-lg font-semibold">{{ albumItem.albumName }}</h3>
       <p v-if="albumItem.description" class="truncate text-gray-600">{{ albumItem.description }}</p>
       <div class="mt-1 flex flex-nowrap overflow-hidden">
@@ -35,7 +35,7 @@
         />
       </div>
     </div>
-    <div v-if="isAdmin" class="flex-shrink-0">
+    <div v-if="isAdmin" class="shrink-0">
       <EditAlbumButton :album-item="albumItem" />
     </div>
   </div>
