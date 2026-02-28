@@ -50,17 +50,45 @@ export const setupQueryMocks = (overrides: { useQuery?: any; useQueryClient?: an
     }
   });
 
-  vi.mocked(useMutation).mockReturnValue({
-    mutateAsync: vi.fn(),
-    isPending: ref(false),
-    isError: ref(false),
-    isSuccess: ref(false),
-    error: ref(null),
-  } as any);
+  vi.mocked(useMutation).mockImplementation((options: any) => {
+    const isPending = ref(false);
+    const isError = ref(false);
+    const isSuccess = ref(false);
+    const error = ref(null);
 
-  vi.mocked(useQueryClient).mockReturnValue({
-    invalidateQueries: vi.fn(),
-    removeQueries: vi.fn(),
-    ...overrides.useQueryClient,
+    const mutate = async (...args: any[]) => {
+      isPending.value = true;
+      isError.value = false;
+      isSuccess.value = false;
+      error.value = null;
+      try {
+        const result = await options.mutationFn(...args);
+        isSuccess.value = true;
+        if (options.onSuccess) await options.onSuccess(result);
+        return result;
+      } catch (err: any) {
+        isError.value = true;
+        error.value = err;
+        if (options.onError) await options.onError(err);
+      } finally {
+        isPending.value = false;
+      }
+    };
+
+    return {
+      mutate,
+      mutateAsync: mutate,
+      isPending,
+      isError,
+      isSuccess,
+      error,
+    } as any;
   });
+
+  vi.mocked(useQueryClient).mockReturnValue(
+    overrides.useQueryClient || {
+      invalidateQueries: vi.fn(),
+      removeQueries: vi.fn(),
+    },
+  );
 };
