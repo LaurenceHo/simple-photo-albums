@@ -10,7 +10,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { AutoComplete, ToggleSwitch } from 'primevue';
 import PrimeVue from 'primevue/config';
 import { useToast } from 'primevue/usetoast';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const routerState = { year: '2023' };
 
@@ -136,7 +136,14 @@ describe('CreateAlbum', () => {
     });
   };
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   beforeEach(async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-15T12:00:00'));
+
     setupQueryMocks({
       useQueryClient: queryClient,
     });
@@ -146,7 +153,7 @@ describe('CreateAlbum', () => {
     // Reset store state to prevent leakage
     dialogStore.resetDialogStates();
     dialogStore.setDialogState('updateAlbum', true);
-    
+
     // Explicitly reset albumToBeUpdate
     albumStore.albumToBeUpdate = {
       year: String(new Date().getFullYear()),
@@ -159,6 +166,7 @@ describe('CreateAlbum', () => {
     };
 
     // Reset router
+    routerState.year = '2023';
     await router.push('/');
 
     vi.clearAllMocks();
@@ -435,10 +443,12 @@ describe('CreateAlbum', () => {
   });
 
   it('invalidates separate query keys on success', async () => {
+    const currentYear = String(new Date().getFullYear());
+
     // Reset store state to ensure clean slate from previous tests
     const albumStore = useAlbumStore();
     albumStore.albumToBeUpdate = {
-      year: '2025',
+      year: currentYear,
       id: '',
       albumName: '',
       albumCover: '',
@@ -446,33 +456,23 @@ describe('CreateAlbum', () => {
       tags: [],
       isPrivate: true,
     };
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2025-01-01'));
     // Spy on invalidateQueries
     vi.spyOn(queryClient, 'invalidateQueries');
 
     const wrapper = mountComponent();
-    const mockAlbum = {
-      year: '2025',
-      id: 'test-album',
-      albumName: 'Test Album',
-      description: 'Test Description',
-      isPrivate: true,
-      tags: [],
-    };
 
     // Ensure we are on the correct route to trigger invalidation
-    routerState.year = '2025';
+    routerState.year = currentYear;
 
     // Fill in form
-    await wrapper.find('[data-test-id="input-album-id"]').setValue(mockAlbum.id);
-    await wrapper.find('[data-test-id="input-album-name"]').setValue(mockAlbum.albumName);
+    await wrapper.find('[data-test-id="input-album-id"]').setValue('test-album');
+    await wrapper.find('[data-test-id="input-album-name"]').setValue('Test Album');
 
     // Submit form
     await wrapper.find('form').trigger('submit');
     await flushPromises();
 
-    // Advance time
+    // Advance timers to fire the setTimeout in onSuccess
     vi.runAllTimers();
     await flushPromises();
 
@@ -482,9 +482,9 @@ describe('CreateAlbum', () => {
       expect.objectContaining({ queryKey: expect.arrayContaining(['countAlbumsByYear']) }),
     );
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith(
-      expect.objectContaining({ queryKey: expect.arrayContaining(['fetchAlbumsByYears', '2025']) }),
+      expect.objectContaining({
+        queryKey: expect.arrayContaining(['fetchAlbumsByYears', currentYear]),
+      }),
     );
-
-    vi.useRealTimers();
   });
 });

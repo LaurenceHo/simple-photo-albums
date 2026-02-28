@@ -56,7 +56,7 @@ export const setupQueryMocks = (overrides: { useQuery?: any; useQueryClient?: an
     const isSuccess = ref(false);
     const error = ref(null);
 
-    const mutate = async (...args: any[]) => {
+    const executeMutation = async (...args: any[]) => {
       isPending.value = true;
       isError.value = false;
       isSuccess.value = false;
@@ -70,14 +70,19 @@ export const setupQueryMocks = (overrides: { useQuery?: any; useQueryClient?: an
         isError.value = true;
         error.value = err;
         if (options.onError) await options.onError(err);
+        throw err;
       } finally {
         isPending.value = false;
       }
     };
 
+    const mutate = (...args: any[]) => {
+      void executeMutation(...args).catch(() => undefined);
+    };
+
     return {
       mutate,
-      mutateAsync: mutate,
+      mutateAsync: executeMutation,
       isPending,
       isError,
       isSuccess,

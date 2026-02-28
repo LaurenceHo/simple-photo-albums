@@ -1,7 +1,6 @@
-import { PhotoService } from '@/services/photo-service';
-import { initialAlbum, useAlbumStore } from '@/stores/album';
+import { useAlbumStore } from '@/stores/album';
 import { useQuery } from '@tanstack/vue-query';
-import { createPinia, setActivePinia, storeToRefs } from 'pinia';
+import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { ref } from 'vue';
 import { usePhotoStore } from '../photo';

@@ -20,8 +20,8 @@ describe('UploadStore', () => {
     vi.clearAllMocks();
     
     // Mock URL methods
-    global.URL.createObjectURL = vi.fn().mockReturnValue('mock-url');
-    global.URL.revokeObjectURL = vi.fn();
+    globalThis.URL.createObjectURL = vi.fn().mockReturnValue('mock-url');
+    globalThis.URL.revokeObjectURL = vi.fn();
   });
 
   const mockFile = new File([''], 'test.jpg', { type: 'image/jpeg' });

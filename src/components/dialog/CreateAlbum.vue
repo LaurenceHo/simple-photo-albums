@@ -99,7 +99,7 @@
         </div>
 
         <div class="mb-4 flex gap-2">
-          <FloatLabel class="w-full flex-grow">
+          <FloatLabel class="w-full grow">
             <SelectTags
               :selected-tags="selectedAlbumTags"
               extra-class="w-full"
@@ -190,7 +190,6 @@
 import PhotoLocationMap from '@/components/PhotoLocationMap.vue';
 import SelectTags from '@/components/select/SelectTags.vue';
 import type { Album, Place } from '@/schema';
-import ResponseError from '@/schema/response-error';
 import { AlbumService } from '@/services/album-service';
 import { AlbumTagService } from '@/services/album-tag-service';
 import { LocationService } from '@/services/location-service';
@@ -404,7 +403,7 @@ watch(
       albumName.value = albumStore.albumToBeUpdate?.albumName || '';
       albumDesc.value = albumStore.albumToBeUpdate?.description || '';
       privateAlbum.value = albumStore.albumToBeUpdate?.isPrivate ?? true;
-      featuredAlbum.value = albumStore.albumToBeUpdate?.isFeatured || undefined;
+      featuredAlbum.value = albumStore.albumToBeUpdate?.isFeatured ?? undefined;
       selectedAlbumTags.value = albumStore.albumToBeUpdate?.tags || [];
       selectedPlace.value = albumStore.albumToBeUpdate?.place || null;
     }
