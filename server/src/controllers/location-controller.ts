@@ -7,7 +7,7 @@ export default class LocationController extends BaseController {
   // Find places by keyword
   findAll = async (c: Context) => {
     const textQuery = c.req.query('textQuery');
-    if (!textQuery) {
+    if (!textQuery?.trim()) {
       return this.clientError(c, 'textQuery parameter is required');
     }
     try {

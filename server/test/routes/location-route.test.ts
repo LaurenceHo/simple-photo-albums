@@ -23,6 +23,14 @@ describe('location route', () => {
     expect(body.success).toBe(false);
   });
 
+  it('should return 400 when textQuery is whitespace only', async () => {
+    const response = await app.request('/api/location/search?textQuery=%20%20', {}, env);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.code).toBe(400);
+    expect(body.message).toBe('textQuery parameter is required');
+  });
+
   it('should return correct location', async () => {
     mockGetLocation.mockResolvedValue({
       places: [

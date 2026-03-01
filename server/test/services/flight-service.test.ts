@@ -84,6 +84,15 @@ describe('FlightService', () => {
     );
   });
 
+  it('should throw FlightNotFoundError when response is not an array', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ message: 'not found' }),
+    } as Response);
+
+    await expect(flightService.getFlightByNumber('NH106', '2025-01-15')).rejects.toThrow(FlightNotFoundError);
+  });
+
   it('should throw FlightNotFoundError on empty flights array', async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,

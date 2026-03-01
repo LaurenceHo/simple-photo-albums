@@ -66,13 +66,13 @@ export default class FlightService {
       throw new FlightApiError(`AeroDataBox API returned ${response.status}`);
     }
 
-    const flights: any[] = await response.json();
+    const data: unknown = await response.json();
 
-    if (!flights || flights.length === 0) {
+    if (!Array.isArray(data) || data.length === 0) {
       throw new FlightNotFoundError();
     }
 
-    const flight = flights[0];
+    const flight = data[0];
 
     const departureAirport = flight.departure?.airport;
     const arrivalAirport = flight.arrival?.airport;
