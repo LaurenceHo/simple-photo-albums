@@ -1,6 +1,6 @@
 <template>
   <Dialog
-    v-model:visible="dialogStates.updateAlbum"
+    v-model:visible="visible"
     :breakpoints="{ '960px': '75vw', '641px': '90vw' }"
     :closable="false"
     class="w-[450px]"
@@ -8,7 +8,7 @@
   >
     <template #header>
       <span class="text-lg font-semibold" data-test-id="dialog-title">
-        {{ albumToBeUpdate.id ? 'Edit' : 'New' }} Album
+        {{ (albumToBeUpdate?.id) ? 'Edit' : 'New' }} Album
       </span>
     </template>
 
@@ -23,7 +23,7 @@
           <FloatLabel>
             <Select
               v-model="selectedYear"
-              :disabled="albumToBeUpdate.id !== ''"
+              :disabled="albumToBeUpdate?.id !== ''"
               :invalid="v$.selectedYear.$invalid"
               :options="yearOptions"
               class="w-full"
@@ -39,7 +39,7 @@
           <FloatLabel>
             <InputText
               v-model="albumId"
-              :disabled="albumToBeUpdate.id !== '' || isCreatingAlbum"
+              :disabled="albumToBeUpdate?.id !== '' || isCreatingAlbum"
               :invalid="v$.albumId.$invalid"
               class="w-full"
               data-test-id="input-album-id"
@@ -51,7 +51,7 @@
             {{ v$.albumId.$silentErrors[0]?.$message }}
           </small>
           <div class="mt-1 flex items-center justify-between text-gray-500">
-            <small v-if="!albumToBeUpdate.id">
+            <small v-if="!albumToBeUpdate?.id">
               Once album is created, album id cannot be changed.
             </small>
             <small class="ml-auto">{{ albumId.length }}/30</small>
@@ -99,7 +99,7 @@
         </div>
 
         <div class="mb-4 flex gap-2">
-          <FloatLabel class="w-full flex-grow">
+          <FloatLabel class="w-full grow">
             <SelectTags
               :selected-tags="selectedAlbumTags"
               extra-class="w-full"
@@ -175,7 +175,7 @@
         />
         <Button
           :disabled="v$.$invalid"
-          :label="albumToBeUpdate.id ? 'Update' : 'Create'"
+          :label="albumToBeUpdate?.id ? 'Update' : 'Create'"
           :loading="isCreatingAlbum"
           autofocus
           data-test-id="submit-album-button"
@@ -190,7 +190,6 @@
 import PhotoLocationMap from '@/components/PhotoLocationMap.vue';
 import SelectTags from '@/components/select/SelectTags.vue';
 import type { Album, Place } from '@/schema';
-import ResponseError from '@/schema/response-error';
 import { AlbumService } from '@/services/album-service';
 import { AlbumTagService } from '@/services/album-tag-service';
 import { LocationService } from '@/services/location-service';
@@ -228,6 +227,11 @@ const albumStore = useAlbumStore();
 const { setAlbumToBeUpdated } = albumStore;
 const { dialogStates } = storeToRefs(dialogStore);
 const { albumToBeUpdate } = storeToRefs(albumStore);
+
+const visible = computed({
+  get: () => !!dialogStates.value?.updateAlbum,
+  set: (val) => dialogStore.setDialogState('updateAlbum', val),
+});
 const { data: albumTags } = storeToRefs(albumTagsStore);
 
 const selectedYear = ref(String(new Date().getFullYear()));
@@ -286,13 +290,6 @@ const searchPlace = async (event: { query: string }) => {
   }
 };
 
-const validateAndSubmit = async () => {
-  const isFormCorrect = await v$.value.$validate();
-  if (isFormCorrect) {
-    createAlbum();
-  }
-};
-
 const { isPending: isCreatingAlbum, mutate: createAlbum } = useMutation({
   mutationFn: async () => {
     // Remove duplicate tags
@@ -343,36 +340,51 @@ const { isPending: isCreatingAlbum, mutate: createAlbum } = useMutation({
         life: 3000,
       });
 
+      // Reset form and close dialog
       setTimeout(async () => {
         resetAlbum();
         if (router.currentRoute.value.params.year === album.year) {
           await Promise.all([
             queryClient.invalidateQueries({ queryKey: ['countAlbumsByYear'] }),
-            queryClient.invalidateQueries({ queryKey: ['fetchAlbumsByYears', album.year] }),
+            queryClient.invalidateQueries({
+              queryKey: ['fetchAlbumsByYears', album.year],
+            }),
           ]);
         } else {
           await Promise.all([
             queryClient.invalidateQueries({ queryKey: ['countAlbumsByYear'] }),
-            router.push({ name: 'albumsByYear', params: { year: album.year } }),
+            router.push({
+              name: 'albumsByYear',
+              params: { year: album.year },
+            }),
           ]);
         }
       }, 2000);
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: result.message || 'Failed to save album',
+        life: 3000,
+      });
     }
   },
-  onError: (error: ResponseError) => {
-    const errorMessage =
-      error.code === 409
-        ? error.message
-        : 'Error while creating/updating album. Please try again later.';
-
+  onError: (error: any) => {
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: errorMessage,
+      detail: error.message || 'Internal server error',
       life: 3000,
     });
   },
 });
+
+const validateAndSubmit = async () => {
+  const isFormCorrect = await v$.value.$validate();
+  if (isFormCorrect) {
+    createAlbum();
+  }
+};
 
 const resetAlbum = () => {
   selectedPlace.value = null;
@@ -383,20 +395,38 @@ const resetAlbum = () => {
 const yearOptions = getYearOptions();
 
 watch(
-  () => dialogStates.value.updateAlbum,
-  (newValue) => {
-    if (newValue) {
-      selectedYear.value = albumToBeUpdate.value.year || String(new Date().getFullYear());
-      albumId.value = albumToBeUpdate.value.id;
-      albumName.value = albumToBeUpdate.value.albumName;
-      albumDesc.value = albumToBeUpdate.value.description || '';
-      privateAlbum.value = albumToBeUpdate.value.isPrivate;
-      featuredAlbum.value = albumToBeUpdate.value.isFeatured || undefined;
-      selectedAlbumTags.value = albumToBeUpdate.value.tags || [];
-      selectedPlace.value = albumToBeUpdate.value.place || null;
+  () => dialogStore.dialogStates?.updateAlbum,
+  (visible) => {
+    if (visible) {
+      selectedYear.value = albumStore.albumToBeUpdate?.year || String(new Date().getFullYear());
+      albumId.value = albumStore.albumToBeUpdate?.id || '';
+      albumName.value = albumStore.albumToBeUpdate?.albumName || '';
+      albumDesc.value = albumStore.albumToBeUpdate?.description || '';
+      privateAlbum.value = albumStore.albumToBeUpdate?.isPrivate ?? true;
+      featuredAlbum.value = albumStore.albumToBeUpdate?.isFeatured ?? undefined;
+      selectedAlbumTags.value = albumStore.albumToBeUpdate?.tags || [];
+      selectedPlace.value = albumStore.albumToBeUpdate?.place || null;
     }
   },
-  { deep: true, immediate: true },
+  { immediate: true },
+);
+
+// Watch for album changes while it's already visible
+watch(
+  () => albumStore.albumToBeUpdate,
+  (newAlbum) => {
+    if (dialogStore.dialogStates?.updateAlbum) {
+      selectedYear.value = newAlbum.year || String(new Date().getFullYear());
+      albumId.value = newAlbum.id;
+      albumName.value = newAlbum.albumName;
+      albumDesc.value = newAlbum.description || '';
+      privateAlbum.value = newAlbum.isPrivate;
+      featuredAlbum.value = newAlbum.isFeatured || undefined;
+      selectedAlbumTags.value = newAlbum.tags || [];
+      selectedPlace.value = newAlbum.place || null;
+    }
+  },
+  { deep: true },
 );
 
 // If it's private album, it cannot be featured album

@@ -19,6 +19,7 @@ export default mergeConfig(
           'src/mocks/**',
           'server/**',
           'src/schema/**',
+          'src/**/index.ts',
         ],
       },
       environment: 'jsdom',

@@ -16,7 +16,7 @@ function flattenForD1(value: unknown): Primitive {
     try {
       return JSON.stringify(value);
     } catch (e) {
-      throw new Error(`Failed to stringify JSON field: ${e}`);
+      throw new Error(`Failed to stringify JSON field: ${e}`, { cause: e });
     }
   }
 
