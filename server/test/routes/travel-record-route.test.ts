@@ -49,12 +49,18 @@ vi.mock('../../src/services/travel-record-service', async () => {
 });
 
 vi.mock('../../src/services/flight-service', async () => {
+  const { FlightNotFoundError, FlightApiError } = await import('../../src/services/flight-service');
   return {
+    FlightNotFoundError,
+    FlightApiError,
     default: class {
       constructor(apiKey: string) {}
       async getFlightByNumber(flightNumber: string, date: string) {
         if (flightNumber === 'XX999') {
-          throw new Error('No flight data found');
+          throw new FlightNotFoundError();
+        }
+        if (flightNumber === 'ERR500') {
+          throw new FlightApiError('AeroDataBox API returned 500');
         }
         return {
           departure: {
@@ -104,6 +110,17 @@ const env = {
   RAPIDAPI_KEY: 'test-rapid-api-key',
 };
 
+const postTravelRecord = (body: Record<string, unknown>, envOverride = env) =>
+  app.request(
+    '/api/travelRecords',
+    {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+    },
+    envOverride,
+  );
+
 describe('travel record route', () => {
   afterEach(() => {
     vi.resetAllMocks();
@@ -119,98 +136,73 @@ describe('travel record route', () => {
   });
 
   it('should create travel record via flight API mode', async () => {
-    const response = await app.request(
-      '/api/travelRecords',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          id: 'new-flight-record',
-          travelDate: '2025-01-15T00:00:00Z',
-          transportType: 'flight',
-          flightNumber: 'NH106',
-        }),
-        headers: { 'Content-Type': 'application/json' },
-      },
-      env,
-    );
+    const response = await postTravelRecord({
+      id: 'new-flight-record',
+      travelDate: '2025-01-15T00:00:00Z',
+      transportType: 'flight',
+      flightNumber: 'NH106',
+    });
     expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body).toEqual({
-      code: 200,
-      status: 'Success',
-      message: 'Travel record created',
-    });
+    expect(body).toEqual({ code: 200, status: 'Success', message: 'Travel record created' });
   });
 
   it('should create travel record via manual mode', async () => {
-    const response = await app.request(
-      '/api/travelRecords',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          id: 'new-manual-record',
-          travelDate: '2025-01-15T00:00:00Z',
-          transportType: 'flight',
-          departure: {
-            displayName: 'Tokyo',
-            formattedAddress: 'Tokyo, Japan',
-            location: { latitude: 35.6764225, longitude: 139.650027 },
-          },
-          destination: {
-            displayName: 'Los Angeles',
-            formattedAddress: 'Los Angeles, CA, USA',
-            location: { latitude: 34.0549076, longitude: -118.242643 },
-          },
-        }),
-        headers: { 'Content-Type': 'application/json' },
+    const response = await postTravelRecord({
+      id: 'new-manual-record',
+      travelDate: '2025-01-15T00:00:00Z',
+      transportType: 'flight',
+      departure: {
+        displayName: 'Tokyo',
+        formattedAddress: 'Tokyo, Japan',
+        location: { latitude: 35.6764225, longitude: 139.650027 },
       },
-      env,
-    );
+      destination: {
+        displayName: 'Los Angeles',
+        formattedAddress: 'Los Angeles, CA, USA',
+        location: { latitude: 34.0549076, longitude: -118.242643 },
+      },
+    });
     expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body).toEqual({
-      code: 200,
-      status: 'Success',
-      message: 'Travel record created',
-    });
+    expect(body).toEqual({ code: 200, status: 'Success', message: 'Travel record created' });
   });
 
-  it('should return 400 when flight API returns no data', async () => {
-    const response = await app.request(
-      '/api/travelRecords',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          id: 'fail-flight-record',
-          travelDate: '2025-01-15T00:00:00Z',
-          transportType: 'flight',
-          flightNumber: 'XX999',
-        }),
-        headers: { 'Content-Type': 'application/json' },
-      },
-      env,
-    );
-    expect(response.status).toBe(400);
+  it('should return 404 when flight is not found', async () => {
+    const response = await postTravelRecord({
+      id: 'fail-flight-record',
+      travelDate: '2025-01-15T00:00:00Z',
+      transportType: 'flight',
+      flightNumber: 'XX999',
+    });
+    expect(response.status).toBe(404);
     const body = await response.json();
-    expect(body.code).toBe(400);
-    expect(body.message).toContain('Failed to fetch flight data');
+    expect(body.code).toBe(404);
+    expect(body.message).toBe('No flight data found for the given flight number and date');
+  });
+
+  it('should return 500 when flight API provider fails', async () => {
+    const response = await postTravelRecord({
+      id: 'provider-error-record',
+      travelDate: '2025-01-15T00:00:00Z',
+      transportType: 'flight',
+      flightNumber: 'ERR500',
+    });
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.code).toBe(500);
+    expect(body.message).toBe('Failed to fetch flight data from provider');
   });
 
   it('should return 500 when RAPIDAPI_KEY is missing', async () => {
-    const envWithoutKey = { DB: {}, JWT_SECRET: 'test-secret' };
-    const response = await app.request(
-      '/api/travelRecords',
+    const response = await postTravelRecord(
       {
-        method: 'POST',
-        body: JSON.stringify({
-          id: 'no-key-record',
-          travelDate: '2025-01-15T00:00:00Z',
-          transportType: 'flight',
-          flightNumber: 'NH106',
-        }),
-        headers: { 'Content-Type': 'application/json' },
+        id: 'no-key-record',
+        travelDate: '2025-01-15T00:00:00Z',
+        transportType: 'flight',
+        flightNumber: 'NH106',
       },
-      envWithoutKey,
+      { DB: {}, JWT_SECRET: 'test-secret' },
     );
     expect(response.status).toBe(500);
     const body = await response.json();

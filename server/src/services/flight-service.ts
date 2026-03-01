@@ -1,5 +1,19 @@
 import { Place } from '../types/place';
 
+export class FlightNotFoundError extends Error {
+  constructor(message = 'No flight data found') {
+    super(message);
+    this.name = 'FlightNotFoundError';
+  }
+}
+
+export class FlightApiError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'FlightApiError';
+  }
+}
+
 export interface FlightData {
   departure: Place;
   destination: Place;
@@ -38,13 +52,13 @@ export default class FlightService {
     });
 
     if (!response.ok) {
-      throw new Error(`AeroDataBox API error: ${response.status} ${response.statusText}`);
+      throw new FlightApiError(`AeroDataBox API returned ${response.status}`);
     }
 
     const flights = await response.json() as any[];
 
     if (!flights || flights.length === 0) {
-      throw new Error('No flight data found');
+      throw new FlightNotFoundError();
     }
 
     const flight = flights[0];

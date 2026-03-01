@@ -266,15 +266,15 @@ export const createTravelRecords = http.post('/api/travelRecords', async ({ requ
 
   const body = (await request.json()) as Record<string, unknown>;
 
-  // Simulate flight API error for specific flight number
+  // Simulate flight not found for specific flight number
   if (body.flightNumber === 'XX999') {
     return HttpResponse.json(
       {
-        code: 400,
-        status: 'Bad Request',
-        message: 'Failed to fetch flight data: No flight data found',
+        code: 404,
+        status: 'Not Found',
+        message: 'No flight data found for the given flight number and date',
       },
-      { status: 400 },
+      { status: 404 },
     );
   }
 

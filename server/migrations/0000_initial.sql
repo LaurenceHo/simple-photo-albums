@@ -38,8 +38,6 @@ CREATE TABLE travel_records (
   airline TEXT,
   flightNumber TEXT,
   distance INTEGER NOT NULL,
-  aircraftType TEXT,
-  durationMinutes INTEGER,
   createdAt TEXT NOT NULL,
   createdBy TEXT NOT NULL,
   updatedAt TEXT NOT NULL,

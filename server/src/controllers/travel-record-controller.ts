@@ -1,6 +1,6 @@
 import { Context } from 'hono';
 import { HonoEnv } from '../env.js';
-import FlightService from '../services/flight-service.js';
+import FlightService, { FlightNotFoundError } from '../services/flight-service.js';
 import TravelRecordService from '../services/travel-record-service.js';
 import { TravelRecord } from '../types/travel-record';
 import { UserPermission } from '../types/user-permission.js';
@@ -55,7 +55,10 @@ export default class TravelRecordController extends BaseController {
         distance = result.distance;
       } catch (err: any) {
         console.error(`Flight API error: ${err.message}`);
-        return this.clientError(c, `Failed to fetch flight data: ${err.message}`);
+        if (err instanceof FlightNotFoundError) {
+          return this.notFoundError(c, 'No flight data found for the given flight number and date');
+        }
+        return this.fail(c, 'Failed to fetch flight data from provider');
       }
     } else if (body.departure && body.destination) {
       // Manual mode: calculate distance from coordinates

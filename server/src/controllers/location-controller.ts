@@ -7,8 +7,11 @@ export default class LocationController extends BaseController {
   // Find places by keyword
   findAll = async (c: Context) => {
     const textQuery = c.req.query('textQuery');
+    if (!textQuery) {
+      return this.clientError(c, 'textQuery parameter is required');
+    }
     const response: any = await getLocation(
-      textQuery!,
+      textQuery,
       'places.formattedAddress,places.displayName,places.location',
     );
     let places: Place[] = [];

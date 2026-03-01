@@ -15,19 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
+      # Shared across Configure Wrangler + Deploy steps
+      D1_PHOTO_ALBUMS_WORKER: ${{ secrets.D1_PHOTO_ALBUMS_WORKER }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # Used by envsubst in Configure Wrangler
       AWS_REGION_NAME: ${{ secrets.AWS_REGION_NAME }}
-      VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-      GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
-      RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
       ALBUM_URL: ${{ secrets.ALBUM_URL }}
       VITE_IMAGEKIT_CDN_URL: ${{ secrets.VITE_IMAGEKIT_CDN_URL }}
       AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      D1_PHOTO_ALBUMS_WORKER: ${{ secrets.D1_PHOTO_ALBUMS_WORKER }}
       PROD_PHOTO_ALBUMS_DB_NAME: ${{ secrets.PROD_PHOTO_ALBUMS_DB_NAME }}
       PROD_PHOTO_ALBUMS_DB_ID: ${{ secrets.PROD_PHOTO_ALBUMS_DB_ID }}
       # Dummy values for Dev vars to satisfy wrangler.toml validation
@@ -52,6 +48,13 @@ jobs:
           mv wrangler.tmp.toml wrangler.toml
 
       - name: Upload Secrets
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
         run: |
           cd "$GITHUB_WORKSPACE/server"
           echo $AWS_ACCESS_KEY_ID | npx wrangler versions secret put AWS_ACCESS_KEY_ID --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
