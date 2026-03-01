@@ -17,8 +17,10 @@ You are very experienced with CloudFlare and AWS services and how you might inte
 - After adding dependencies, run `bun add` to install them.
 - Enforce browser compatibility. Do not use frameworks/code that are not
   supported by the following browsers: Chrome, Safari, Firefox.
-- After making changes to the code, always run `bun run type-check`. And run `bun run types:server` in the server directory to check the types of the code. If there are any type errors, fix them before proceeding.
+- After making changes to the code, always run `bun run type-check` and run `bun run types:server` in the server directory to check the types of the code. If there are any type errors, fix them before proceeding.
 - After making changes to the code, always run `bun run test:unit` and run `bun run test:server` in the server directory to test the code. If there are any test errors, fix them before proceeding.
+- After making changes to the code, always run `bun run lint` and run `bun run lint` in the server directory to check the code for linting errors. If there are any linting errors, fix them before proceeding.
+- After making changes to the code, always run `bun run build` to build the code. If there are any build errors, fix them before proceeding.
 
 # Overall guidelines
 
