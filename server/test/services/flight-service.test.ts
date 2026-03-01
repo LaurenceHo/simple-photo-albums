@@ -140,6 +140,19 @@ describe('FlightService', () => {
     );
   });
 
+  it('should pass AbortController signal to fetch', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockApiResponse),
+    } as Response);
+
+    await flightService.getFlightByNumber('NH106', '2025-01-15');
+
+    const fetchCall = vi.mocked(fetch).mock.calls[0];
+    const options = fetchCall?.[1] as RequestInit;
+    expect(options.signal).toBeInstanceOf(AbortSignal);
+  });
+
   it('should handle missing greatCircleDistance gracefully', async () => {
     const responseWithoutDistance = [{ ...mockApiResponse[0], greatCircleDistance: undefined }];
     vi.mocked(fetch).mockResolvedValue({

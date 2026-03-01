@@ -24,6 +24,8 @@ export interface FlightData {
   durationMinutes: number;
 }
 
+const FLIGHT_API_TIMEOUT_MS = 10_000;
+
 export default class FlightService {
   private readonly apiKey: string;
 
@@ -43,13 +45,22 @@ export default class FlightService {
     const sanitizedFlightNumber = flightNumber.replaceAll(/\s/g, '');
     const url = `https://aerodatabox.p.rapidapi.com/flights/number/${sanitizedFlightNumber}/${date}`;
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'x-rapidapi-host': 'aerodatabox.p.rapidapi.com',
-        'x-rapidapi-key': this.apiKey,
-      },
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FLIGHT_API_TIMEOUT_MS);
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-host': 'aerodatabox.p.rapidapi.com',
+          'x-rapidapi-key': this.apiKey,
+        },
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       throw new FlightApiError(`AeroDataBox API returned ${response.status}`);
