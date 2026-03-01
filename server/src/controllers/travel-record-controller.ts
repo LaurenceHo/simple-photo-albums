@@ -1,11 +1,11 @@
 import { Context } from 'hono';
-import { HonoEnv } from '../env.js';
-import FlightService, { FlightNotFoundError } from '../services/flight-service.js';
-import TravelRecordService from '../services/travel-record-service.js';
+import { HonoEnv } from '../env';
+import FlightService, { FlightNotFoundError } from '../services/flight-service';
+import TravelRecordService from '../services/travel-record-service';
 import { TravelRecord } from '../types/travel-record';
-import { UserPermission } from '../types/user-permission.js';
-import { haversineDistance, isValidCoordination } from '../utils/helpers.js';
-import { BaseController } from './base-controller.js';
+import { UserPermission } from '../types/user-permission';
+import { haversineDistance, isValidCoordination } from '../utils/helpers';
+import { BaseController } from './base-controller';
 
 export default class TravelRecordController extends BaseController {
   findAll = async (c: Context<HonoEnv>) => {

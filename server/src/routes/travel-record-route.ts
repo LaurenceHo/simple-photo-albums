@@ -1,9 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import TravelRecordController from '../controllers/travel-record-controller.js';
-import { HonoEnv } from '../env.js';
-import { CreateTravelRecordSchema, UpdateTravelRecordSchema } from '../types/request-schemas.js';
-import { verifyJwtClaim, verifyUserPermission } from './auth-middleware.js';
+import TravelRecordController from '../controllers/travel-record-controller';
+import { HonoEnv } from '../env';
+import { CreateTravelRecordSchema, UpdateTravelRecordSchema } from '../types/request-schemas';
+import { verifyJwtClaim, verifyUserPermission } from './auth-middleware';
 
 const controller = new TravelRecordController();
 const app = new Hono<HonoEnv>();

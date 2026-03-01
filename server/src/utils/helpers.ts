@@ -1,10 +1,10 @@
 import { DeleteObjectsCommandInput, PutObjectCommandInput } from '@aws-sdk/client-s3';
 import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
-import { verifyJwt } from './jwt.js';
+import { verifyJwt } from './jwt';
 import { get } from 'radash';
-import { HonoEnv } from '../env.js';
-import S3Service from '../services/s3-service.js';
+import { HonoEnv } from '../env';
+import S3Service from '../services/s3-service';
 
 const s3BucketName = process.env['AWS_S3_BUCKET_NAME'];
 

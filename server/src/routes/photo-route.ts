@@ -1,9 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import PhotoController from '../controllers/photo-controller.js';
-import { HonoEnv } from '../env.js';
-import { PhotosRequestSchema, RenamePhotoRequestSchema } from '../types/api-response.js';
-import { verifyJwtClaim, verifyUserPermission } from './auth-middleware.js';
+import PhotoController from '../controllers/photo-controller';
+import { HonoEnv } from '../env';
+import { PhotosRequestSchema, RenamePhotoRequestSchema } from '../types/api-response';
+import { verifyJwtClaim, verifyUserPermission } from './auth-middleware';
 
 const controller = new PhotoController();
 const app = new Hono<HonoEnv>();

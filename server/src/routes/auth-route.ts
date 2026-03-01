@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { setCookie } from 'hono/cookie';
 import { randomBytes } from 'node:crypto';
-import AuthController from '../controllers/auth-controller.js';
-import { HonoEnv } from '../env.js';
+import AuthController from '../controllers/auth-controller';
+import { HonoEnv } from '../env';
 
 const controller = new AuthController();
 const app = new Hono<HonoEnv>();

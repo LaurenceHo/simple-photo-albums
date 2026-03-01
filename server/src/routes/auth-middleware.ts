@@ -1,8 +1,8 @@
 import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
 import { createMiddleware } from 'hono/factory';
-import { verifyJwt } from '../utils/jwt.js';
-import { HonoEnv } from '../env.js';
+import { verifyJwt } from '../utils/jwt';
+import { HonoEnv } from '../env';
 import { UserPermission } from '../types/user-permission';
 
 export const setJwtCookies = async (c: Context, token: string) => {

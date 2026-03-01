@@ -1,9 +1,9 @@
 import { Context } from 'hono';
-import { HonoEnv } from '../env.js';
-import AggregationService from '../services/aggregation-service.js';
-import { Album, AlbumsByYear } from '../types/album.js';
-import { UserPermission } from '../types/user-permission.js';
-import { BaseController } from './base-controller.js';
+import { HonoEnv } from '../env';
+import AggregationService from '../services/aggregation-service';
+import { Album, AlbumsByYear } from '../types/album';
+import { UserPermission } from '../types/user-permission';
+import { BaseController } from './base-controller';
 
 export default class AggregateController extends BaseController {
   findAll = async (_c: Context) => {

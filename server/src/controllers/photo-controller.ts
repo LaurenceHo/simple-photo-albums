@@ -2,16 +2,16 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Context } from 'hono';
 import { getCookie } from 'hono/cookie';
-import { verifyJwt } from '../utils/jwt.js';
+import { verifyJwt } from '../utils/jwt';
 import { get, isEmpty } from 'radash';
-import { HonoEnv } from '../env.js';
-import { cleanJwtCookie } from '../routes/auth-middleware.js';
-import AlbumService from '../services/album-service.js';
-import S3Service from '../services/s3-service.js';
+import { HonoEnv } from '../env';
+import { cleanJwtCookie } from '../routes/auth-middleware';
+import AlbumService from '../services/album-service';
+import S3Service from '../services/s3-service';
 import { PhotoResponse, PhotosRequest, RenamePhotoRequest } from '../types';
-import { UserPermission } from '../types/user-permission.js';
-import { deleteObjects } from '../utils/helpers.js';
-import { BaseController } from './base-controller.js';
+import { UserPermission } from '../types/user-permission';
+import { deleteObjects } from '../utils/helpers';
+import { BaseController } from './base-controller';
 
 export default class PhotoController extends BaseController {
   /**
