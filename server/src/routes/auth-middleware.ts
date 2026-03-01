@@ -24,7 +24,7 @@ export const setJwtCookies = async (c: Context, token: string) => {
  * @param code HTTP status code
  */
 export const cleanJwtCookie = (c: Context, message: string, code = 401) => {
-  setCookie(c, 'jwt', '', { maxAge: 0, path: '/' });
+  setCookie(c, 'jwt', '', { maxAge: 0, path: '/', secure: true, sameSite: 'None' });
   return c.json({ message }, code as any);
 };
 
@@ -39,6 +39,7 @@ export const verifyJwtClaim = createMiddleware<HonoEnv>(async (c, next) => {
       c.set('user', user);
       return await next();
     } catch (error) {
+      console.error('JWT verification failed:', error);
       return cleanJwtCookie(c, 'Authentication failed. Please login.');
     }
   } else {
@@ -53,6 +54,7 @@ export const optionalVerifyJwtClaim = createMiddleware<HonoEnv>(async (c, next) 
       const user = await verifyJwt<UserPermission>(token, c.env.JWT_SECRET);
       c.set('user', user);
     } catch (error) {
+      console.error('Optional JWT verification failed:', error);
       // Ignore invalid token
     }
   }

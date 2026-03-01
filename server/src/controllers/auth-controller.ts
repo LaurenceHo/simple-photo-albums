@@ -28,12 +28,12 @@ export default class AuthController extends BaseController {
         return this.ok<UserPermission>(c, 'ok', decoded);
       } catch (error: any) {
         console.log('Invalid JWT:', error);
-        setCookie(c, 'jwt', '', { maxAge: 0, path: '/' });
+        setCookie(c, 'jwt', '', { maxAge: 0, path: '/', secure: true, sameSite: 'None' });
         return this.ok(c, 'ok');
       }
     } catch (error: any) {
       console.log('Error reading JWT:', error);
-      setCookie(c, 'jwt', '', { maxAge: 0, path: '/' });
+      setCookie(c, 'jwt', '', { maxAge: 0, path: '/', secure: true, sameSite: 'None' });
       return this.ok(c, 'ok');
     }
   };
@@ -92,7 +92,7 @@ export default class AuthController extends BaseController {
   // POST /api/auth/logout
   logout = async (c: Context) => {
     try {
-      setCookie(c, 'jwt', '', { maxAge: 0, path: '/' });
+      setCookie(c, 'jwt', '', { maxAge: 0, path: '/', secure: true, sameSite: 'None' });
       return this.ok(c, 'Logged out');
     } catch (err: any) {
       console.error('Logout error:', err);

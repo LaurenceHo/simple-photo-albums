@@ -77,6 +77,14 @@
       </DataTable>
       <Popover ref="detailPopover">
         <div v-if="hoveredRecord" class="flex flex-col gap-2 p-1 min-w-48">
+          <div v-if="hoveredRecord.departure?.formattedAddress" class="flex justify-between gap-4">
+            <span class="text-gray-500">From</span>
+            <span class="font-semibold">{{ hoveredRecord.departure.formattedAddress }}</span>
+          </div>
+          <div v-if="hoveredRecord.destination?.formattedAddress" class="flex justify-between gap-4">
+            <span class="text-gray-500">To</span>
+            <span class="font-semibold">{{ hoveredRecord.destination.formattedAddress }}</span>
+          </div>
           <div v-if="hoveredRecord.flightNumber" class="flex justify-between gap-4">
             <span class="text-gray-500">Flight</span>
             <span class="font-semibold">{{ hoveredRecord.flightNumber }}</span>
@@ -96,14 +104,6 @@
           <div v-if="hoveredRecord.durationMinutes" class="flex justify-between gap-4">
             <span class="text-gray-500">Duration</span>
             <span class="font-semibold">{{ formatDuration(hoveredRecord.durationMinutes) }}</span>
-          </div>
-          <div v-if="hoveredRecord.departure?.formattedAddress" class="flex justify-between gap-4">
-            <span class="text-gray-500">From</span>
-            <span class="font-semibold">{{ hoveredRecord.departure.formattedAddress }}</span>
-          </div>
-          <div v-if="hoveredRecord.destination?.formattedAddress" class="flex justify-between gap-4">
-            <span class="text-gray-500">To</span>
-            <span class="font-semibold">{{ hoveredRecord.destination.formattedAddress }}</span>
           </div>
         </div>
       </Popover>
