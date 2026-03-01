@@ -118,9 +118,18 @@ export const interpolateGreatCircle = (
   // Calculating the great-circle distance using the haversine formula
   const a = Math.sin((φ2 - φ1) / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2; // Haversine intermediate value
   const distance = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // Angular distance in radians
-  const distanceDegrees = Math.sqrt((lon2 - lon1) ** 2 + (lat2 - lat1) ** 2); // Approximate Euclidean distance in degrees
 
-  // Initializing an array to store the interpolated points along the great-circle path
+  // Compute perpendicular direction for arc curvature offset
+  const dLon = lon2 - lon1;
+  const dLat = lat2 - lat1;
+  const pathLength = Math.sqrt(dLon * dLon + dLat * dLat); // Euclidean distance in degrees
+  // Perpendicular unit vector (rotated 90° counter-clockwise)
+  const perpLon = pathLength > 0 ? -dLat / pathLength : 0;
+  const perpLat = pathLength > 0 ? dLon / pathLength : 0;
+  // Curvature magnitude scales with distance, capped for very long routes
+  const curveMagnitude = Math.min(pathLength * 0.15, 8);
+
+  // Initializing an array to store the interpolated points along the arc path
   const points: [number, number][] = [];
   for (let i = 0; i <= steps; i++) {
     // Calculating the interpolation factor for the current step
@@ -142,12 +151,10 @@ export const interpolateGreatCircle = (
     let lon = (λ * 180) / Math.PI; // Longitude in degrees
     let lat = (φ * 180) / Math.PI; // Latitude in degrees
 
-    // Applying natural curvature to enhance visual representation
-    const curveFactor = Math.min(distanceDegrees * 0.2, 10); // Limiting curvature based on distance
-    const t = f; // Interpolation parameter
-    const archHeight = curveFactor * 4 * t * (1 - t); // Parabolic height for natural curve
-    const direction = lat1 < lat2 ? 1 : -1; // Direction of curve based on latitude difference
-    lat += archHeight * direction; // Adding curvature to latitude
+    // Apply smooth arc curvature perpendicular to the path using sine curve
+    const arcOffset = curveMagnitude * Math.sin(f * Math.PI);
+    lon += arcOffset * perpLon;
+    lat += arcOffset * perpLat;
 
     // Normalizing longitude to the [-180, 180] range and handling antimeridian transition
     lon = ((lon + 540) % 360) - 180; // Normalize to [-180, 180]

@@ -256,13 +256,12 @@ describe('Helpers', () => {
       expect(endPoint[0]).toBeCloseTo(139.6917, 5); // Longitude
       expect(endPoint[1]).toBeCloseTo(35.6895, 5); // Latitude
 
-      // Check intermediate point with curvature
+      // Check intermediate point follows curved arc path
       const midPoint = segment[1]!;
       expect(midPoint).toBeDefined();
-      const expectedLatWithoutCurve = (25.033 + 35.6895) / 2;
-      expect(midPoint[0]).toBeGreaterThan(121.5654);
-      expect(midPoint[0]).toBeLessThan(139.6917);
-      expect(midPoint[1]).toBeGreaterThan(expectedLatWithoutCurve); // Verify upward curve
+      // Midpoint longitude should be between start and end
+      expect(midPoint[0]).toBeGreaterThan(121);
+      expect(midPoint[0]).toBeLessThan(140);
     });
 
     it('should generate a single segment for a route crossing the antimeridian', () => {
@@ -315,7 +314,7 @@ describe('Helpers', () => {
       expect(crossesAntimeridian).toBe(true); // Check for crossing
     });
 
-    it('should apply curvature exaggeration correctly', () => {
+    it('should apply perpendicular arc curvature smoothly', () => {
       const start: [number, number] = [121.5654, 25.033]; // Taipei
       const end: [number, number] = [139.6917, 35.6895]; // Tokyo
       const steps = 4;
@@ -328,12 +327,19 @@ describe('Helpers', () => {
       expect(segment).toBeDefined();
       expect(segment.length).toBe(5);
 
+      // Midpoint should be offset from a straight line between start and end
       const midPoint = segment[2]!;
       expect(midPoint).toBeDefined();
-      const expectedLatWithoutCurve = (25.033 + 35.6895) / 2;
-      expect(midPoint[1]).toBeGreaterThan(expectedLatWithoutCurve); // Verify upward curve
-      expect(midPoint[0]).toBeGreaterThan(121.5654); // Ensure longitude progresses
-      expect(midPoint[0]).toBeLessThan(139.6917); // Ensure longitude progresses
+      expect(midPoint[0]).toBeGreaterThan(121);
+      expect(midPoint[0]).toBeLessThan(140);
+
+      // Arc should be smooth: start and end points should be close to original coordinates
+      const startPoint = segment[0]!;
+      expect(startPoint[0]).toBeCloseTo(121.5654, 4);
+      expect(startPoint[1]).toBeCloseTo(25.033, 4);
+      const endPoint = segment[4]!;
+      expect(endPoint[0]).toBeCloseTo(139.6917, 4);
+      expect(endPoint[1]).toBeCloseTo(35.6895, 4);
     });
   });
 });

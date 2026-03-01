@@ -79,7 +79,7 @@ export const useTravelRecordsStore = defineStore('travelRecords', () => {
       // Always draw from west to east OR south to north for consistency
       const [from, to] = start[0] <= end[0] ? [start, end] : [end, start];
 
-      const segments = interpolateGreatCircle(from, to, 20);
+      const segments = interpolateGreatCircle(from, to, 100);
       const coordinates: Position[] = segments[0] ?? [];
 
       features.push({
