@@ -5,7 +5,7 @@ const mockApiResponse = [
   {
     departure: {
       airport: {
-        name: 'Tokyo Haneda Airport',
+        name: 'Tokyo Haneda',
         iata: 'HND',
         municipalityName: 'Tokyo',
         countryCode: 'JP',
@@ -18,7 +18,7 @@ const mockApiResponse = [
     },
     arrival: {
       airport: {
-        name: 'Los Angeles International Airport',
+        name: 'Los Angeles International',
         iata: 'LAX',
         municipalityName: 'Los Angeles',
         countryCode: 'US',

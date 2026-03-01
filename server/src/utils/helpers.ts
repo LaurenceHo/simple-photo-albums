@@ -2,7 +2,7 @@ import { DeleteObjectsCommandInput, PutObjectCommandInput } from '@aws-sdk/clien
 import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
 import { verifyJwt } from './jwt.js';
-import { get, isEmpty } from 'radash';
+import { get } from 'radash';
 import { HonoEnv } from '../env.js';
 import S3Service from '../services/s3-service.js';
 
@@ -65,32 +65,6 @@ export const emptyS3Folder = async (folderName: string) => {
     console.error(`Failed to empty S3 folder: ${err}`);
     throw new Error('Error when emptying S3 folder', { cause: err });
   }
-};
-
-export const perform = async (
-  method: 'GET' | 'POST',
-  urlPath: string,
-  requestJsonBody?: any,
-  maskFields?: string,
-) => {
-  const headers = new Headers({ Accept: '*/*' });
-  headers.append('X-Goog-Api-Key', process.env['GOOGLE_PLACES_API_KEY'] as string);
-  if (!isEmpty(maskFields)) {
-    headers.append('X-Goog-FieldMask', maskFields ?? '');
-  }
-
-  const requestOptions: any = {};
-
-  if (!isEmpty(requestJsonBody)) {
-    // JSON content
-    headers.append('Content-Type', 'application/json');
-    requestOptions.body = JSON.stringify(requestJsonBody);
-  }
-  requestOptions.method = method.toUpperCase();
-  requestOptions.headers = headers;
-
-  const response = await fetch(`https://places.googleapis.com/v1/places${urlPath}`, requestOptions);
-  return await response.json();
 };
 
 export const verifyIfIsAdmin = async (c: Context<HonoEnv>) => {

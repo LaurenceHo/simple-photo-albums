@@ -1,16 +1,14 @@
 import { Context } from 'hono';
+import { getLocation } from '../services/location-service.js';
 import { Place } from '../types';
-import { perform } from '../utils/helpers.js';
 import { BaseController } from './base-controller.js';
 
 export default class LocationController extends BaseController {
   // Find places by keyword
   findAll = async (c: Context) => {
     const textQuery = c.req.query('textQuery');
-    const response: any = await perform(
-      'POST',
-      ':searchText',
-      { textQuery, languageCode: 'en' },
+    const response: any = await getLocation(
+      textQuery!,
       'places.formattedAddress,places.displayName,places.location',
     );
     let places: Place[] = [];

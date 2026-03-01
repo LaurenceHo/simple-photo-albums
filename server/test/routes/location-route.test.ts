@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import app from '../../src/index';
 
-vi.mock('../../src/utils/helpers', async () => ({
-  perform: () =>
+vi.mock('../../src/services/location-service', async () => ({
+  getLocation: (_textQuery: string, _maskFields: string) =>
     Promise.resolve({
       places: [
         {
