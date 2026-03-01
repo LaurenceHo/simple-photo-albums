@@ -127,7 +127,7 @@ import { TravelRecordService } from '@/services/travel-record-service';
 import { useDialogStore, useTravelRecordsStore } from '@/stores';
 import { useMutation } from '@tanstack/vue-query';
 import { useVuelidate } from '@vuelidate/core';
-import { helpers, required } from '@vuelidate/validators';
+import { helpers, required, requiredIf } from '@vuelidate/validators';
 import { storeToRefs } from 'pinia';
 import { AutoComplete, Button, DatePicker, Dialog, FloatLabel, InputText, Select } from 'primevue';
 import { useToast } from 'primevue/usetoast';
@@ -166,10 +166,10 @@ const rules = computed(() => ({
   },
   flightNumber: {},
   departure: {
-    required: helpers.withMessage('This field is required.', isFlightApiMode.value ? () => true : required),
+    required: helpers.withMessage('This field is required.', requiredIf(() => !isFlightApiMode.value)),
   },
   destination: {
-    required: helpers.withMessage('This field is required.', isFlightApiMode.value ? () => true : required),
+    required: helpers.withMessage('This field is required.', requiredIf(() => !isFlightApiMode.value)),
   },
 }));
 
