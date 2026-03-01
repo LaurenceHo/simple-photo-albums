@@ -31,7 +31,7 @@ export default class TravelRecordController extends BaseController {
     let distance = 0;
     let flightData: Partial<TravelRecord> = {};
 
-    if (isFlightApiMode) {
+    if (isFlightApiMode && body.flightNumber) {
       // Flight API mode: auto-populate from AeroDataBox
       const apiKey = c.env.RAPIDAPI_KEY;
       if (!apiKey) {
@@ -41,7 +41,7 @@ export default class TravelRecordController extends BaseController {
       try {
         const flightService = new FlightService(apiKey);
         const date = body.travelDate.substring(0, 10);
-        const result = await flightService.getFlightByNumber(body.flightNumber!, date);
+        const result = await flightService.getFlightByNumber(body.flightNumber, date);
 
         flightData = {
           departure: result.departure,

@@ -31,7 +31,6 @@ const mockTravelRecords = [
 vi.mock('../../src/services/travel-record-service', async () => {
   return {
     default: class {
-      constructor(db: any) {}
       async getAll() {
         return mockTravelRecords;
       }
@@ -54,7 +53,6 @@ vi.mock('../../src/services/flight-service', async () => {
     FlightNotFoundError,
     FlightApiError,
     default: class {
-      constructor(apiKey: string) {}
       async getFlightByNumber(flightNumber: string, date: string) {
         if (flightNumber === 'XX999') {
           throw new FlightNotFoundError();
@@ -202,7 +200,7 @@ describe('travel record route', () => {
         transportType: 'flight',
         flightNumber: 'NH106',
       },
-      { DB: {}, JWT_SECRET: 'test-secret' },
+      { DB: {}, JWT_SECRET: 'test-secret' } as any,
     );
     expect(response.status).toBe(500);
     const body = await response.json();

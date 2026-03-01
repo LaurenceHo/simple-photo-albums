@@ -31,16 +31,16 @@
             :disabled="isCreatingRecord"
             :invalid="v$.flightNumber.$invalid"
             class="w-full"
-            input-id="flight-number"
+            id="flight-number"
           />
           <label for="flight-number">Flight number</label>
         </FloatLabel>
         <small v-if="v$.flightNumber.$invalid" class="p-error">Flight number is required</small>
-        <small v-if="flightNumber" class="text-yellow-600 block mt-1">
+        <small v-if="isFlightApiMode" class="text-yellow-600 block mt-1">
           Departure and destination will be auto-populated from flight data.
         </small>
       </div>
-      <div v-if="!flightNumber" class="mb-4 pb-4">
+      <div v-if="!isFlightApiMode" class="mb-4 pb-4">
         <FloatLabel>
           <AutoComplete
             v-model="selectedDeparture"
@@ -68,7 +68,7 @@
         </FloatLabel>
         <small v-if="!isFlightApiMode && v$.departure.$invalid" class="p-error">Departure is required</small>
       </div>
-      <div v-if="!flightNumber" class="mb-4">
+      <div v-if="!isFlightApiMode" class="mb-4">
         <FloatLabel>
           <AutoComplete
             v-model="selectedDestination"
@@ -96,7 +96,7 @@
         </FloatLabel>
         <small v-if="!isFlightApiMode && v$.destination.$invalid" class="p-error">Destination is required</small>
       </div>
-      <div v-if="!flightNumber" class="mb-4">
+      <div v-if="!isFlightApiMode" class="mb-4">
         <Select
           v-model="selectedTransportType"
           :options="transportTypes"
@@ -156,7 +156,8 @@ const isSearchingDestination = ref(false);
 const selectedTransportType = ref({ name: 'Flight', code: 'flight' });
 const flightNumber = ref('');
 
-const isFlightApiMode = computed(() => !!flightNumber.value);
+const normalizedFlightNumber = computed(() => flightNumber.value.trim());
+const isFlightApiMode = computed(() => !!normalizedFlightNumber.value);
 const departure = computed(() => selectedDeparture.value?.displayName || '');
 const destination = computed(() => selectedDestination.value?.displayName || '');
 
@@ -164,7 +165,9 @@ const rules = computed(() => ({
   travelDate: {
     required: helpers.withMessage('This field is required.', required),
   },
-  flightNumber: {},
+  flightNumber: {
+    required: helpers.withMessage('Flight number is required.', requiredIf(isFlightApiMode)),
+  },
   departure: {
     required: helpers.withMessage('This field is required.', requiredIf(() => !isFlightApiMode.value)),
   },
@@ -212,12 +215,13 @@ const { isPending: isCreatingRecord, mutate: createRecord } = useMutation({
 
     if (isFlightApiMode.value) {
       // Flight API mode: send flightNumber only, server auto-populates departure/destination
-      const id = isoDateOnly + '#' + flightNumber.value.replace(/\s/g, '');
+      const trimmedFlightNumber = normalizedFlightNumber.value;
+      const id = isoDateOnly + '#' + trimmedFlightNumber.replaceAll(/\s/g, '');
       const travelRecord = {
         id,
         travelDate: travelDate.value,
         transportType: 'flight' as const,
-        flightNumber: flightNumber.value,
+        flightNumber: trimmedFlightNumber,
       };
       return TravelRecordService.createTravelRecord(travelRecord);
     }

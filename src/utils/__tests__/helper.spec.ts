@@ -8,7 +8,7 @@ import {
   sortByKey,
 } from '../helper';
 
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 describe('Helpers', () => {
   beforeEach(() => {
@@ -38,7 +38,7 @@ describe('Helpers', () => {
     it('should return the time from the fetched JSON', async () => {
       vi.stubEnv('VITE_STATIC_FILES_URL', 'https://example.com/static');
       const mockResponse = { album: '2023-10-01T12:00:00Z' };
-      (global.fetch as any).mockResolvedValue({
+      (globalThis.fetch as any).mockResolvedValue({
         json: vi.fn().mockResolvedValue(mockResponse),
       });
 
@@ -49,7 +49,7 @@ describe('Helpers', () => {
 
     it('should return null if fetch fails', async () => {
       vi.stubEnv('VITE_STATIC_FILES_URL', 'https://example.com/static');
-      (global.fetch as any).mockRejectedValue(new Error('CORS issue'));
+      (globalThis.fetch as any).mockRejectedValue(new Error('CORS issue'));
 
       const result = await fetchDbUpdatedTime();
       expect(result).toBeNull();
@@ -66,7 +66,7 @@ describe('Helpers', () => {
       );
 
       const mockResponse = { album: '2023-10-01T12:00:00Z' };
-      (global.fetch as any).mockResolvedValue({
+      (globalThis.fetch as any).mockResolvedValue({
         json: vi.fn().mockResolvedValue(mockResponse),
       });
 
@@ -86,7 +86,7 @@ describe('Helpers', () => {
       );
 
       const mockResponse = { album: '2023-10-01T12:00:00Z' };
-      (global.fetch as any).mockResolvedValue({
+      (globalThis.fetch as any).mockResolvedValue({
         json: vi.fn().mockResolvedValue(mockResponse),
       });
 
@@ -105,7 +105,7 @@ describe('Helpers', () => {
         'https://example.com/static/updateDatabaseAt.json',
       );
 
-      (global.fetch as any).mockRejectedValue(new Error('CORS issue'));
+      (globalThis.fetch as any).mockRejectedValue(new Error('CORS issue'));
 
       const localDbUpdatedTime = '2023-09-01T12:00:00Z';
       const result = await compareDbUpdatedTime(localDbUpdatedTime, 'album');

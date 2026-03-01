@@ -25,7 +25,7 @@ export interface FlightData {
 }
 
 export default class FlightService {
-  private apiKey: string;
+  private readonly apiKey: string;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
@@ -40,7 +40,7 @@ export default class FlightService {
    * @returns Flight data
    */
   async getFlightByNumber(flightNumber: string, date: string): Promise<FlightData> {
-    const sanitizedFlightNumber = flightNumber.replace(/\s/g, '');
+    const sanitizedFlightNumber = flightNumber.replaceAll(/\s/g, '');
     const url = `https://aerodatabox.p.rapidapi.com/flights/number/${sanitizedFlightNumber}/${date}`;
 
     const response = await fetch(url, {
@@ -55,7 +55,7 @@ export default class FlightService {
       throw new FlightApiError(`AeroDataBox API returned ${response.status}`);
     }
 
-    const flights = await response.json() as any[];
+    const flights: any[] = await response.json();
 
     if (!flights || flights.length === 0) {
       throw new FlightNotFoundError();

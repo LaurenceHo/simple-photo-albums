@@ -46,12 +46,12 @@ export default tsEslint.config(
     ignores: [
       '*.config.*',
       '*.d.ts',
-      'cdk.out',
+      'assets',
       'coverage',
       'dist',
-      'esbuild.lambda.mjs',
       'node_modules',
       'test',
+      '.wrangler',
     ],
   },
 );
