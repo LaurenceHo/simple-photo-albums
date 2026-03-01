@@ -1,8 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import LocationController from '../controllers/location-controller.js';
-import { HonoEnv } from '../env.js';
-import { LocationSearchSchema } from '../types/request-schemas.js';
+import LocationController from '../controllers/location-controller';
+import { HonoEnv } from '../env';
+import { LocationSearchSchema } from '../types/request-schemas';
 
 const controller = new LocationController();
 const app = new Hono<HonoEnv>();

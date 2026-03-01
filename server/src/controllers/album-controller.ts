@@ -1,10 +1,10 @@
 import { Context } from 'hono';
-import { HonoEnv } from '../env.js';
-import AlbumService from '../services/album-service.js';
+import { HonoEnv } from '../env';
+import AlbumService from '../services/album-service';
 import { Album } from '../types/album';
-import { UserPermission } from '../types/user-permission.js';
-import { emptyS3Folder, uploadObject, verifyIfIsAdmin } from '../utils/helpers.js';
-import { BaseController } from './base-controller.js';
+import { UserPermission } from '../types/user-permission';
+import { emptyS3Folder, uploadObject, verifyIfIsAdmin } from '../utils/helpers';
+import { BaseController } from './base-controller';
 
 export default class AlbumController extends BaseController {
   findAll = async (c: Context<HonoEnv>) => {

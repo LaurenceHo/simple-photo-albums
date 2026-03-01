@@ -1,9 +1,38 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import app from '../../src/index';
 
-vi.mock('../../src/utils/helpers', async () => ({
-  perform: () =>
-    Promise.resolve({
+const mockGetLocation = vi.fn();
+
+vi.mock('../../src/services/location-service', () => ({
+  getLocation: (...args: any[]) => mockGetLocation(...args),
+}));
+
+const env = {
+  DB: {},
+};
+
+describe('location route', () => {
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  it('should return 400 when textQuery is missing', async () => {
+    const response = await app.request('/api/location/search', {}, env);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.success).toBe(false);
+  });
+
+  it('should return 400 when textQuery is whitespace only', async () => {
+    const response = await app.request('/api/location/search?textQuery=%20%20', {}, env);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.code).toBe(400);
+    expect(body.message).toBe('textQuery parameter is required');
+  });
+
+  it('should return correct location', async () => {
+    mockGetLocation.mockResolvedValue({
       places: [
         {
           formattedAddress: 'Auckland, New Zealand',
@@ -11,21 +40,8 @@ vi.mock('../../src/utils/helpers', async () => ({
           displayName: { text: 'Auckland', languageCode: 'en' },
         },
       ],
-    }),
-}));
+    });
 
-// Mock env
-const env = {
-  DB: {},
-};
-
-describe('location route', () => {
-  it('should return 422 bad request', async () => {
-    const response = await app.request('/api/location/search', {}, env);
-    expect(response.status).toBe(400); // Changed to 400 as clientError returns 400
-  });
-
-  it('should return correct location', async () => {
     const response = await app.request('/api/location/search?textQuery=somewhere', {}, env);
 
     expect(response.status).toBe(200);
@@ -42,5 +58,27 @@ describe('location route', () => {
         },
       ],
     });
+  });
+
+  it('should return 500 when location service throws', async () => {
+    mockGetLocation.mockRejectedValue(new Error('Google Places API returned 403'));
+
+    const response = await app.request('/api/location/search?textQuery=somewhere', {}, env);
+
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.code).toBe(500);
+    expect(body.message).toBe('Failed to fetch location data');
+  });
+
+  it('should return 500 when API key is missing', async () => {
+    mockGetLocation.mockRejectedValue(new Error('GOOGLE_PLACES_API_KEY is not configured'));
+
+    const response = await app.request('/api/location/search?textQuery=somewhere', {}, env);
+
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.code).toBe(500);
+    expect(body.message).toBe('Failed to fetch location data');
   });
 });

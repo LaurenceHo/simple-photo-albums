@@ -1,6 +1,6 @@
 import { Context } from 'hono';
-import { ApiResponse } from '../types/api-response.js';
-import { BaseController as IBaseController } from '../types/models.js';
+import { ApiResponse } from '../types/api-response';
+import { BaseController as IBaseController } from '../types/models';
 
 export abstract class BaseController implements IBaseController {
   abstract findAll(c: Context): Promise<Response>;

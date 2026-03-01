@@ -70,6 +70,7 @@ bun install
    JWT_SECRET=your_jwt_secret
    GOOGLE_PLACES_API_KEY=your_google_places_api_key
    VITE_GOOGLE_CLIENT_ID=your_google_client_id
+   RAPIDAPI_KEY=your_rapidapi_key
    ```
 
 2. Update `wrangler.toml` with your configuration (non-secret values):
@@ -91,6 +92,16 @@ wrangler d1 execute photo-albums-db --local --file=./migrations/0000_initial.sql
 
 # For production
 wrangler d1 execute photo-albums-db --remote --file=./migrations/0000_initial.sql
+```
+
+For existing databases, run the flight columns migration:
+
+```bash
+# For local development
+wrangler d1 execute photo-albums-db --local --file=./migrations/0001_add_flight_columns.sql
+
+# For production
+wrangler d1 execute photo-albums-db --remote --file=./migrations/0001_add_flight_columns.sql
 ```
 
 ## Local development
@@ -145,6 +156,13 @@ bun run deploy
 - /api/photos - PUT: Move photos to different folder
 - /api/photos/rename - PUT: Rename photo
 - /api/photos/upload/:albumId - POST: Upload photos to AWS S3 folder
+
+### Travel Records
+
+- /api/travelRecords - GET: Get all travel records
+- /api/travelRecords - POST: Create a new travel record (supports flight API mode with automatic flight data lookup)
+- /api/travelRecords - PUT: Update a travel record
+- /api/travelRecords/:recordId - DELETE: Delete a travel record
 
 ### Location
 

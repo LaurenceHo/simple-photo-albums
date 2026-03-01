@@ -1,10 +1,10 @@
 import { DeleteObjectsCommandInput, PutObjectCommandInput } from '@aws-sdk/client-s3';
 import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
-import { verifyJwt } from './jwt.js';
-import { get, isEmpty } from 'radash';
-import { HonoEnv } from '../env.js';
-import S3Service from '../services/s3-service.js';
+import { verifyJwt } from './jwt';
+import { get } from 'radash';
+import { HonoEnv } from '../env';
+import S3Service from '../services/s3-service';
 
 const s3BucketName = process.env['AWS_S3_BUCKET_NAME'];
 
@@ -23,7 +23,7 @@ export const uploadObject = async (filePath: string, object: any) => {
     return await s3Service.create(putObject);
   } catch (err) {
     console.error(`Failed to upload photo: ${err}`);
-    throw new Error('Error when uploading photo');
+    throw new Error('Error when uploading photo', { cause: err });
   }
 };
 
@@ -40,7 +40,7 @@ export const deleteObjects = async (objectKeys: string[]) => {
     return await s3Service.delete(deleteParams);
   } catch (err) {
     console.error(`Failed to delete photos: ${err}`);
-    throw new Error('Error when deleting photos');
+    throw new Error('Error when deleting photos', { cause: err });
   }
 };
 
@@ -63,34 +63,8 @@ export const emptyS3Folder = async (folderName: string) => {
     return await deleteObjects(listedObjectArray);
   } catch (err) {
     console.error(`Failed to empty S3 folder: ${err}`);
-    throw new Error('Error when emptying S3 folder');
+    throw new Error('Error when emptying S3 folder', { cause: err });
   }
-};
-
-export const perform = async (
-  method: 'GET' | 'POST',
-  urlPath: string,
-  requestJsonBody?: any,
-  maskFields?: string,
-) => {
-  const headers = new Headers({ Accept: '*/*' });
-  headers.append('X-Goog-Api-Key', process.env['GOOGLE_PLACES_API_KEY'] as string);
-  if (!isEmpty(maskFields)) {
-    headers.append('X-Goog-FieldMask', maskFields ?? '');
-  }
-
-  const requestOptions: any = {};
-
-  if (!isEmpty(requestJsonBody)) {
-    // JSON content
-    headers.append('Content-Type', 'application/json');
-    requestOptions.body = JSON.stringify(requestJsonBody);
-  }
-  requestOptions.method = method.toUpperCase();
-  requestOptions.headers = headers;
-
-  const response = await fetch(`https://places.googleapis.com/v1/places${urlPath}`, requestOptions);
-  return await response.json();
 };
 
 export const verifyIfIsAdmin = async (c: Context<HonoEnv>) => {

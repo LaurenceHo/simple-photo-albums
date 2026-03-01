@@ -1,9 +1,9 @@
 import { Context } from 'hono';
-import { HonoEnv } from '../env.js';
-import AlbumTagService from '../services/album-tag-service.js';
-import { AlbumTag } from '../types/album.js';
-import { UserPermission } from '../types/user-permission.js';
-import { BaseController } from './base-controller.js';
+import { HonoEnv } from '../env';
+import AlbumTagService from '../services/album-tag-service';
+import { AlbumTag } from '../types/album';
+import { UserPermission } from '../types/user-permission';
+import { BaseController } from './base-controller';
 
 export default class AlbumTagController extends BaseController {
   findAll = async (c: Context<HonoEnv>) => {

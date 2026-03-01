@@ -41,13 +41,14 @@ This is a fullstack photo album web app using Vue3, PrimeVue, Tailwind CSS, Tans
 
 You will need the follows:
 
-1. Google Place API key (For admin manage albums)
+1. Google Place API key (For admin manage albums and travel records)
 2. Google OAuth 2.0 Client ID (For admin access)
 3. AWS user and role with S3 permission for your local development and deployment
 4. AWS S3 bucket (For storing photos. **You need to create this manually.** )
 5. Cloudflare account (For Workers and D1 database)
 6. ImageKit account (It's optional)
 7. Mapbox API key (For displaying map)
+8. RapidAPI key with AeroDataBox subscription (For flight data lookup in travel records, optional)
 
 ‼️ **️Important** ‼️
 
@@ -79,6 +80,10 @@ Please check [here](https://developers.google.com/identity/protocols/oauth2) for
 #### Login UI
 
 This project uses Google OAuth 2.0 to authenticate users. If you don't want to use Google OAuth 2.0, you will need to implement login UI and authentication process by yourself. Once you set up Google OAuth 2.0 client ID and OAuth consent screen, you can access login UI by going to `http://localhost:9000/login`. You will also need to add your Google account information in the D1 database you created. If every thing is set up correctly, you should be able to login with your Google account and see the admin features including album and photo management. If you just want to have a quick glance of UI, you can simply run `bun run msw`, it will launch UI on http://localhost:5173.
+
+### RapidAPI (AeroDataBox)
+
+The travel records feature supports auto-populating flight data (departure, destination, airline, aircraft type, duration, distance) from a flight number and date. This uses the [AeroDataBox API](https://rapidapi.com/aedbx-aedbx/api/aerodatabox) via RapidAPI. Sign up at [RapidAPI](https://rapidapi.com/) and subscribe to the AeroDataBox API to get your API key. Once you have the key, add `RAPIDAPI_KEY` to your server `.dev.vars` file. This is optional — travel records can still be created manually without it.
 
 ### Cloudflare Workers
 
@@ -143,8 +148,6 @@ See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js
 [type-url]: https://www.typescriptlang.org/
 [vite]: https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E
 [vite-url]: https://vitejs.dev/
-[fastify]: https://img.shields.io/badge/fastify-202020?style=for-the-badge&logo=fastify&logoColor=white
-[fastify-url]: https://fastify.dev/
 [tailwindcss]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
 [tailwindcss-url]: https://tailwindcss.com/
 [hono]: https://img.shields.io/badge/Hono-E36002?style=for-the-badge&logo=hono&logoColor=white

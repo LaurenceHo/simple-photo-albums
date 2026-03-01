@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
-import AggregateController from '../controllers/aggregate-controller.js';
-import { HonoEnv } from '../env.js';
-import { optionalVerifyJwtClaim } from './auth-middleware.js';
+import AggregateController from '../controllers/aggregate-controller';
+import { HonoEnv } from '../env';
+import { optionalVerifyJwtClaim } from './auth-middleware';
 
 const controller = new AggregateController();
 const app = new Hono<HonoEnv>();

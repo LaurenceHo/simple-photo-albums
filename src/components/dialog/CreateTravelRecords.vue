@@ -26,10 +26,26 @@
       </div>
       <div class="mb-4 pb-4">
         <FloatLabel>
+          <InputText
+            v-model="flightNumber"
+            :disabled="isCreatingRecord"
+            :invalid="v$.flightNumber.$invalid"
+            class="w-full"
+            id="flight-number"
+          />
+          <label for="flight-number">Flight number</label>
+        </FloatLabel>
+        <small v-if="v$.flightNumber.$invalid" class="p-error">Flight number is required</small>
+        <small v-if="isFlightApiMode" class="text-yellow-600 block mt-1">
+          Departure and destination will be auto-populated from flight data.
+        </small>
+      </div>
+      <div v-if="!isFlightApiMode" class="mb-4 pb-4">
+        <FloatLabel>
           <AutoComplete
             v-model="selectedDeparture"
             :disabled="isCreatingRecord"
-            :invalid="v$.departure.$invalid"
+            :invalid="!isFlightApiMode && v$.departure.$invalid"
             :loading="isSearchingDeparture"
             :suggestions="placeSuggestions"
             class="w-full"
@@ -50,14 +66,14 @@
           </AutoComplete>
           <label for="departure">Departure</label>
         </FloatLabel>
-        <small v-if="v$.departure.$invalid" class="p-error">Departure is required</small>
+        <small v-if="!isFlightApiMode && v$.departure.$invalid" class="p-error">Departure is required</small>
       </div>
-      <div class="mb-4">
+      <div v-if="!isFlightApiMode" class="mb-4">
         <FloatLabel>
           <AutoComplete
             v-model="selectedDestination"
             :disabled="isCreatingRecord"
-            :invalid="v$.destination.$invalid"
+            :invalid="!isFlightApiMode && v$.destination.$invalid"
             :loading="isSearchingDestination"
             :suggestions="placeSuggestions"
             class="w-full"
@@ -78,9 +94,9 @@
           </AutoComplete>
           <label for="destination">Destination</label>
         </FloatLabel>
-        <small v-if="v$.destination.$invalid" class="p-error">Destination is required</small>
+        <small v-if="!isFlightApiMode && v$.destination.$invalid" class="p-error">Destination is required</small>
       </div>
-      <div class="mb-4">
+      <div v-if="!isFlightApiMode" class="mb-4">
         <Select
           v-model="selectedTransportType"
           :options="transportTypes"
@@ -111,9 +127,9 @@ import { TravelRecordService } from '@/services/travel-record-service';
 import { useDialogStore, useTravelRecordsStore } from '@/stores';
 import { useMutation } from '@tanstack/vue-query';
 import { useVuelidate } from '@vuelidate/core';
-import { helpers, required } from '@vuelidate/validators';
+import { helpers, required, requiredIf } from '@vuelidate/validators';
 import { storeToRefs } from 'pinia';
-import { AutoComplete, Button, DatePicker, Dialog, FloatLabel, Select } from 'primevue';
+import { AutoComplete, Button, DatePicker, Dialog, FloatLabel, InputText, Select } from 'primevue';
 import { useToast } from 'primevue/usetoast';
 import { computed, ref } from 'vue';
 
@@ -138,7 +154,10 @@ const placeSuggestions = ref([] as Place[]);
 const isSearchingDeparture = ref(false);
 const isSearchingDestination = ref(false);
 const selectedTransportType = ref({ name: 'Flight', code: 'flight' });
+const flightNumber = ref('');
 
+const normalizedFlightNumber = computed(() => flightNumber.value.trim());
+const isFlightApiMode = computed(() => !!normalizedFlightNumber.value);
 const departure = computed(() => selectedDeparture.value?.displayName || '');
 const destination = computed(() => selectedDestination.value?.displayName || '');
 
@@ -146,15 +165,18 @@ const rules = computed(() => ({
   travelDate: {
     required: helpers.withMessage('This field is required.', required),
   },
+  flightNumber: {
+    required: helpers.withMessage('Flight number is required.', requiredIf(isFlightApiMode)),
+  },
   departure: {
-    required: helpers.withMessage('This field is required.', required),
+    required: helpers.withMessage('This field is required.', requiredIf(() => !isFlightApiMode.value)),
   },
   destination: {
-    required: helpers.withMessage('This field is required.', required),
+    required: helpers.withMessage('This field is required.', requiredIf(() => !isFlightApiMode.value)),
   },
 }));
 
-const v$ = useVuelidate(rules, { travelDate, departure, destination });
+const v$ = useVuelidate(rules, { travelDate, flightNumber, departure, destination });
 
 const searchPlace = async (event: { query: string }, field: 'departure' | 'destination') => {
   if (event.query) {
@@ -186,21 +208,35 @@ const validateAndSubmit = async () => {
 
 const { isPending: isCreatingRecord, mutate: createRecord } = useMutation({
   mutationFn: () => {
+    const isoDateOnly = travelDate.value.toISOString().split('T')[0];
+    const transportType = TravelRecordSchema.shape.transportType.parse(
+      selectedTransportType.value?.code,
+    );
+
+    if (isFlightApiMode.value) {
+      // Flight API mode: send flightNumber only, server auto-populates departure/destination
+      const trimmedFlightNumber = normalizedFlightNumber.value;
+      const id = isoDateOnly + '#' + trimmedFlightNumber.replaceAll(/\s/g, '');
+      const travelRecord = {
+        id,
+        travelDate: travelDate.value,
+        transportType: 'flight' as const,
+        flightNumber: trimmedFlightNumber,
+      };
+      return TravelRecordService.createTravelRecord(travelRecord);
+    }
+
+    // Manual mode: departure and destination required
     if (!selectedDeparture.value || !selectedDestination.value) {
       throw new Error('Departure and destination must be selected');
     }
 
-    const isoDateOnly = travelDate.value.toISOString().split('T')[0];
     const id =
       isoDateOnly +
       '#' +
       selectedDeparture.value?.displayName?.split(' ')[0] +
       '#' +
       selectedDestination.value?.displayName?.split(' ')[0];
-
-    const transportType = TravelRecordSchema.shape.transportType.parse(
-      selectedTransportType.value?.code,
-    );
 
     const travelRecord = {
       id,
@@ -236,5 +272,6 @@ const onReset = () => {
   travelDate.value = '';
   selectedDeparture.value = null;
   selectedDestination.value = null;
+  flightNumber.value = '';
 };
 </script>

@@ -1,33 +1,35 @@
 import { Context } from 'hono';
+import { getLocation } from '../services/location-service';
 import { Place } from '../types';
-import { perform } from '../utils/helpers.js';
-import { BaseController } from './base-controller.js';
+import { BaseController } from './base-controller';
 
 export default class LocationController extends BaseController {
   // Find places by keyword
   findAll = async (c: Context) => {
     const textQuery = c.req.query('textQuery');
-    const response: any = await perform(
-      'POST',
-      ':searchText',
-      { textQuery, languageCode: 'en' },
-      'places.formattedAddress,places.displayName,places.location',
-    );
-    let places: Place[] = [];
-    if (response.places) {
-      places = response.places.map((place: any) => {
-        const { displayName, formattedAddress, location } = place;
-        return {
-          displayName: displayName.text,
-          formattedAddress,
-          location,
-        };
-      });
+    if (!textQuery?.trim()) {
+      return this.clientError(c, 'textQuery parameter is required');
     }
-    if (!response.error) {
+    try {
+      const response: any = await getLocation(
+        textQuery,
+        'places.formattedAddress,places.displayName,places.location',
+      );
+      let places: Place[] = [];
+      if (response.places) {
+        places = response.places.map((place: any) => {
+          const { displayName, formattedAddress, location } = place;
+          return {
+            displayName: displayName.text,
+            formattedAddress,
+            location,
+          };
+        });
+      }
       return this.ok<Place[]>(c, 'ok', places);
-    } else {
-      return this.fail(c, response.error.message);
+    } catch (err: any) {
+      console.error(`Location API error: ${err.message}`);
+      return this.fail(c, 'Failed to fetch location data');
     }
   };
 

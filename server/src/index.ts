@@ -10,14 +10,14 @@ globalThis.Node = Node as any;
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
-import { HonoEnv } from './env.js';
-import aggregateRoute from './routes/aggregate-route.js';
-import albumRoute from './routes/album-route.js';
-import albumTagsRoute from './routes/album-tag-route.js';
-import authRoute from './routes/auth-route.js';
-import locationRoute from './routes/location-route.js';
-import photoRoute from './routes/photo-route.js';
-import travelRecordRoute from './routes/travel-record-route.js';
+import { HonoEnv } from './env';
+import aggregateRoute from './routes/aggregate-route';
+import albumRoute from './routes/album-route';
+import albumTagsRoute from './routes/album-tag-route';
+import authRoute from './routes/auth-route';
+import locationRoute from './routes/location-route';
+import photoRoute from './routes/photo-route';
+import travelRecordRoute from './routes/travel-record-route';
 
 const app = new Hono<HonoEnv>();
 
@@ -61,6 +61,7 @@ app.use('*', async (c, next) => {
   if (c.env.VITE_GOOGLE_CLIENT_ID)
     process.env['VITE_GOOGLE_CLIENT_ID'] = c.env.VITE_GOOGLE_CLIENT_ID;
   if (c.env.ALBUM_URL) process.env['ALBUM_URL'] = c.env.ALBUM_URL;
+  if (c.env.RAPIDAPI_KEY) process.env['RAPIDAPI_KEY'] = c.env.RAPIDAPI_KEY;
   if (c.env.DEVELOPMENT) process.env['DEVELOPMENT'] = c.env.DEVELOPMENT;
 
   await next();

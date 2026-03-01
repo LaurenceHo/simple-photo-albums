@@ -5,24 +5,26 @@ export const mockTravelRecords = [
     id: '14257dd6-6e41-408d-b3e2-691ceb946591',
     travelDate: '2025-10-31T11:00:00.000Z',
     departure: {
-      displayName: 'Tokyo',
-      formattedAddress: 'Tokyo, Japan',
+      displayName: 'Tokyo Haneda Airport',
+      formattedAddress: 'Tokyo, JP',
       location: {
-        latitude: 35.6764225,
-        longitude: 139.650027,
+        latitude: 35.5494,
+        longitude: 139.7798,
       },
     },
     destination: {
-      displayName: 'Los Angeles',
-      formattedAddress: 'Los Angeles, CA, USA',
+      displayName: 'Los Angeles International Airport',
+      formattedAddress: 'Los Angeles, US',
       location: {
-        latitude: 34.0549076,
-        longitude: -118.24264299999999,
+        latitude: 33.9425,
+        longitude: -118.408,
       },
     },
     transportType: 'flight',
-    airline: null,
-    flightNumber: null,
+    airline: 'All Nippon Airways',
+    flightNumber: 'NH 106',
+    aircraftType: 'Boeing 777-300ER',
+    durationMinutes: 585,
     distance: 8819,
   },
   {
@@ -45,8 +47,10 @@ export const mockTravelRecords = [
       },
     },
     transportType: 'flight',
-    airline: null,
-    flightNumber: null,
+    airline: 'Air France',
+    flightNumber: 'AF 1447',
+    aircraftType: 'Airbus A320',
+    durationMinutes: 165,
     distance: 1349,
   },
   {
@@ -69,8 +73,10 @@ export const mockTravelRecords = [
       },
     },
     transportType: 'flight',
-    airline: null,
-    flightNumber: null,
+    airline: 'Qatar Airways',
+    flightNumber: 'QR 921',
+    aircraftType: 'Boeing 777-200LR',
+    durationMinutes: 1020,
     distance: 14538,
   },
   {
@@ -255,17 +261,26 @@ export const updateTravelRecords = http.put('/api/travelRecords', async () => {
   });
 });
 
-export const createTravelRecords = http.post('/api/travelRecords', async () => {
+export const createTravelRecords = http.post('/api/travelRecords', async ({ request }) => {
   await delay();
 
-  // return new HttpResponse(null, {
-  //   status: 500,
-  //   statusText: 'Error',
-  // });
+  const body = (await request.json()) as Record<string, unknown>;
+
+  // Simulate flight not found for specific flight number
+  if (body.flightNumber === 'XX999') {
+    return HttpResponse.json(
+      {
+        code: 404,
+        status: 'Not Found',
+        message: 'No flight data found for the given flight number and date',
+      },
+      { status: 404 },
+    );
+  }
 
   return HttpResponse.json({
     code: 200,
     status: 'Success',
-    message: 'ok',
+    message: 'Travel record created',
   });
 });
