@@ -11,6 +11,7 @@ export interface Env {
   GOOGLE_PLACES_API_KEY?: string;
   VITE_GOOGLE_CLIENT_ID?: string;
   ALBUM_URL?: string;
+  RAPIDAPI_KEY?: string;
   ENVIRONMENT?: string;
   DEVELOPMENT?: string;
 }
@@ -26,6 +27,7 @@ export type Bindings = {
   GOOGLE_PLACES_API_KEY: string;
   VITE_GOOGLE_CLIENT_ID: string;
   ALBUM_URL: string;
+  RAPIDAPI_KEY: string;
   ENVIRONMENT: string;
   DEVELOPMENT: string;
 };

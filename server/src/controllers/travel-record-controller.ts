@@ -1,5 +1,6 @@
 import { Context } from 'hono';
 import { HonoEnv } from '../env.js';
+import FlightService from '../services/flight-service.js';
 import TravelRecordService from '../services/travel-record-service.js';
 import { TravelRecord } from '../types/travel-record';
 import { UserPermission } from '../types/user-permission.js';
@@ -24,12 +25,40 @@ export default class TravelRecordController extends BaseController {
     const userEmail = user?.email ?? 'unknown';
     const travelRecordService = new TravelRecordService(c.env.DB);
 
-    // TODO: If departure and destination are present, calculate the distance using latitude and longitude
-    // If airline and flight number are present, calculate the distance using flight API
-    // If all of them are present, calculate the distance using the latitude and longitude
+    const isFlightApiMode =
+      body.transportType === 'flight' && body.flightNumber && !body.departure && !body.destination;
 
     let distance = 0;
-    if (body.departure && body.destination) {
+    let flightData: Partial<TravelRecord> = {};
+
+    if (isFlightApiMode) {
+      // Flight API mode: auto-populate from AeroDataBox
+      const apiKey = c.env.RAPIDAPI_KEY;
+      if (!apiKey) {
+        return this.fail(c, 'RAPIDAPI_KEY is not configured');
+      }
+
+      try {
+        const flightService = new FlightService(apiKey);
+        const date = body.travelDate.substring(0, 10);
+        const result = await flightService.getFlightByNumber(body.flightNumber!, date);
+
+        flightData = {
+          departure: result.departure,
+          destination: result.destination,
+          airline: result.airline,
+          flightNumber: result.flightNumber,
+          aircraftType: result.aircraftType,
+          distance: result.distance,
+          durationMinutes: result.durationMinutes,
+        };
+        distance = result.distance;
+      } catch (err: any) {
+        console.error(`Flight API error: ${err.message}`);
+        return this.clientError(c, `Failed to fetch flight data: ${err.message}`);
+      }
+    } else if (body.departure && body.destination) {
+      // Manual mode: calculate distance from coordinates
       if (
         !isValidCoordination(body.departure.location.latitude, body.departure.location.longitude) ||
         !isValidCoordination(
@@ -52,6 +81,7 @@ export default class TravelRecordController extends BaseController {
 
     const payload: TravelRecord = {
       ...body,
+      ...flightData,
       distance,
       createdBy: userEmail,
       updatedBy: userEmail,

@@ -10,6 +10,8 @@ export const TravelRecordSchema = z.object({
   airline: z.string().optional(),
   flightNumber: z.string().optional(),
   distance: z.number().optional(),
+  aircraftType: z.string().optional(),
+  durationMinutes: z.number().optional(),
   createdAt: z.string(),
   createdBy: z.string(),
   updatedAt: z.string(),

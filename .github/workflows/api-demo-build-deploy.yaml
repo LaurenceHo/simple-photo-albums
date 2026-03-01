@@ -18,9 +18,6 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
       AWS_REGION_NAME: ${{ secrets.AWS_REGION_NAME }}
-      VITE_GOOGLE_CLIENT_ID: 'VITE_GOOGLE_CLIENT_ID'
-      GOOGLE_PLACES_API_KEY: 'GOOGLE_PLACES_API_KEY'
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
       ALBUM_URL: ${{ vars.ALBUM_URL }}
       VITE_IMAGEKIT_CDN_URL: ${{ vars.VITE_IMAGEKIT_CDN_URL }}
       AWS_S3_BUCKET_NAME: ${{ vars.AWS_S3_BUCKET_NAME }}
@@ -29,6 +26,11 @@ jobs:
       D1_PHOTO_ALBUMS_WORKER: ${{ secrets.D1_PHOTO_ALBUMS_WORKER }}
       DEV_PHOTO_ALBUMS_DB_NAME: ${{ secrets.DEV_PHOTO_ALBUMS_DB_NAME }}
       DEV_PHOTO_ALBUMS_DB_ID: ${{ secrets.DEV_PHOTO_ALBUMS_DB_ID }}
+      # Do NOT use the secrets below in dev environment - they are dummy values for demo app
+      VITE_GOOGLE_CLIENT_ID: 'VITE_GOOGLE_CLIENT_ID'
+      GOOGLE_PLACES_API_KEY: 'GOOGLE_PLACES_API_KEY'
+      RAPIDAPI_KEY: 'RAPIDAPI_KEY'
+      JWT_SECRET: 'JWT_SECRET'
       # Dummy values for Prod vars to satisfy wrangler.toml validation
       PROD_PHOTO_ALBUMS_DB_NAME: 'PROD_PHOTO_ALBUMS_DB_NAME'
       PROD_PHOTO_ALBUMS_DB_ID: 'PROD_PHOTO_ALBUMS_DB_ID'
@@ -59,6 +61,7 @@ jobs:
           echo "VITE_GOOGLE_CLIENT_ID" | npx wrangler versions secret put VITE_GOOGLE_CLIENT_ID --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
           echo "GOOGLE_PLACES_API_KEY" | npx wrangler versions secret put GOOGLE_PLACES_API_KEY --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
           echo "JWT_SECRET" | npx wrangler versions secret put JWT_SECRET --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
+          echo "RAPIDAPI_KEY" | npx wrangler versions secret put RAPIDAPI_KEY --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
 
       - name: Deploy Cloudflare Worker
         run: |

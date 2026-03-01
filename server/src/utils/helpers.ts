@@ -23,7 +23,7 @@ export const uploadObject = async (filePath: string, object: any) => {
     return await s3Service.create(putObject);
   } catch (err) {
     console.error(`Failed to upload photo: ${err}`);
-    throw new Error('Error when uploading photo');
+    throw new Error('Error when uploading photo', { cause: err });
   }
 };
 
@@ -40,7 +40,7 @@ export const deleteObjects = async (objectKeys: string[]) => {
     return await s3Service.delete(deleteParams);
   } catch (err) {
     console.error(`Failed to delete photos: ${err}`);
-    throw new Error('Error when deleting photos');
+    throw new Error('Error when deleting photos', { cause: err });
   }
 };
 
@@ -63,7 +63,7 @@ export const emptyS3Folder = async (folderName: string) => {
     return await deleteObjects(listedObjectArray);
   } catch (err) {
     console.error(`Failed to empty S3 folder: ${err}`);
-    throw new Error('Error when emptying S3 folder');
+    throw new Error('Error when emptying S3 folder', { cause: err });
   }
 };
 
