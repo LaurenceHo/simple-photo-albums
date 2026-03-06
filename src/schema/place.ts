@@ -7,6 +7,7 @@ export const PlaceSchema = z.object({
     latitude: z.number(),
     longitude: z.number(),
   }),
+  country: z.string().optional(),
 });
 
 export type Place = z.infer<typeof PlaceSchema>;

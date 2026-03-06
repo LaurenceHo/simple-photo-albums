@@ -1,7 +1,10 @@
 import { Context } from 'hono';
 import { HonoEnv } from '../env';
+import AlbumService from '../services/album-service';
 import FlightService, { FlightNotFoundError } from '../services/flight-service';
+import { reverseGeocodeCountry } from '../services/location-service';
 import TravelRecordService from '../services/travel-record-service';
+import { Album } from '../types/album';
 import { TravelRecord } from '../types/travel-record';
 import { UserPermission } from '../types/user-permission';
 import { haversineDistance, isValidCoordination } from '../utils/helpers';
@@ -142,6 +145,170 @@ export default class TravelRecordController extends BaseController {
       return this.fail(c, 'Failed to delete travel record');
     }
   };
+
+  /**
+   * One-time backfill endpoint that reverse-geocodes missing `country` fields
+   * on departure/destination places in existing travel records and album places.
+   */
+  backfillCountry = async (c: Context<HonoEnv>) => {
+    const apiKey = c.env.GOOGLE_PLACES_API_KEY;
+    if (!apiKey) {
+      return this.fail(c, 'GOOGLE_PLACES_API_KEY is not configured');
+    }
+
+    const user = c.get('user') as UserPermission;
+    const userEmail = user?.email ?? 'system-backfill';
+
+    try {
+      const travelResult = await this.backfillTravelRecords(c.env.DB, apiKey, userEmail);
+      const albumResult = await this.backfillAlbums(c.env.DB, apiKey, userEmail);
+
+      return this.ok(c, 'Backfill complete', {
+        travelRecords: travelResult,
+        albums: albumResult,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`Failed to backfill country: ${message}`);
+      return this.fail(c, 'Failed to backfill country');
+    }
+  };
+
+  private async backfillTravelRecords(
+    db: D1Database,
+    apiKey: string,
+    userEmail: string,
+  ): Promise<{ updated: number; skipped: number }> {
+    const travelRecordService = new TravelRecordService(db);
+    const records = await travelRecordService.getAll();
+    let updated = 0;
+    let skipped = 0;
+
+    for (const record of records) {
+      const departure = record.departure
+        ? { ...record.departure, location: { ...record.departure.location } }
+        : undefined;
+      const destination = record.destination
+        ? { ...record.destination, location: { ...record.destination.location } }
+        : undefined;
+
+      const needsDeparture = departure && !departure.country;
+      const needsDestination = destination && !destination.country;
+
+      if (!needsDeparture && !needsDestination) {
+        skipped++;
+        continue;
+      }
+
+      let changed = false;
+
+      if (needsDeparture && departure) {
+        console.log(
+          `Backfill departure for record ${record.id}: lat=${departure.location.latitude}, lng=${departure.location.longitude}`,
+        );
+        const country = await reverseGeocodeCountry(
+          departure.location.latitude,
+          departure.location.longitude,
+          apiKey,
+        );
+        console.log(`  -> departure country resolved: ${country ?? 'undefined'}`);
+        if (country) {
+          departure.country = country;
+          changed = true;
+        }
+      }
+
+      if (needsDestination && destination) {
+        console.log(
+          `Backfill destination for record ${record.id}: lat=${destination.location.latitude}, lng=${destination.location.longitude}`,
+        );
+        const country = await reverseGeocodeCountry(
+          destination.location.latitude,
+          destination.location.longitude,
+          apiKey,
+        );
+        console.log(`  -> destination country resolved: ${country ?? 'undefined'}`);
+        if (country) {
+          destination.country = country;
+          changed = true;
+        }
+      }
+
+      if (!changed) {
+        console.log(`Skipping record ${record.id}: geocoding returned no country`);
+        skipped++;
+        continue;
+      }
+
+      const updatePayload: Partial<TravelRecord> = {
+        updatedBy: userEmail,
+        updatedAt: new Date().toISOString(),
+      };
+      if (departure) {
+        updatePayload.departure = departure;
+      }
+      if (destination) {
+        updatePayload.destination = destination;
+      }
+
+      console.log(
+        `Updating record ${record.id} with departure.country=${departure?.country}, destination.country=${destination?.country}`,
+      );
+      await travelRecordService.update(record.id!, updatePayload);
+
+      updated++;
+    }
+
+    return { updated, skipped };
+  }
+
+  private async backfillAlbums(
+    db: D1Database,
+    apiKey: string,
+    userEmail: string,
+  ): Promise<{ updated: number; skipped: number }> {
+    const albumService = new AlbumService(db);
+    const albums = await albumService.getAll();
+    let updated = 0;
+    let skipped = 0;
+
+    for (const album of albums) {
+      if (!album.place || album.place.country) {
+        skipped++;
+        continue;
+      }
+
+      const place = { ...album.place, location: { ...album.place.location } };
+
+      console.log(
+        `Backfill place for album ${album.id}: lat=${place.location.latitude}, lng=${place.location.longitude}`,
+      );
+      const country = await reverseGeocodeCountry(
+        place.location.latitude,
+        place.location.longitude,
+        apiKey,
+      );
+      console.log(`  -> album country resolved: ${country ?? 'undefined'}`);
+
+      if (!country) {
+        console.log(`Skipping album ${album.id}: geocoding returned no country`);
+        skipped++;
+        continue;
+      }
+
+      place.country = country;
+
+      await albumService.update(album.id, {
+        place,
+        updatedBy: userEmail,
+        updatedAt: new Date().toISOString(),
+      } as Album);
+
+      updated++;
+    }
+
+    return { updated, skipped };
+  }
 
   findOne = async (_c: Context) => {
     throw new Error('Method not implemented.');

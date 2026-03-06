@@ -1,12 +1,14 @@
 <template>
   <ProgressBar v-if="isFetching" mode="indeterminate" style="height: 4px"></ProgressBar>
   <div
-    id="album-location-map"
     :class="[
       'absolute top-0 right-0 bottom-0 left-0 w-full',
       `${isFetching ? 'mt-[72px]' : 'mt-14 md:mt-16'}`,
     ]"
-  ></div>
+  >
+    <div id="album-location-map" class="w-full h-full"></div>
+    <TravelStatsPanel />
+  </div>
 
   <CreateTravelRecords v-if="dialogStates.createTravelRecords" />
   <ShowTravelRecords v-if="dialogStates.showTravelRecords" />
@@ -14,6 +16,7 @@
 
 <script lang="ts" setup>
 import { CreateTravelRecords, ShowTravelRecords } from '@/components/dialog';
+import TravelStatsPanel from '@/components/TravelStatsPanel.vue';
 import {
   useAlbumLocationsStore,
   useDialogStore,
