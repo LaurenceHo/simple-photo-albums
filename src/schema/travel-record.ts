@@ -2,7 +2,7 @@ import { PlaceSchema } from '@/schema/place';
 import { z } from 'zod';
 
 export const TravelRecordSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   travelDate: z.string(),
   departure: PlaceSchema.optional(),
   destination: PlaceSchema.optional(),

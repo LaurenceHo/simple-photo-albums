@@ -159,7 +159,7 @@ const { dialogStates } = storeToRefs(dialogStore);
 const travelRecordsStore = useTravelRecordsStore();
 const { travelRecords } = storeToRefs(travelRecordsStore);
 const selectedRecord = ref<TravelRecord | null>(null);
-const selectedRecordId = ref<string>('');
+const selectedRecordId = ref<string | undefined>('');
 const hoveredRecord = ref<TravelRecord | null>(null);
 const detailPopover = ref();
 let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -209,7 +209,10 @@ const confirmDelete = (record: TravelRecord) => {
 };
 
 const { mutate: deleteRecord, reset } = useMutation({
-  mutationFn: async () => await TravelRecordService.deleteTravelRecord(selectedRecordId.value),
+  mutationFn: async () => {
+    if (!selectedRecordId.value) throw new Error('No record selected');
+    return await TravelRecordService.deleteTravelRecord(selectedRecordId.value);
+  },
   onSuccess: async () => {
     toast.add({
       severity: 'success',

@@ -208,7 +208,6 @@ const validateAndSubmit = async () => {
 
 const { isPending: isCreatingRecord, mutate: createRecord } = useMutation({
   mutationFn: () => {
-    const isoDateOnly = travelDate.value.toISOString().split('T')[0];
     const transportType = TravelRecordSchema.shape.transportType.parse(
       selectedTransportType.value?.code,
     );
@@ -216,9 +215,7 @@ const { isPending: isCreatingRecord, mutate: createRecord } = useMutation({
     if (isFlightApiMode.value) {
       // Flight API mode: send flightNumber only, server auto-populates departure/destination
       const trimmedFlightNumber = normalizedFlightNumber.value;
-      const id = isoDateOnly + '#' + trimmedFlightNumber.replaceAll(/\s/g, '');
       const travelRecord = {
-        id,
         travelDate: travelDate.value,
         transportType: 'flight' as const,
         flightNumber: trimmedFlightNumber,
@@ -231,15 +228,7 @@ const { isPending: isCreatingRecord, mutate: createRecord } = useMutation({
       throw new Error('Departure and destination must be selected');
     }
 
-    const id =
-      isoDateOnly +
-      '#' +
-      selectedDeparture.value?.displayName?.split(' ')[0] +
-      '#' +
-      selectedDestination.value?.displayName?.split(' ')[0];
-
     const travelRecord = {
-      id,
       travelDate: travelDate.value,
       departure: selectedDeparture.value,
       destination: selectedDestination.value,

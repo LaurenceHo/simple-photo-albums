@@ -242,10 +242,11 @@ describe('CreateTravelRecordsDialog', () => {
       }),
     );
 
-    // Should NOT include departure/destination
+    // Should NOT include departure/destination or id
     const callArgs = vi.mocked(TravelRecordService.createTravelRecord).mock.calls[0]?.[0];
     expect(callArgs).not.toHaveProperty('departure');
     expect(callArgs).not.toHaveProperty('destination');
+    expect(callArgs).not.toHaveProperty('id');
   });
 
   it('calls createTravelRecord with manual data when no flight number', async () => {
@@ -278,5 +279,8 @@ describe('CreateTravelRecordsDialog', () => {
         transportType: 'flight',
       }),
     );
+
+    const callArgs = vi.mocked(TravelRecordService.createTravelRecord).mock.calls[0]?.[0];
+    expect(callArgs).not.toHaveProperty('id');
   });
 });

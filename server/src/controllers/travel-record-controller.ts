@@ -85,6 +85,7 @@ export default class TravelRecordController extends BaseController {
     const payload: TravelRecord = {
       ...body,
       ...flightData,
+      id: crypto.randomUUID(),
       distance,
       createdBy: userEmail,
       updatedBy: userEmail,
@@ -107,6 +108,10 @@ export default class TravelRecordController extends BaseController {
     const userEmail = user?.email ?? 'unknown';
     const travelRecordService = new TravelRecordService(c.env.DB);
 
+    const id = body.id;
+    if (!id) {
+      return this.clientError(c, 'Record ID is required for update');
+    }
     const payload: any = { ...body };
     delete payload.id;
     delete payload.createdAt;
@@ -116,7 +121,7 @@ export default class TravelRecordController extends BaseController {
     payload.updatedAt = new Date().toISOString();
 
     try {
-      await travelRecordService.update(payload.id, payload);
+      await travelRecordService.update(id, payload);
       return this.ok(c, 'Travel record updated');
     } catch (err: any) {
       console.error(`Failed to update travel record in D1: ${err.message}`);
