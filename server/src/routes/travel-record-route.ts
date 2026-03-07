@@ -11,13 +11,6 @@ const app = new Hono<HonoEnv>();
 app.get('/api/travel-records', controller.findAll);
 
 app.post(
-  '/api/travel-records/backfill-country',
-  verifyJwtClaim,
-  verifyUserPermission,
-  controller.backfillCountry,
-);
-
-app.post(
   '/api/travel-records',
   verifyJwtClaim,
   verifyUserPermission,
