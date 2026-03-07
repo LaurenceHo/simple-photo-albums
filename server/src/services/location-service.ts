@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 const LOCATION_API_TIMEOUT_MS = 10_000;
 
 interface GeocodeAddressComponent {
@@ -14,6 +16,34 @@ interface GeocodeResponse {
   results: GeocodeResult[];
   status: string;
 }
+
+/** Zod schema for a single place in Google Places API v1 searchText response. */
+const PlacesAddressComponentSchema = z.object({
+  types: z.array(z.string()),
+  shortText: z.string().optional(),
+  longText: z.string().optional(),
+});
+
+const PlacesSearchResultSchema = z.object({
+  formattedAddress: z.string(),
+  displayName: z.object({
+    text: z.string(),
+    languageCode: z.string().optional(),
+  }),
+  location: z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+  }),
+  addressComponents: z.array(PlacesAddressComponentSchema).optional(),
+});
+
+const PlacesSearchResponseSchema = z.object({
+  places: z.array(PlacesSearchResultSchema).optional(),
+});
+
+export type PlacesSearchResponse = z.infer<typeof PlacesSearchResponseSchema>;
+export type PlacesSearchResult = z.infer<typeof PlacesSearchResultSchema>;
+export type PlacesAddressComponent = z.infer<typeof PlacesAddressComponentSchema>;
 
 /**
  * Reverse-geocode a lat/lng pair to extract the country short code (e.g. "JP", "FR").
@@ -68,7 +98,10 @@ export const reverseGeocodeCountry = async (
  * @param maskFields Fields to include in the response
  * @returns JSON response from Google Places API
  */
-export const getLocation = async (textQuery: string, maskFields: string) => {
+export const getLocation = async (
+  textQuery: string,
+  maskFields: string,
+): Promise<PlacesSearchResponse> => {
   const apiKey = process.env['GOOGLE_PLACES_API_KEY'];
   if (!apiKey) {
     throw new Error('GOOGLE_PLACES_API_KEY is not configured');
@@ -94,7 +127,8 @@ export const getLocation = async (textQuery: string, maskFields: string) => {
       throw new Error(`Google Places API returned ${response.status}`);
     }
 
-    return await response.json();
+    const data: unknown = await response.json();
+    return PlacesSearchResponseSchema.parse(data);
   } finally {
     clearTimeout(timeoutId);
   }

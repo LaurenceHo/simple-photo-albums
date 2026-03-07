@@ -20,9 +20,10 @@ export const AlbumTagService = {
   },
 
   deleteAlbumTag: async (tagId: string): Promise<ResponseStatus> => {
+    const encodedTagId = encodeURIComponent(tagId);
     const response = await BaseApiRequestService.perform(
       'DELETE',
-      `${ApiBaseUrl}/album-tags/${tagId}`,
+      `${ApiBaseUrl}/album-tags/${encodedTagId}`,
     );
     if (!response.ok) {
       throw new Error(response.statusText);

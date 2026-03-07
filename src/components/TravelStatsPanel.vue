@@ -84,7 +84,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { TransportStats } from '@/stores/travel-records';
 import { useTravelRecordsStore } from '@/stores';
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, onUnmounted, ref } from 'vue';

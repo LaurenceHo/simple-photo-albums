@@ -101,6 +101,18 @@ describe('AlbumTagService', () => {
       expect(result).toEqual(mockStatus);
     });
 
+    it('should encode special characters in tagId', async () => {
+      const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ status: 'success' }) };
+      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+
+      await AlbumTagService.deleteAlbumTag('tag/with spaces');
+
+      expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
+        'DELETE',
+        `${ApiBaseUrl}/album-tags/tag%2Fwith%20spaces`,
+      );
+    });
+
     it('should throw an error if the API request fails', async () => {
       const mockResponse = { ok: false, statusText: 'Not Found' };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
