@@ -110,7 +110,7 @@ const env = {
 
 const postTravelRecord = (body: Record<string, unknown>, envOverride = env) =>
   app.request(
-    '/api/travelRecords',
+    '/api/travel-records',
     {
       method: 'POST',
       body: JSON.stringify(body),
@@ -125,7 +125,7 @@ describe('travel record route', () => {
   });
 
   it('should return all travel records', async () => {
-    const response = await app.request('/api/travelRecords', {}, env);
+    const response = await app.request('/api/travel-records', {}, env);
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.code).toBe(200);

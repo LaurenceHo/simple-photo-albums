@@ -20,9 +20,9 @@ app.get('/api/auth/csrf', async (c) => {
   return c.json({ state });
 });
 
-app.get('/api/auth/userInfo', controller.readUserInfoFromToken);
+app.get('/api/auth/user-info', controller.readUserInfoFromToken);
 
-app.post('/api/auth/verifyIdToken', controller.verifyIdToken);
+app.post('/api/auth/verify-id-token', controller.verifyIdToken);
 
 app.post('/api/auth/logout', controller.logout);
 

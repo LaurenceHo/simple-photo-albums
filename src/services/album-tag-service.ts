@@ -4,7 +4,7 @@ import { BaseApiRequestService } from '@/services/base-api-request-service';
 
 export const AlbumTagService = {
   getAlbumTags: async (): Promise<ApiResponse<AlbumTag[]>> => {
-    const response = await BaseApiRequestService.perform('GET', `${ApiBaseUrl}/albumTags`);
+    const response = await BaseApiRequestService.perform('GET', `${ApiBaseUrl}/album-tags`);
     if (!response.ok) {
       throw new Error(response.statusText);
     }
@@ -12,7 +12,7 @@ export const AlbumTagService = {
   },
 
   createAlbumTags: async (tags: AlbumTag[]): Promise<ResponseStatus> => {
-    const response = await BaseApiRequestService.perform('POST', `${ApiBaseUrl}/albumTags`, tags);
+    const response = await BaseApiRequestService.perform('POST', `${ApiBaseUrl}/album-tags`, tags);
     if (!response.ok) {
       throw new Error(response.statusText);
     }
@@ -22,7 +22,7 @@ export const AlbumTagService = {
   deleteAlbumTag: async (tagId: string): Promise<ResponseStatus> => {
     const response = await BaseApiRequestService.perform(
       'DELETE',
-      `${ApiBaseUrl}/albumTags/${tagId}`,
+      `${ApiBaseUrl}/album-tags/${tagId}`,
     );
     if (!response.ok) {
       throw new Error(response.statusText);

@@ -47,7 +47,7 @@ describe('AuthService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'POST',
-        `${ApiBaseUrl}/auth/verifyIdToken`,
+        `${ApiBaseUrl}/auth/verify-id-token`,
         { token: mockToken, state: mockState },
       );
     });
@@ -81,7 +81,7 @@ describe('AuthService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'GET',
-        `${ApiBaseUrl}/auth/userInfo`,
+        `${ApiBaseUrl}/auth/user-info`,
       );
     });
 

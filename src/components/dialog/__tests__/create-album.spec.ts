@@ -479,7 +479,7 @@ describe('CreateAlbum', () => {
     // Check invalidations
     expect(queryClient.invalidateQueries).toHaveBeenCalled();
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith(
-      expect.objectContaining({ queryKey: expect.arrayContaining(['countAlbumsByYear']) }),
+      expect.objectContaining({ queryKey: expect.arrayContaining(['count-albums-by-year']) }),
     );
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith(
       expect.objectContaining({

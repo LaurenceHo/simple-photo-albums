@@ -1,6 +1,6 @@
 import { delay, http, HttpResponse } from 'msw';
 
-export const getAlbumTags = http.get('/api/albumTags', async () => {
+export const getAlbumTags = http.get('/api/album-tags', async () => {
   await delay();
 
   return HttpResponse.json({
@@ -21,7 +21,7 @@ export const getAlbumTags = http.get('/api/albumTags', async () => {
   });
 });
 
-export const createAlbumTag = http.post('/api/albumTags', async () => {
+export const createAlbumTag = http.post('/api/album-tags', async () => {
   await delay();
 
   return HttpResponse.json({
@@ -36,7 +36,7 @@ export const createAlbumTag = http.post('/api/albumTags', async () => {
   // });
 });
 
-export const deleteAlbumTag = http.delete('/api/albumTags/**', async () => {
+export const deleteAlbumTag = http.delete('/api/album-tags/**', async () => {
   await delay();
 
   return HttpResponse.json({

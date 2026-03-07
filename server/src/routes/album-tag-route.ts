@@ -8,16 +8,16 @@ import { verifyJwtClaim, verifyUserPermission } from './auth-middleware';
 const controller = new AlbumTagController();
 const app = new Hono<HonoEnv>();
 
-app.get('/api/albumTags', controller.findAll);
+app.get('/api/album-tags', controller.findAll);
 
 app.post(
-  '/api/albumTags',
+  '/api/album-tags',
   verifyJwtClaim,
   verifyUserPermission,
   zValidator('json', CreateTagSchema),
   controller.create,
 );
 
-app.delete('/api/albumTags/:tagId', verifyJwtClaim, verifyUserPermission, controller.delete);
+app.delete('/api/album-tags/:tagId', verifyJwtClaim, verifyUserPermission, controller.delete);
 
 export default app;

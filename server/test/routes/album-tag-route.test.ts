@@ -57,16 +57,14 @@ describe('album tag route with auth', () => {
     vi.clearAllMocks();
   });
 
-  // Validation tests commented out as validation schema was removed
-  /*
-  it('should return 422 when adding tag and request body is empty', async () => {
-    const response = await app.request('/api/albumTags', { method: 'POST' }, env);
-    expect(response.status).toBe(422);
+  it('should return 400 when adding tag and request body is empty', async () => {
+    const response = await app.request('/api/album-tags', { method: 'POST' }, env);
+    expect(response.status).toBe(400);
   });
 
-  it('should return 422 when adding tag and request body is not array', async () => {
+  it('should return 400 when adding tag and request body is not array', async () => {
     const response = await app.request(
-      '/api/albumTags',
+      '/api/album-tags',
       {
         method: 'POST',
         body: JSON.stringify({ tag: 'tag1' }),
@@ -74,13 +72,12 @@ describe('album tag route with auth', () => {
       },
       env,
     );
-    expect(response.status).toBe(422);
+    expect(response.status).toBe(400);
   });
-  */
 
   it('should return 200 when adding tag', async () => {
     const response = await app.request(
-      '/api/albumTags',
+      '/api/album-tags',
       {
         method: 'POST',
         body: JSON.stringify([{ tag: 'tag1' }]),
@@ -98,12 +95,12 @@ describe('album tag route with auth', () => {
   });
 
   it('should return 404 when tag is missing', async () => {
-    const response = await app.request('/api/albumTags', { method: 'DELETE' }, env);
+    const response = await app.request('/api/album-tags', { method: 'DELETE' }, env);
     expect(response.status).toBe(404);
   });
 
   it('should return 200 when deleting tag', async () => {
-    const response = await app.request('/api/albumTags/tag1', { method: 'DELETE' }, env);
+    const response = await app.request('/api/album-tags/tag1', { method: 'DELETE' }, env);
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body).toEqual({
@@ -124,7 +121,7 @@ describe('album tag route without auth', () => {
   });
 
   it('should return correct tags', async () => {
-    const response = await app.request('/api/albumTags', {}, env);
+    const response = await app.request('/api/album-tags', {}, env);
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body).toEqual({
@@ -137,7 +134,7 @@ describe('album tag route without auth', () => {
 
   it('where creating tag, should return 401 error when unauthorized', async () => {
     const response = await app.request(
-      '/api/albumTags',
+      '/api/album-tags',
       {
         method: 'POST',
         body: JSON.stringify([{ tag: 'tag1' }]),
@@ -149,7 +146,7 @@ describe('album tag route without auth', () => {
   });
 
   it('when deleting tag, should return 401 error when unauthorized', async () => {
-    const response = await app.request('/api/albumTags/tag1', { method: 'DELETE' }, env);
+    const response = await app.request('/api/album-tags/tag1', { method: 'DELETE' }, env);
     expect(response.status).toBe(401);
   });
 });

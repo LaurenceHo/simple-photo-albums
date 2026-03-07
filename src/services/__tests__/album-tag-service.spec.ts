@@ -22,7 +22,7 @@ describe('AlbumTagService', () => {
 
       await AlbumTagService.getAlbumTags();
 
-      expect(BaseApiRequestService.perform).toHaveBeenCalledWith('GET', `${ApiBaseUrl}/albumTags`);
+      expect(BaseApiRequestService.perform).toHaveBeenCalledWith('GET', `${ApiBaseUrl}/album-tags`);
     });
 
     it('should return the JSON response from the API', async () => {
@@ -53,7 +53,7 @@ describe('AlbumTagService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'POST',
-        `${ApiBaseUrl}/albumTags`,
+        `${ApiBaseUrl}/album-tags`,
         mockTags,
       );
     });
@@ -87,7 +87,7 @@ describe('AlbumTagService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'DELETE',
-        `${ApiBaseUrl}/albumTags/1`,
+        `${ApiBaseUrl}/album-tags/1`,
       );
     });
 

@@ -243,7 +243,7 @@ export const mockTravelRecords = [
   },
 ];
 
-export const getTravelRecords = http.get('/api/travelRecords', async () => {
+export const getTravelRecords = http.get('/api/travel-records', async () => {
   await delay();
 
   // return new HttpResponse(null, {
@@ -259,7 +259,7 @@ export const getTravelRecords = http.get('/api/travelRecords', async () => {
   });
 });
 
-export const deleteTravelRecord = http.delete('/api/travelRecords/**', async () => {
+export const deleteTravelRecord = http.delete('/api/travel-records/**', async () => {
   await delay();
 
   return HttpResponse.json({
@@ -269,7 +269,7 @@ export const deleteTravelRecord = http.delete('/api/travelRecords/**', async () 
   });
 });
 
-export const updateTravelRecords = http.put('/api/travelRecords', async () => {
+export const updateTravelRecords = http.put('/api/travel-records', async () => {
   await delay();
 
   return HttpResponse.json({
@@ -279,7 +279,7 @@ export const updateTravelRecords = http.put('/api/travelRecords', async () => {
   });
 });
 
-export const createTravelRecords = http.post('/api/travelRecords', async ({ request }) => {
+export const createTravelRecords = http.post('/api/travel-records', async ({ request }) => {
   await delay();
 
   const body = (await request.json()) as Record<string, unknown>;

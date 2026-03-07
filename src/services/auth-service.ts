@@ -11,7 +11,7 @@ export const AuthService = {
   login: async (token: string, state: string): Promise<ApiResponse<UserPermission>> => {
     const response = await BaseApiRequestService.perform(
       'POST',
-      `${ApiBaseUrl}/auth/verifyIdToken`,
+      `${ApiBaseUrl}/auth/verify-id-token`,
       { token, state },
     );
     if (!response.ok) {
@@ -21,7 +21,7 @@ export const AuthService = {
   },
 
   getUserInfo: async (): Promise<ApiResponse<UserPermission>> => {
-    const response = await BaseApiRequestService.perform('GET', `${ApiBaseUrl}/auth/userInfo`);
+    const response = await BaseApiRequestService.perform('GET', `${ApiBaseUrl}/auth/user-info`);
     return response.json();
   },
 

@@ -24,13 +24,13 @@ export default class AggregateController extends BaseController {
 
   findOne = async (c: Context<HonoEnv>) => {
     const aggregateType = c.req.param('type') as
-      | 'albumsWithLocation'
-      | 'countAlbumsByYear'
-      | 'featuredAlbums';
+      | 'albums-with-location'
+      | 'count-albums-by-year'
+      | 'featured-albums';
 
     const aggregationService = new AggregationService(c.env.DB);
 
-    if (aggregateType === 'albumsWithLocation') {
+    if (aggregateType === 'albums-with-location') {
       const user = c.get('user') as UserPermission;
       const isAdmin = user?.role === 'admin';
       try {
@@ -40,7 +40,7 @@ export default class AggregateController extends BaseController {
         console.error(`Failed to query aggregate data for photo album with location: ${err}`);
         return this.fail(c, 'Failed to query aggregate data for photo album with location');
       }
-    } else if (aggregateType === 'countAlbumsByYear') {
+    } else if (aggregateType === 'count-albums-by-year') {
       const user = c.get('user') as UserPermission;
       const isAdmin = user?.role === 'admin';
 
@@ -51,7 +51,7 @@ export default class AggregateController extends BaseController {
         console.error(`Failed to query aggregate data for count albums by year: ${err}`);
         return this.fail(c, 'Failed to query aggregate data for count albums by year');
       }
-    } else if (aggregateType === 'featuredAlbums') {
+    } else if (aggregateType === 'featured-albums') {
       try {
         const featuredAlbums = await aggregationService.getFeaturedAlbums();
         return this.ok<Album[]>(c, 'ok', featuredAlbums);

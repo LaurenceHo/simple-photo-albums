@@ -54,7 +54,7 @@ describe("aggregate route when it's admin", () => {
   it('should return album list', async () => {
     const token = await mockSignedCookies();
     const response = await app.request(
-      '/api/aggregate/albumsWithLocation',
+      '/api/aggregate/albums-with-location',
       {
         headers: {
           Cookie: `jwt=${token}`,
@@ -75,7 +75,7 @@ describe("aggregate route when it's admin", () => {
   it('should return count albums include private album', async () => {
     const token = await mockSignedCookies();
     const response = await app.request(
-      '/api/aggregate/countAlbumsByYear',
+      '/api/aggregate/count-albums-by-year',
       {
         headers: {
           Cookie: `jwt=${token}`,

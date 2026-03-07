@@ -32,7 +32,7 @@ describe('TravelRecordService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'GET',
-        `${ApiBaseUrl}/travelRecords`,
+        `${ApiBaseUrl}/travel-records`,
       );
     });
 
@@ -63,7 +63,7 @@ describe('TravelRecordService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'POST',
-        `${ApiBaseUrl}/travelRecords`,
+        `${ApiBaseUrl}/travel-records`,
         mockTravelRecord,
       );
     });
@@ -95,7 +95,7 @@ describe('TravelRecordService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'PUT',
-        `${ApiBaseUrl}/travelRecords`,
+        `${ApiBaseUrl}/travel-records`,
         mockTravelRecord,
       );
     });
@@ -128,7 +128,7 @@ describe('TravelRecordService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'DELETE',
-        `${ApiBaseUrl}/travelRecords/123`,
+        `${ApiBaseUrl}/travel-records/123`,
       );
     });
 

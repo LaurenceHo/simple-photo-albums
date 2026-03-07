@@ -9,15 +9,15 @@ export const AlbumsByYearSchema = z.array(
 );
 
 export const AggregateTypeSchema = z.enum([
-  'albumsWithLocation',
-  'countAlbumsByYear',
-  'featuredAlbums',
+  'albums-with-location',
+  'count-albums-by-year',
+  'featured-albums',
 ]);
 
 const DataAggregateValueMapSchema = z.object({
-  albumsWithLocation: z.array(AlbumSchema),
-  countAlbumsByYear: AlbumsByYearSchema,
-  featuredAlbums: z.array(AlbumSchema),
+  'albums-with-location': z.array(AlbumSchema),
+  'count-albums-by-year': AlbumsByYearSchema,
+  'featured-albums': z.array(AlbumSchema),
 });
 
 export type AggregateType = z.infer<typeof AggregateTypeSchema>;
