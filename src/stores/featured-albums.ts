@@ -8,7 +8,7 @@ const fetchFeaturedAlbums = async () => {
     data: albums,
     code,
     message,
-  } = (await AggregateService.getAggregateData('featuredAlbums')) as ApiResponse<AlbumItem[]>;
+  } = (await AggregateService.getAggregateData('featured-albums')) as ApiResponse<AlbumItem[]>;
 
   if (code !== 200) {
     console.error('Error fetching feature albums:', message);
@@ -24,7 +24,7 @@ export const useFeaturedAlbumsStore = defineStore('featuredAlbums', () => {
     isFetching,
     refetch: refetchFeaturedAlbums,
   } = useQuery({
-    queryKey: ['featuredAlbums'],
+    queryKey: ['featured-albums'],
     queryFn: fetchFeaturedAlbums,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

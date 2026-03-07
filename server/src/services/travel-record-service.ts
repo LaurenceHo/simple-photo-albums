@@ -23,7 +23,8 @@ export default class TravelRecordService extends D1Service<TravelRecord> {
     if (item.departure && typeof item.departure === 'string') {
       try {
         item.departure = JSON.parse(item.departure);
-      } catch (e) {
+      } catch (e: any) {
+        console.error(`Failed to parse departure: ${e.message}, value: ${item.departure}`);
         item.departure = undefined;
       }
     }
@@ -32,7 +33,8 @@ export default class TravelRecordService extends D1Service<TravelRecord> {
     if (item.destination && typeof item.destination === 'string') {
       try {
         item.destination = JSON.parse(item.destination);
-      } catch (e) {
+      } catch (e: any) {
+        console.error(`Failed to parse destination: ${e.message}, value: ${item.destination}`);
         item.destination = undefined;
       }
     }

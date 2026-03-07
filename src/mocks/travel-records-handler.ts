@@ -11,6 +11,7 @@ export const mockTravelRecords = [
         latitude: 35.5494,
         longitude: 139.7798,
       },
+      country: 'JP',
     },
     destination: {
       displayName: 'Los Angeles International Airport',
@@ -19,6 +20,7 @@ export const mockTravelRecords = [
         latitude: 33.9425,
         longitude: -118.408,
       },
+      country: 'US',
     },
     transportType: 'flight',
     airline: 'All Nippon Airways',
@@ -37,6 +39,7 @@ export const mockTravelRecords = [
         latitude: 48.857547499999995,
         longitude: 2.3513764999999998,
       },
+      country: 'FR',
     },
     destination: {
       displayName: 'Sarajevo',
@@ -45,6 +48,7 @@ export const mockTravelRecords = [
         latitude: 43.856258600000004,
         longitude: 18.4130763,
       },
+      country: 'BA',
     },
     transportType: 'flight',
     airline: 'Air France',
@@ -63,6 +67,7 @@ export const mockTravelRecords = [
         latitude: -36.85088270000001,
         longitude: 174.7644881,
       },
+      country: 'NZ',
     },
     destination: {
       displayName: 'Doha',
@@ -71,6 +76,7 @@ export const mockTravelRecords = [
         latitude: 25.285447299999998,
         longitude: 51.531039799999995,
       },
+      country: 'QA',
     },
     transportType: 'flight',
     airline: 'Qatar Airways',
@@ -89,6 +95,7 @@ export const mockTravelRecords = [
         latitude: 25.285447299999998,
         longitude: 51.531039799999995,
       },
+      country: 'QA',
     },
     destination: {
       displayName: 'Paris',
@@ -97,6 +104,7 @@ export const mockTravelRecords = [
         latitude: 48.857547499999995,
         longitude: 2.3513764999999998,
       },
+      country: 'FR',
     },
     transportType: 'flight',
     airline: null,
@@ -113,6 +121,7 @@ export const mockTravelRecords = [
         latitude: 43.856258600000004,
         longitude: 18.4130763,
       },
+      country: 'BA',
     },
     destination: {
       displayName: 'Istanbul',
@@ -121,6 +130,7 @@ export const mockTravelRecords = [
         latitude: 41.0082376,
         longitude: 28.9783589,
       },
+      country: 'TR',
     },
     transportType: 'flight',
     airline: null,
@@ -137,6 +147,7 @@ export const mockTravelRecords = [
         latitude: -36.85088270000001,
         longitude: 174.7644881,
       },
+      country: 'NZ',
     },
     destination: {
       displayName: 'Brisbane',
@@ -145,6 +156,7 @@ export const mockTravelRecords = [
         latitude: -27.4704528,
         longitude: 153.0260341,
       },
+      country: 'AU',
     },
     transportType: 'flight',
     airline: null,
@@ -161,6 +173,7 @@ export const mockTravelRecords = [
         latitude: -27.4704528,
         longitude: 153.0260341,
       },
+      country: 'AU',
     },
     destination: {
       displayName: 'Tokyo',
@@ -169,6 +182,7 @@ export const mockTravelRecords = [
         latitude: 35.6764225,
         longitude: 139.650027,
       },
+      country: 'JP',
     },
     transportType: 'flight',
     airline: null,
@@ -185,6 +199,7 @@ export const mockTravelRecords = [
         latitude: 51.5072178,
         longitude: -0.12758619999999998,
       },
+      country: 'GB',
     },
     destination: {
       displayName: 'Paris',
@@ -193,6 +208,7 @@ export const mockTravelRecords = [
         latitude: 48.857547499999995,
         longitude: 2.3513764999999998,
       },
+      country: 'FR',
     },
     transportType: 'train',
     airline: null,
@@ -209,6 +225,7 @@ export const mockTravelRecords = [
         latitude: 43.856258600000004,
         longitude: 18.4130763,
       },
+      country: 'BA',
     },
     destination: {
       displayName: 'Bar',
@@ -217,6 +234,7 @@ export const mockTravelRecords = [
         latitude: 42.0912106,
         longitude: 19.089904,
       },
+      country: 'ME',
     },
     transportType: 'bus',
     airline: null,
@@ -225,7 +243,7 @@ export const mockTravelRecords = [
   },
 ];
 
-export const getTravelRecords = http.get('/api/travelRecords', async () => {
+export const getTravelRecords = http.get('/api/travel-records', async () => {
   await delay();
 
   // return new HttpResponse(null, {
@@ -241,7 +259,7 @@ export const getTravelRecords = http.get('/api/travelRecords', async () => {
   });
 });
 
-export const deleteTravelRecord = http.delete('/api/travelRecords/**', async () => {
+export const deleteTravelRecord = http.delete('/api/travel-records/**', async () => {
   await delay();
 
   return HttpResponse.json({
@@ -251,7 +269,7 @@ export const deleteTravelRecord = http.delete('/api/travelRecords/**', async () 
   });
 });
 
-export const updateTravelRecords = http.put('/api/travelRecords', async () => {
+export const updateTravelRecords = http.put('/api/travel-records', async () => {
   await delay();
 
   return HttpResponse.json({
@@ -261,7 +279,7 @@ export const updateTravelRecords = http.put('/api/travelRecords', async () => {
   });
 });
 
-export const createTravelRecords = http.post('/api/travelRecords', async ({ request }) => {
+export const createTravelRecords = http.post('/api/travel-records', async ({ request }) => {
   await delay();
 
   const body = (await request.json()) as Record<string, unknown>;

@@ -1,6 +1,6 @@
 import { delay, http, HttpResponse } from 'msw';
 
-export const getUserPermission = http.get('/api/auth/userInfo', async () => {
+export const getUserPermission = http.get('/api/auth/user-info', async () => {
   await delay();
   // return new HttpResponse(null, {
   //   status: 500,
@@ -20,7 +20,7 @@ export const getUserPermission = http.get('/api/auth/userInfo', async () => {
   });
 });
 
-export const userLogin = http.post('/api/auth/verifyIdToken', async () => {
+export const userLogin = http.post('/api/auth/verify-id-token', async () => {
   await delay();
   return HttpResponse.json({
     code: 200,

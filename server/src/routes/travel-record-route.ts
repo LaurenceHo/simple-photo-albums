@@ -8,10 +8,17 @@ import { verifyJwtClaim, verifyUserPermission } from './auth-middleware';
 const controller = new TravelRecordController();
 const app = new Hono<HonoEnv>();
 
-app.get('/api/travelRecords', controller.findAll);
+app.get('/api/travel-records', controller.findAll);
 
 app.post(
-  '/api/travelRecords',
+  '/api/travel-records/backfill-country',
+  verifyJwtClaim,
+  verifyUserPermission,
+  controller.backfillCountry,
+);
+
+app.post(
+  '/api/travel-records',
   verifyJwtClaim,
   verifyUserPermission,
   zValidator('json', CreateTravelRecordSchema),
@@ -19,13 +26,13 @@ app.post(
 );
 
 app.put(
-  '/api/travelRecords',
+  '/api/travel-records',
   verifyJwtClaim,
   verifyUserPermission,
   zValidator('json', UpdateTravelRecordSchema),
   controller.update,
 );
 
-app.delete('/api/travelRecords/:recordId', verifyJwtClaim, verifyUserPermission, controller.delete);
+app.delete('/api/travel-records/:recordId', verifyJwtClaim, verifyUserPermission, controller.delete);
 
 export default app;

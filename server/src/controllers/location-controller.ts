@@ -1,34 +1,35 @@
 import { Context } from 'hono';
+import type { PlacesSearchResult } from '../services/location-service';
 import { getLocation } from '../services/location-service';
 import { Place } from '../types';
 import { BaseController } from './base-controller';
 
 export default class LocationController extends BaseController {
-  // Find places by keyword
+  /** Find places by keyword. */
   findAll = async (c: Context) => {
     const textQuery = c.req.query('textQuery');
     if (!textQuery?.trim()) {
       return this.clientError(c, 'textQuery parameter is required');
     }
     try {
-      const response: any = await getLocation(
+      const response = await getLocation(
         textQuery,
-        'places.formattedAddress,places.displayName,places.location',
+        'places.formattedAddress,places.displayName,places.location,places.addressComponents',
       );
-      let places: Place[] = [];
-      if (response.places) {
-        places = response.places.map((place: any) => {
-          const { displayName, formattedAddress, location } = place;
-          return {
-            displayName: displayName.text,
-            formattedAddress,
-            location,
-          };
-        });
-      }
+      const places: Place[] = (response.places ?? []).map((place: PlacesSearchResult) => {
+        const { displayName, formattedAddress, location, addressComponents } = place;
+        const countryComponent = addressComponents?.find((c) => c.types.includes('country'));
+        return {
+          displayName: displayName.text,
+          formattedAddress,
+          location,
+          country: countryComponent?.shortText,
+        };
+      });
       return this.ok<Place[]>(c, 'ok', places);
-    } catch (err: any) {
-      console.error(`Location API error: ${err.message}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`Location API error: ${message}`);
       return this.fail(c, 'Failed to fetch location data');
     }
   };

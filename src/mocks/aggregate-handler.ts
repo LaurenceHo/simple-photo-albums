@@ -147,7 +147,7 @@ export const mockFeaturedAlbums = [
   },
 ];
 
-export const getFeaturedAlbums = http.get('/api/aggregate/featuredAlbums', async () => {
+export const getFeaturedAlbums = http.get('/api/aggregate/featured-albums', async () => {
   await delay();
 
   return HttpResponse.json({
@@ -158,7 +158,7 @@ export const getFeaturedAlbums = http.get('/api/aggregate/featuredAlbums', async
   });
 });
 
-export const getCountAlbumsByYear = http.get('/api/aggregate/countAlbumsByYear', async () => {
+export const getCountAlbumsByYear = http.get('/api/aggregate/count-albums-by-year', async () => {
   await delay();
 
   return HttpResponse.json({
@@ -182,7 +182,7 @@ export const getCountAlbumsByYear = http.get('/api/aggregate/countAlbumsByYear',
   });
 });
 
-export const getAlbumWithLocation = http.get('/api/aggregate/albumsWithLocation', async () => {
+export const getAlbumWithLocation = http.get('/api/aggregate/albums-with-location', async () => {
   await delay();
 
   return HttpResponse.json({

@@ -4,7 +4,7 @@ import { BaseApiRequestService } from '@/services/base-api-request-service';
 
 export const TravelRecordService = {
   getTravelRecords: async (): Promise<ApiResponse<TravelRecord[]>> => {
-    const response = await BaseApiRequestService.perform('GET', `${ApiBaseUrl}/travelRecords`);
+    const response = await BaseApiRequestService.perform('GET', `${ApiBaseUrl}/travel-records`);
     if (!response.ok) {
       throw new Error(response.statusText);
     }
@@ -14,7 +14,7 @@ export const TravelRecordService = {
   createTravelRecord: async (travelRecord: TravelRecord): Promise<ResponseStatus> => {
     const response = await BaseApiRequestService.perform(
       'POST',
-      `${ApiBaseUrl}/travelRecords`,
+      `${ApiBaseUrl}/travel-records`,
       travelRecord,
     );
     if (!response.ok) {
@@ -26,7 +26,7 @@ export const TravelRecordService = {
   updateTravelRecord: async (travelRecord: TravelRecord): Promise<ResponseStatus> => {
     const response = await BaseApiRequestService.perform(
       'PUT',
-      `${ApiBaseUrl}/travelRecords`,
+      `${ApiBaseUrl}/travel-records`,
       travelRecord,
     );
     if (!response.ok) {
@@ -39,7 +39,7 @@ export const TravelRecordService = {
     const encodedRecordId = encodeURIComponent(recordId);
     const response = await BaseApiRequestService.perform(
       'DELETE',
-      `${ApiBaseUrl}/travelRecords/${encodedRecordId}`,
+      `${ApiBaseUrl}/travel-records/${encodedRecordId}`,
     );
     if (!response.ok) {
       throw new Error(response.statusText);

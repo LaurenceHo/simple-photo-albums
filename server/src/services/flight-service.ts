@@ -89,6 +89,7 @@ export default class FlightService {
         latitude: departureAirport?.location?.lat ?? 0,
         longitude: departureAirport?.location?.lon ?? 0,
       },
+      country: departureAirport?.countryCode,
     };
 
     const destination: Place = {
@@ -103,6 +104,7 @@ export default class FlightService {
         latitude: arrivalAirport?.location?.lat ?? 0,
         longitude: arrivalAirport?.location?.lon ?? 0,
       },
+      country: arrivalAirport?.countryCode,
     };
 
     let durationMinutes = 0;

@@ -2,6 +2,31 @@ import { Context } from 'hono';
 import { ApiResponse } from '../types/api-response';
 import { BaseController as IBaseController } from '../types/models';
 
+const AUDIT_FIELDS = new Set(['createdAt', 'createdBy', 'updatedAt', 'updatedBy']);
+
+/**
+ * Recursively strips audit fields (createdAt, createdBy, updatedAt, updatedBy)
+ * from plain objects and arrays before sending to the client.
+ */
+function stripAuditFields<T>(data: T): T {
+  if (data === null || data === undefined || typeof data !== 'object') {
+    return data;
+  }
+
+  if (Array.isArray(data)) {
+    return data.map((item) => stripAuditFields(item)) as T;
+  }
+
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (AUDIT_FIELDS.has(key)) {
+      continue;
+    }
+    result[key] = typeof value === 'object' && value !== null ? stripAuditFields(value) : value;
+  }
+  return result as T;
+}
+
 export abstract class BaseController implements IBaseController {
   abstract findAll(c: Context): Promise<Response>;
 
@@ -20,7 +45,7 @@ export abstract class BaseController implements IBaseController {
       message,
     };
     if (data !== undefined) {
-      response.data = data;
+      response.data = stripAuditFields(data);
     }
     return c.json(response, 200);
   }

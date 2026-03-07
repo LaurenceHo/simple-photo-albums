@@ -22,11 +22,11 @@ describe('AggregateService', () => {
       };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
 
-      await AggregateService.getAggregateData('albumsWithLocation');
+      await AggregateService.getAggregateData('albums-with-location');
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'GET',
-        `${ApiBaseUrl}/aggregate/albumsWithLocation`,
+        `${ApiBaseUrl}/aggregate/albums-with-location`,
       );
     });
 
@@ -35,7 +35,7 @@ describe('AggregateService', () => {
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockData) };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
 
-      const result = await AggregateService.getAggregateData('featuredAlbums');
+      const result = await AggregateService.getAggregateData('featured-albums');
 
       expect(result).toEqual(mockData);
     });
@@ -44,7 +44,7 @@ describe('AggregateService', () => {
       const mockError = new Error('API request failed');
       (BaseApiRequestService.perform as any).mockRejectedValue(mockError);
 
-      await expect(AggregateService.getAggregateData('featuredAlbums')).rejects.toThrow(
+      await expect(AggregateService.getAggregateData('featured-albums')).rejects.toThrow(
         'API request failed',
       );
     });
@@ -53,16 +53,16 @@ describe('AggregateService', () => {
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ data: 'mock data' }) };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
 
-      await AggregateService.getAggregateData('albumsWithLocation');
+      await AggregateService.getAggregateData('albums-with-location');
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'GET',
-        `${ApiBaseUrl}/aggregate/albumsWithLocation`,
+        `${ApiBaseUrl}/aggregate/albums-with-location`,
       );
 
-      await AggregateService.getAggregateData('countAlbumsByYear');
+      await AggregateService.getAggregateData('count-albums-by-year');
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'GET',
-        `${ApiBaseUrl}/aggregate/countAlbumsByYear`,
+        `${ApiBaseUrl}/aggregate/count-albums-by-year`,
       );
     });
   });

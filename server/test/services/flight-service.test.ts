@@ -60,10 +60,12 @@ describe('FlightService', () => {
     expect(result.departure.formattedAddress).toBe('Tokyo, JP');
     expect(result.departure.location.latitude).toBe(35.5494);
     expect(result.departure.location.longitude).toBe(139.7798);
+    expect(result.departure.country).toBe('JP');
     expect(result.destination.displayName).toBe('Los Angeles International Airport');
     expect(result.destination.formattedAddress).toBe('Los Angeles, US');
     expect(result.destination.location.latitude).toBe(33.9425);
     expect(result.destination.location.longitude).toBe(-118.408);
+    expect(result.destination.country).toBe('US');
     expect(result.airline).toBe('All Nippon Airways');
     expect(result.flightNumber).toBe('NH 106');
     expect(result.aircraftType).toBe('Boeing 777-300ER');

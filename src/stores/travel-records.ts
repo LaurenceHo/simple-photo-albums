@@ -6,6 +6,12 @@ import type { Feature, FeatureCollection, LineString, Position } from 'geojson';
 import { defineStore } from 'pinia';
 import { computed } from 'vue';
 
+export interface TransportStats {
+  countries: string[];
+  totalDistance: number;
+  tripCount: number;
+}
+
 export interface TravelRecords {
   dbUpdatedTime: string;
   travelRecords: TravelRecord[];
@@ -101,11 +107,47 @@ export const useTravelRecordsStore = defineStore('travelRecords', () => {
     };
   });
 
+  const extractCountry = (place?: { country?: string; formattedAddress?: string }): string | undefined => {
+    if (place?.country) return place.country;
+    if (place?.formattedAddress) {
+      const segments = place.formattedAddress.split(',').map((s) => s.trim());
+      return segments[segments.length - 1];
+    }
+    return undefined;
+  };
+
+  const travelStats = computed(() => {
+    const records = data.value ?? [];
+
+    const buildStats = (filtered: TravelRecord[]): TransportStats => {
+      const countries = new Set<string>();
+      let totalDistance = 0;
+      for (const r of filtered) {
+        const depCountry = extractCountry(r.departure);
+        const destCountry = extractCountry(r.destination);
+        if (depCountry) countries.add(depCountry);
+        if (destCountry) countries.add(destCountry);
+        totalDistance += r.distance ?? 0;
+      }
+      return { countries: [...countries], totalDistance, tripCount: filtered.length };
+    };
+
+    const byType = (type: string) => records.filter((r) => r.transportType === type);
+
+    return {
+      overall: buildStats(records),
+      flight: buildStats(byType('flight')),
+      train: buildStats(byType('train')),
+      bus: buildStats(byType('bus')),
+    };
+  });
+
   return {
     travelRecords: computed(() => data.value ?? []),
     isFetching,
     error: computed(() => error.value),
     travelRecordGeoJson,
+    travelStats,
     refetchTravelRecords,
   };
 });

@@ -22,7 +22,7 @@ describe('AlbumTagService', () => {
 
       await AlbumTagService.getAlbumTags();
 
-      expect(BaseApiRequestService.perform).toHaveBeenCalledWith('GET', `${ApiBaseUrl}/albumTags`);
+      expect(BaseApiRequestService.perform).toHaveBeenCalledWith('GET', `${ApiBaseUrl}/album-tags`);
     });
 
     it('should return the JSON response from the API', async () => {
@@ -53,7 +53,7 @@ describe('AlbumTagService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'POST',
-        `${ApiBaseUrl}/albumTags`,
+        `${ApiBaseUrl}/album-tags`,
         mockTags,
       );
     });
@@ -87,7 +87,7 @@ describe('AlbumTagService', () => {
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'DELETE',
-        `${ApiBaseUrl}/albumTags/1`,
+        `${ApiBaseUrl}/album-tags/1`,
       );
     });
 
@@ -99,6 +99,18 @@ describe('AlbumTagService', () => {
       const result = await AlbumTagService.deleteAlbumTag('1');
 
       expect(result).toEqual(mockStatus);
+    });
+
+    it('should encode special characters in tagId', async () => {
+      const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ status: 'success' }) };
+      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+
+      await AlbumTagService.deleteAlbumTag('tag/with spaces');
+
+      expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
+        'DELETE',
+        `${ApiBaseUrl}/album-tags/tag%2Fwith%20spaces`,
+      );
     });
 
     it('should throw an error if the API request fails', async () => {

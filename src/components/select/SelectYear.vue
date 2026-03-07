@@ -42,8 +42,8 @@ const {
   isFetching,
   isError,
 } = useQuery({
-  queryKey: ['countAlbumsByYear'],
-  queryFn: () => AggregateService.getAggregateData('countAlbumsByYear'),
+  queryKey: ['count-albums-by-year'],
+  queryFn: () => AggregateService.getAggregateData('count-albums-by-year'),
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
 });

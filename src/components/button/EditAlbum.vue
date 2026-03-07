@@ -107,7 +107,7 @@ const {
       life: 3000,
     });
     await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['countAlbumsByYear'] }),
+      queryClient.invalidateQueries({ queryKey: ['count-albums-by-year'] }),
       refetchAlbums(route.params.year as string, true),
     ]);
     deleteAlbumDialog.value = false;

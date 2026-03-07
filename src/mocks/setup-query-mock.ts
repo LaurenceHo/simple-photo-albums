@@ -41,7 +41,7 @@ export const setupQueryMocks = (overrides: { useQuery?: any; useQueryClient?: an
     switch (queryKey) {
       case 'fetchAlbumsByYears':
         return createBaseMockQueryReturn(mockAlbums, overrides.useQuery);
-      case 'featuredAlbums':
+      case 'featured-albums':
         return createBaseMockQueryReturn(mockFeaturedAlbums, overrides.useQuery);
       case 'getTravelRecords':
         return createBaseMockQueryReturn(mockTravelRecords, overrides.useQuery);
