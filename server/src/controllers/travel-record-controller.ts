@@ -10,6 +10,13 @@ import { UserPermission } from '../types/user-permission';
 import { haversineDistance, isValidCoordination } from '../utils/helpers';
 import { BaseController } from './base-controller';
 
+interface BackfillItem {
+  type: 'travel-record' | 'album';
+  id: string;
+  record?: TravelRecord;
+  album?: Album;
+}
+
 export default class TravelRecordController extends BaseController {
   findAll = async (c: Context<HonoEnv>) => {
     const travelRecordService = new TravelRecordService(c.env.DB);
@@ -149,6 +156,12 @@ export default class TravelRecordController extends BaseController {
   /**
    * One-time backfill endpoint that reverse-geocodes missing `country` fields
    * on departure/destination places in existing travel records and album places.
+   *
+   * Processes a limited batch per invocation to stay within Cloudflare Workers'
+   * subrequest limit (50). Call repeatedly until `remaining` is 0.
+   *
+   * Query params:
+   *   - `limit` (default 10): max records to geocode per invocation
    */
   backfillCountry = async (c: Context<HonoEnv>) => {
     const apiKey = c.env.GOOGLE_PLACES_API_KEY;
@@ -158,14 +171,27 @@ export default class TravelRecordController extends BaseController {
 
     const user = c.get('user') as UserPermission;
     const userEmail = user?.email ?? 'system-backfill';
+    const limit = Math.min(Number(c.req.query('limit')) || 10, 20);
 
     try {
-      const travelResult = await this.backfillTravelRecords(c.env.DB, apiKey, userEmail);
-      const albumResult = await this.backfillAlbums(c.env.DB, apiKey, userEmail);
+      const pendingItems = await this.collectPendingItems(c.env.DB);
+      const batch = pendingItems.slice(0, limit);
+      let updated = 0;
+      let failed = 0;
+
+      for (const item of batch) {
+        const success = await this.geocodeAndUpdate(item, apiKey, userEmail, c.env.DB);
+        if (success) {
+          updated++;
+        } else {
+          failed++;
+        }
+      }
 
       return this.ok(c, 'Backfill complete', {
-        travelRecords: travelResult,
-        albums: albumResult,
+        updated,
+        failed,
+        remaining: Math.max(0, pendingItems.length - batch.length),
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -174,140 +200,145 @@ export default class TravelRecordController extends BaseController {
     }
   };
 
-  private async backfillTravelRecords(
-    db: D1Database,
-    apiKey: string,
-    userEmail: string,
-  ): Promise<{ updated: number; skipped: number }> {
+  private async collectPendingItems(db: D1Database): Promise<BackfillItem[]> {
+    const items: BackfillItem[] = [];
+
     const travelRecordService = new TravelRecordService(db);
     const records = await travelRecordService.getAll();
-    let updated = 0;
-    let skipped = 0;
-
     for (const record of records) {
-      const departure = record.departure
-        ? { ...record.departure, location: { ...record.departure.location } }
-        : undefined;
-      const destination = record.destination
-        ? { ...record.destination, location: { ...record.destination.location } }
-        : undefined;
-
-      const needsDeparture = departure && !departure.country;
-      const needsDestination = destination && !destination.country;
-
-      if (!needsDeparture && !needsDestination) {
-        skipped++;
-        continue;
+      if (!record.id) continue;
+      const needsDeparture = record.departure && !record.departure.country;
+      const needsDestination = record.destination && !record.destination.country;
+      if (needsDeparture || needsDestination) {
+        items.push({ type: 'travel-record', id: record.id, record });
       }
-
-      let changed = false;
-
-      if (needsDeparture && departure) {
-        console.log(
-          `Backfill departure for record ${record.id}: lat=${departure.location.latitude}, lng=${departure.location.longitude}`,
-        );
-        const country = await reverseGeocodeCountry(
-          departure.location.latitude,
-          departure.location.longitude,
-          apiKey,
-        );
-        console.log(`  -> departure country resolved: ${country ?? 'undefined'}`);
-        if (country) {
-          departure.country = country;
-          changed = true;
-        }
-      }
-
-      if (needsDestination && destination) {
-        console.log(
-          `Backfill destination for record ${record.id}: lat=${destination.location.latitude}, lng=${destination.location.longitude}`,
-        );
-        const country = await reverseGeocodeCountry(
-          destination.location.latitude,
-          destination.location.longitude,
-          apiKey,
-        );
-        console.log(`  -> destination country resolved: ${country ?? 'undefined'}`);
-        if (country) {
-          destination.country = country;
-          changed = true;
-        }
-      }
-
-      if (!changed) {
-        console.log(`Skipping record ${record.id}: geocoding returned no country`);
-        skipped++;
-        continue;
-      }
-
-      const updatePayload: Partial<TravelRecord> = {
-        updatedBy: userEmail,
-        updatedAt: new Date().toISOString(),
-      };
-      if (departure) {
-        updatePayload.departure = departure;
-      }
-      if (destination) {
-        updatePayload.destination = destination;
-      }
-
-      console.log(
-        `Updating record ${record.id} with departure.country=${departure?.country}, destination.country=${destination?.country}`,
-      );
-      await travelRecordService.update(record.id!, updatePayload);
-
-      updated++;
     }
 
-    return { updated, skipped };
-  }
-
-  private async backfillAlbums(
-    db: D1Database,
-    apiKey: string,
-    userEmail: string,
-  ): Promise<{ updated: number; skipped: number }> {
     const albumService = new AlbumService(db);
     const albums = await albumService.getAll();
-    let updated = 0;
-    let skipped = 0;
-
     for (const album of albums) {
-      if (!album.place || album.place.country) {
-        skipped++;
-        continue;
+      if (album.place && !album.place.country) {
+        items.push({ type: 'album', id: album.id, album });
       }
-
-      const place = { ...album.place, location: { ...album.place.location } };
-
-      console.log(
-        `Backfill place for album ${album.id}: lat=${place.location.latitude}, lng=${place.location.longitude}`,
-      );
-      const country = await reverseGeocodeCountry(
-        place.location.latitude,
-        place.location.longitude,
-        apiKey,
-      );
-      console.log(`  -> album country resolved: ${country ?? 'undefined'}`);
-
-      if (!country) {
-        console.log(`Skipping album ${album.id}: geocoding returned no country`);
-        skipped++;
-        continue;
-      }
-
-      place.country = country;
-
-      await albumService.update(album.id, {
-        place,
-        updatedBy: userEmail,
-        updatedAt: new Date().toISOString(),
-      } as Album);
-
-      updated++;
     }
 
-    return { updated, skipped };
+    return items;
+  }
+
+  private async geocodeAndUpdate(
+    item: BackfillItem,
+    apiKey: string,
+    userEmail: string,
+    db: D1Database,
+  ): Promise<boolean> {
+    if (item.type === 'travel-record' && item.record) {
+      return this.geocodeTravelRecord(item.record, apiKey, userEmail, db);
+    }
+    if (item.type === 'album' && item.album) {
+      return this.geocodeAlbum(item.album, apiKey, userEmail, db);
+    }
+    return false;
+  }
+
+  private async geocodeTravelRecord(
+    record: TravelRecord,
+    apiKey: string,
+    userEmail: string,
+    db: D1Database,
+  ): Promise<boolean> {
+    const departure = record.departure
+      ? { ...record.departure, location: { ...record.departure.location } }
+      : undefined;
+    const destination = record.destination
+      ? { ...record.destination, location: { ...record.destination.location } }
+      : undefined;
+
+    let changed = false;
+
+    if (departure && !departure.country) {
+      console.log(
+        `Backfill departure for record ${record.id}: lat=${departure.location.latitude}, lng=${departure.location.longitude}`,
+      );
+      const country = await reverseGeocodeCountry(
+        departure.location.latitude,
+        departure.location.longitude,
+        apiKey,
+      );
+      console.log(`  -> departure country resolved: ${country ?? 'undefined'}`);
+      if (country) {
+        departure.country = country;
+        changed = true;
+      }
+    }
+
+    if (destination && !destination.country) {
+      console.log(
+        `Backfill destination for record ${record.id}: lat=${destination.location.latitude}, lng=${destination.location.longitude}`,
+      );
+      const country = await reverseGeocodeCountry(
+        destination.location.latitude,
+        destination.location.longitude,
+        apiKey,
+      );
+      console.log(`  -> destination country resolved: ${country ?? 'undefined'}`);
+      if (country) {
+        destination.country = country;
+        changed = true;
+      }
+    }
+
+    if (!changed) {
+      console.log(`Skipping record ${record.id}: geocoding returned no country`);
+      return false;
+    }
+
+    const updatePayload: Partial<TravelRecord> = {
+      updatedBy: userEmail,
+      updatedAt: new Date().toISOString(),
+    };
+    if (departure) updatePayload.departure = departure;
+    if (destination) updatePayload.destination = destination;
+
+    console.log(
+      `Updating record ${record.id} with departure.country=${departure?.country}, destination.country=${destination?.country}`,
+    );
+    const travelRecordService = new TravelRecordService(db);
+    await travelRecordService.update(record.id!, updatePayload);
+    return true;
+  }
+
+  private async geocodeAlbum(
+    album: Album,
+    apiKey: string,
+    userEmail: string,
+    db: D1Database,
+  ): Promise<boolean> {
+    if (!album.place) return false;
+
+    const place = { ...album.place, location: { ...album.place.location } };
+    console.log(
+      `Backfill place for album ${album.id}: lat=${place.location.latitude}, lng=${place.location.longitude}`,
+    );
+    const country = await reverseGeocodeCountry(
+      place.location.latitude,
+      place.location.longitude,
+      apiKey,
+    );
+    console.log(`  -> album country resolved: ${country ?? 'undefined'}`);
+
+    if (!country) {
+      console.log(`Skipping album ${album.id}: geocoding returned no country`);
+      return false;
+    }
+
+    place.country = country;
+    const albumService = new AlbumService(db);
+    await albumService.update(album.id, {
+      place,
+      updatedBy: userEmail,
+      updatedAt: new Date().toISOString(),
+    } as Album);
+    return true;
   }
 
   findOne = async (_c: Context) => {
