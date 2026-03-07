@@ -132,8 +132,8 @@ bun run deploy
 
 ### Authentication
 
-- /api/auth/userInfo - GET: Get user information
-- /api/auth/verifyIdToken - POST: Verify user ID token with Firebase by using Google IDP
+- /api/auth/user-info - GET: Get user information
+- /api/auth/verify-id-token - POST: Verify user ID token with Firebase by using Google IDP
 - /api/auth/logout - POST: User logout
 
 ### Album
@@ -145,9 +145,9 @@ bun run deploy
 
 ### Album tags
 
-- /api/albumTags - GET: Get all album tags
-- /api/albumTags - POST: Create a new album tags
-- /api/albumTags/:tagId - DELETE: Delete album tag
+- /api/album-tags - GET: Get all album tags
+- /api/album-tags - POST: Create a new album tags
+- /api/album-tags/:tagId - DELETE: Delete album tag
 
 ### Photos
 
@@ -159,10 +159,11 @@ bun run deploy
 
 ### Travel Records
 
-- /api/travelRecords - GET: Get all travel records
-- /api/travelRecords - POST: Create a new travel record (supports flight API mode with automatic flight data lookup)
-- /api/travelRecords - PUT: Update a travel record
-- /api/travelRecords/:recordId - DELETE: Delete a travel record
+- /api/travel-records - GET: Get all travel records
+- /api/travel-records - POST: Create a new travel record (supports flight API mode with automatic flight data lookup)
+- /api/travel-records/backfill-country - POST: Backfill country data for existing travel records
+- /api/travel-records - PUT: Update a travel record
+- /api/travel-records/:recordId - DELETE: Delete a travel record
 
 ### Location
 
@@ -170,4 +171,4 @@ bun run deploy
 
 ### Aggregate
 
-- /api/aggregate/:type - GET: Get aggregate data by type
+- /api/aggregate/:type - GET: Get aggregate data by type (albums-with-location, count-albums-by-year, featured-albums)
