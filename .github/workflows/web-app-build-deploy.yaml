@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       VITE_ALBUM_APP_TITLE: ${{ secrets.VITE_ALBUM_APP_TITLE }}
       VITE_STATIC_FILES_URL: ${{ secrets.VITE_STATIC_FILES_URL }}
       VITE_IMAGEKIT_CDN_URL: ${{ secrets.VITE_IMAGEKIT_CDN_URL }}
@@ -35,40 +35,9 @@ jobs:
           bun run test:unit
           bun run build
 
-      - name: Clean up old files
-        uses: keithweaver/aws-s3-github-action@master
-        with:
-          command: rm
-          source: s3://${{ secrets.AWS_S3_BUCKET_FOR_GITHUB_DEPLOY }}/assets/
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
-          aws_region: us-east-1
-          flags: --recursive
-
-      - name: Upload assets to S3
-        uses: keithweaver/aws-s3-github-action@master
-        with:
-          source: dist/assets
-          destination: s3://${{ secrets.AWS_S3_BUCKET_FOR_GITHUB_DEPLOY }}/assets
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
-          aws_region: us-east-1
-          flags: --recursive
-
-      - name: Upload index to S3
-        uses: keithweaver/aws-s3-github-action@master
-        with:
-          source: dist/index.html
-          destination: s3://${{ secrets.AWS_S3_BUCKET_FOR_GITHUB_DEPLOY }}/index.html
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
-          aws_region: us-east-1
-
-      - name: Invalidate CloudFront
-        uses: chetan/invalidate-cloudfront-action@master
+      - name: Deploy to Cloudflare Pages
         env:
-          DISTRIBUTION: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
-          PATHS: /
-          AWS_REGION: us-east-1
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
+          PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: |
+          npx wrangler pages project create "$PAGES_PROJECT" --production-branch=master 2>/dev/null || true
+          npx wrangler pages deploy dist --project-name="$PAGES_PROJECT" --commit-dirty=true

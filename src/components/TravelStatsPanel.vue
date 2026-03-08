@@ -19,16 +19,25 @@
   <Transition :name="isMobile ? 'slide-up' : 'slide-right'">
     <div
       v-if="isOpen"
+      ref="panelEl"
       :class="[
-        'absolute z-[5] bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md shadow-lg overflow-y-auto',
+        'absolute z-[5] bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md shadow-lg',
+        isDragging ? 'overflow-hidden' : 'overflow-y-auto',
         isMobile
           ? 'bottom-0 left-0 right-0 max-h-[60%] rounded-t-2xl'
           : 'top-0 right-0 h-full w-72 sm:w-80',
       ]"
+      :style="panelDragStyle"
     >
       <div :class="isMobile ? 'p-4 pt-2' : 'p-4 pt-14'">
-        <!-- Drag handle indicator for mobile -->
-        <div v-if="isMobile" class="flex justify-center mb-2">
+        <!-- Drag handle for mobile swipe-to-dismiss -->
+        <div
+          v-if="isMobile"
+          class="flex justify-center py-3 -mx-4 -mt-2 touch-none"
+          @touchstart="onTouchStart"
+          @touchmove="onTouchMove"
+          @touchend="onTouchEnd"
+        >
           <div class="w-10 h-1 rounded-full bg-zinc-300 dark:bg-zinc-600"></div>
         </div>
 
@@ -90,6 +99,42 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const isOpen = ref(false);
 const windowWidth = ref(window.innerWidth);
+const panelEl = ref<HTMLElement | null>(null);
+const dragOffsetY = ref(0);
+const isDragging = ref(false);
+let touchStartY = 0;
+
+const DISMISS_THRESHOLD = 80;
+
+const panelDragStyle = computed(() => {
+  if (!isDragging.value || dragOffsetY.value <= 0) return {};
+  return { transform: `translateY(${dragOffsetY.value}px)`, transition: 'none' };
+});
+
+function onTouchStart(e: TouchEvent) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  if (!touch) return;
+  touchStartY = touch.clientY;
+  isDragging.value = true;
+  dragOffsetY.value = 0;
+}
+
+function onTouchMove(e: TouchEvent) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  if (!touch) return;
+  const delta = touch.clientY - touchStartY;
+  dragOffsetY.value = Math.max(0, delta);
+}
+
+function onTouchEnd() {
+  isDragging.value = false;
+  if (dragOffsetY.value > DISMISS_THRESHOLD) {
+    isOpen.value = false;
+  }
+  dragOffsetY.value = 0;
+}
 
 const onResize = () => {
   windowWidth.value = window.innerWidth;
