@@ -40,4 +40,4 @@ jobs:
           PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }}
         run: |
           npx wrangler pages project create "$PAGES_PROJECT" --production-branch=master 2>/dev/null || true
-          npx wrangler pages deploy dist --project-name="$PAGES_PROJECT" --commit-dirty=true
+          npx wrangler pages deploy dist --project-name="$PAGES_PROJECT" --commit-dirty=true --branch=master
