@@ -21,7 +21,8 @@
       v-if="isOpen"
       ref="panelEl"
       :class="[
-        'absolute z-[5] bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md shadow-lg overflow-y-auto',
+        'absolute z-[5] bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md shadow-lg',
+        isDragging ? 'overflow-hidden' : 'overflow-y-auto',
         isMobile
           ? 'bottom-0 left-0 right-0 max-h-[60%] rounded-t-2xl'
           : 'top-0 right-0 h-full w-72 sm:w-80',
@@ -32,7 +33,7 @@
         <!-- Drag handle for mobile swipe-to-dismiss -->
         <div
           v-if="isMobile"
-          class="flex justify-center mb-2 cursor-grab active:cursor-grabbing touch-none"
+          class="flex justify-center py-3 -mx-4 -mt-2 touch-none"
           @touchstart="onTouchStart"
           @touchmove="onTouchMove"
           @touchend="onTouchEnd"
@@ -111,6 +112,7 @@ const panelDragStyle = computed(() => {
 });
 
 function onTouchStart(e: TouchEvent) {
+  e.preventDefault();
   const touch = e.touches[0];
   if (!touch) return;
   touchStartY = touch.clientY;
@@ -119,6 +121,7 @@ function onTouchStart(e: TouchEvent) {
 }
 
 function onTouchMove(e: TouchEvent) {
+  e.preventDefault();
   const touch = e.touches[0];
   if (!touch) return;
   const delta = touch.clientY - touchStartY;
