@@ -36,4 +36,6 @@ jobs:
           bun run build
 
       - name: Deploy to Cloudflare Pages
-        run: npx wrangler pages deploy dist --project-name=${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: |
+          npx wrangler pages project create ${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }} --production-branch=main 2>/dev/null || true
+          npx wrangler pages deploy dist --project-name=${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }} --commit-dirty=true
