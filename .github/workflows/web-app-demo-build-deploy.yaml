@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       VITE_ALBUM_APP_TITLE: ${{ vars.VITE_ALBUM_APP_TITLE }}
       VITE_STATIC_FILES_URL: ${{ vars.VITE_STATIC_FILES_URL }}
       VITE_IMAGEKIT_CDN_URL: ${{ vars.VITE_IMAGEKIT_CDN_URL }}
@@ -35,31 +35,5 @@ jobs:
           bun run test:unit
           bun run build
 
-      - name: Clean up old files
-        uses: keithweaver/aws-s3-github-action@master
-        with:
-          command: rm
-          source: s3://${{ vars.AWS_S3_BUCKET_NAME }}/assets/
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
-          aws_region: us-east-1
-          flags: --recursive
-
-      - name: Upload to S3
-        uses: keithweaver/aws-s3-github-action@master
-        with:
-          source: dist
-          destination: s3://${{ vars.AWS_S3_BUCKET_NAME }}
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
-          aws_region: us-east-1
-          flags: --recursive
-
-      - name: Invalidate CloudFront
-        uses: chetan/invalidate-cloudfront-action@master
-        env:
-          DISTRIBUTION: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
-          PATHS: /
-          AWS_REGION: us-east-1
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
+      - name: Deploy to Cloudflare Pages
+        run: npx wrangler pages deploy dist --project-name=${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }}

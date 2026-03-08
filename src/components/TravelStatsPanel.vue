@@ -20,7 +20,7 @@
     <div
       v-if="isOpen"
       :class="[
-        'absolute z-[5] bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md shadow-lg overflow-y-auto',
+        'absolute z-5 bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md shadow-lg overflow-y-auto',
         isMobile
           ? 'bottom-0 left-0 right-0 max-h-[60%] rounded-t-2xl'
           : 'top-0 right-0 h-full w-72 sm:w-80',
