@@ -15,6 +15,13 @@ type LocalStorageKey =
   | typeof FILTERED_ALBUMS_BY_YEAR
   | typeof TRAVEL_RECORDS;
 
+export interface DbUpdatedTime {
+  album: string;
+  albumLocations: string;
+  albumTags: string;
+  travelRecords: string;
+}
+
 export const getDataFromLocalStorage = (
   key: LocalStorageKey,
 ): FilteredAlbumsByYear | AlbumsWithLocation | TravelRecords | AlbumTags | null => {
@@ -37,6 +44,30 @@ export const getStaticFileUrl = (objectKey: string): string => {
   return `${import.meta.env.VITE_STATIC_FILES_URL}/${objectKey}`;
 };
 
+export const fetchDbUpdatedTime = async (): Promise<DbUpdatedTime | null> => {
+  try {
+    const response = await fetch(getStaticFileUrl('updateDatabaseAt.json'));
+    return await response.json();
+  } catch {
+    return null;
+  }
+};
+
+export const compareDbUpdatedTime = async (
+  localDbUpdatedTime: string,
+  key: keyof DbUpdatedTime,
+): Promise<{ isLatest: boolean; dbUpdatedTime: string }> => {
+  const remoteDbUpdatedTime = await fetchDbUpdatedTime();
+  if (!remoteDbUpdatedTime) {
+    return { isLatest: false, dbUpdatedTime: '' };
+  }
+  const remoteTime = remoteDbUpdatedTime[key];
+  return {
+    isLatest: localDbUpdatedTime === remoteTime,
+    dbUpdatedTime: remoteTime,
+  };
+};
+
 export const getYearOptions = () => {
   const yearOptions = ['na'];
   const currentYear = new Date().getFullYear();
@@ -44,38 +75,6 @@ export const getYearOptions = () => {
     yearOptions.push(String(i));
   }
   return yearOptions;
-};
-
-export const fetchDbUpdatedTime: () => Promise<{
-  album: string;
-  travel: string;
-} | null> = async () => {
-  let dbUpdatedTimeJSON: { album: string; travel: string } = { album: '', travel: '' };
-  try {
-    const response = await fetch(getStaticFileUrl('updateDatabaseAt.json'));
-    dbUpdatedTimeJSON = await response.json();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
-    // Might encounter CORS issue. Do nothing
-    return null;
-  }
-  return dbUpdatedTimeJSON;
-};
-
-export const compareDbUpdatedTime = async (
-  localDbUpdatedTime: string | null,
-  type: 'album' | 'travel',
-) => {
-  // Get updated time from s3
-  const timeJson = await fetchDbUpdatedTime();
-  return {
-    isLatest:
-      !!timeJson &&
-      (type === 'album'
-        ? timeJson.album && localDbUpdatedTime === timeJson.album
-        : timeJson.travel && localDbUpdatedTime === timeJson.travel),
-    dbUpdatedTime: type === 'album' ? timeJson?.album || '' : timeJson?.travel || '',
-  };
 };
 
 export const sortByKey = <T>(array: T[], key: keyof T, sortOrder: 'asc' | 'desc'): T[] => {

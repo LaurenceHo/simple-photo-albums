@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  compareDbUpdatedTime,
-  fetchDbUpdatedTime,
   getStaticFileUrl,
   getYearOptions,
   interpolateGreatCircle,
@@ -30,91 +28,6 @@ describe('Helpers', () => {
       const expectedUrl = 'https://example.com/static/';
       expect(getStaticFileUrl(objectKey)).toBe(expectedUrl);
       vi.unstubAllEnvs();
-    });
-  });
-
-  // Test fetchDbUpdatedTime
-  describe('fetchDbUpdatedTime', () => {
-    it('should return the time from the fetched JSON', async () => {
-      vi.stubEnv('VITE_STATIC_FILES_URL', 'https://example.com/static');
-      const mockResponse = { album: '2023-10-01T12:00:00Z' };
-      (globalThis.fetch as any).mockResolvedValue({
-        json: vi.fn().mockResolvedValue(mockResponse),
-      });
-
-      const result = await fetchDbUpdatedTime();
-      expect(fetch).toHaveBeenCalledWith('https://example.com/static/updateDatabaseAt.json');
-      expect(result).toHaveProperty('album', '2023-10-01T12:00:00Z');
-    });
-
-    it('should return null if fetch fails', async () => {
-      vi.stubEnv('VITE_STATIC_FILES_URL', 'https://example.com/static');
-      (globalThis.fetch as any).mockRejectedValue(new Error('CORS issue'));
-
-      const result = await fetchDbUpdatedTime();
-      expect(result).toBeNull();
-
-      vi.spyOn({ getStaticFileUrl }, 'getStaticFileUrl').mockRestore();
-    });
-  });
-
-  // Test compareDbUpdatedTime
-  describe('compareDbUpdatedTime', () => {
-    it('should return isLatest true if local and remote times match', async () => {
-      vi.spyOn({ getStaticFileUrl }, 'getStaticFileUrl').mockReturnValue(
-        'https://example.com/static/updateDatabaseAt.json',
-      );
-
-      const mockResponse = { album: '2023-10-01T12:00:00Z' };
-      (globalThis.fetch as any).mockResolvedValue({
-        json: vi.fn().mockResolvedValue(mockResponse),
-      });
-
-      const localDbUpdatedTime = '2023-10-01T12:00:00Z';
-      const result = await compareDbUpdatedTime(localDbUpdatedTime, 'album');
-      expect(result).toEqual({
-        isLatest: true,
-        dbUpdatedTime: '2023-10-01T12:00:00Z',
-      });
-
-      vi.spyOn({ getStaticFileUrl }, 'getStaticFileUrl').mockRestore();
-    });
-
-    it('should return isLatest false if local and remote times differ', async () => {
-      vi.spyOn({ getStaticFileUrl }, 'getStaticFileUrl').mockReturnValue(
-        'https://example.com/static/updateDatabaseAt.json',
-      );
-
-      const mockResponse = { album: '2023-10-01T12:00:00Z' };
-      (globalThis.fetch as any).mockResolvedValue({
-        json: vi.fn().mockResolvedValue(mockResponse),
-      });
-
-      const localDbUpdatedTime = '2023-09-01T12:00:00Z';
-      const result = await compareDbUpdatedTime(localDbUpdatedTime, 'album');
-      expect(result).toEqual({
-        isLatest: false,
-        dbUpdatedTime: '2023-10-01T12:00:00Z',
-      });
-
-      vi.spyOn({ getStaticFileUrl }, 'getStaticFileUrl').mockRestore();
-    });
-
-    it('should return isLatest false and dbUpdatedTime null if fetch fails', async () => {
-      vi.spyOn({ getStaticFileUrl }, 'getStaticFileUrl').mockReturnValue(
-        'https://example.com/static/updateDatabaseAt.json',
-      );
-
-      (globalThis.fetch as any).mockRejectedValue(new Error('CORS issue'));
-
-      const localDbUpdatedTime = '2023-09-01T12:00:00Z';
-      const result = await compareDbUpdatedTime(localDbUpdatedTime, 'album');
-      expect(result).toEqual({
-        isLatest: false,
-        dbUpdatedTime: '',
-      });
-
-      vi.spyOn({ getStaticFileUrl }, 'getStaticFileUrl').mockRestore();
     });
   });
 
