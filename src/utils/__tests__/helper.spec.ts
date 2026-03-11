@@ -160,12 +160,12 @@ describe('Helpers', () => {
     });
 
     it('should scale proportionally for medium routes', () => {
-      // Taipei to Tokyo (~21 degrees apart)
-      const start: [number, number] = [121.5654, 25.033];
-      const end: [number, number] = [139.6917, 35.6895];
+      // Hong Kong to Taipei (~5 degrees apart → ~50 steps)
+      const start: [number, number] = [114.1694, 22.3193];
+      const end: [number, number] = [121.5654, 25.033];
       const steps = calculateAdaptiveSteps(start, end);
-      expect(steps).toBeGreaterThanOrEqual(20);
-      expect(steps).toBeLessThanOrEqual(100);
+      expect(steps).toBeGreaterThan(20);
+      expect(steps).toBeLessThan(100);
     });
   });
 
