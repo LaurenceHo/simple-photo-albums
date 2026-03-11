@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  calculateAdaptiveSteps,
   getStaticFileUrl,
   getYearOptions,
   interpolateGreatCircle,
@@ -143,7 +144,42 @@ describe('Helpers', () => {
     });
   });
 
+  describe('calculateAdaptiveSteps', () => {
+    it('should return minimum 20 steps for very short routes', () => {
+      // Two points ~1 degree apart
+      const start: [number, number] = [0, 0];
+      const end: [number, number] = [1, 0];
+      expect(calculateAdaptiveSteps(start, end)).toBe(20);
+    });
+
+    it('should return maximum 100 steps for very long routes', () => {
+      // Two points ~180 degrees apart
+      const start: [number, number] = [-90, 0];
+      const end: [number, number] = [90, 0];
+      expect(calculateAdaptiveSteps(start, end)).toBe(100);
+    });
+
+    it('should scale proportionally for medium routes', () => {
+      // Taipei to Tokyo (~21 degrees apart)
+      const start: [number, number] = [121.5654, 25.033];
+      const end: [number, number] = [139.6917, 35.6895];
+      const steps = calculateAdaptiveSteps(start, end);
+      expect(steps).toBeGreaterThanOrEqual(20);
+      expect(steps).toBeLessThanOrEqual(100);
+    });
+  });
+
   describe('interpolateGreatCircle', () => {
+    it('should use adaptive steps when steps parameter is omitted', () => {
+      const start: [number, number] = [121.5654, 25.033]; // Taipei
+      const end: [number, number] = [139.6917, 35.6895]; // Tokyo
+      const result = interpolateGreatCircle(start, end);
+
+      expect(result.length).toBe(1);
+      const expectedSteps = calculateAdaptiveSteps(start, end);
+      expect(result[0]!.length).toBe(expectedSteps + 1);
+    });
+
     it('should generate a single segment for a short route without antimeridian crossing', () => {
       const start: [number, number] = [121.5654, 25.033]; // Taipei
       const end: [number, number] = [139.6917, 35.6895]; // Tokyo
