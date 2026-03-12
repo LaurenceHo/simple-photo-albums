@@ -1,6 +1,7 @@
 <template>
-  <div
+  <section
     tabindex="0"
+    aria-label="Photo Detail"
     @keydown.left="nextPhoto(-1)"
     @keydown.right="nextPhoto(1)"
     @keydown.esc="emits('closePhotoDetail')"
@@ -29,16 +30,21 @@
         </div>
         <IconView360Number v-if="isPanoramaPhoto" />
         <div class="relative h-auto min-h-80 w-full sm:min-h-96 lg:h-[calc(80vh-80px)]">
-          <div id="photo-image-detail" class="flex h-full items-center justify-center">
+          <div
+            id="photo-image-detail"
+            ref="photoImageDetailRef"
+            class="flex h-full items-center justify-center"
+          >
             <ProgressSpinner v-if="loadImage" />
             <template v-else>
               <img
                 v-if="!isPanoramaPhoto"
-                :alt="photoFileName"
+                :alt="photoFileName.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '').replace(/(photo|image)/gi, '').trim() || 'Detail'"
                 :src="selectedImage?.url || ''"
                 :style="imageStyles"
                 class="max-h-full rounded-md"
-                @load="loadImage = false"
+                @load="onImageLoad"
+                @error="loadImage = false"
               />
               <PanoramaViewer v-else :imageUrl="selectedImage?.url ?? ''" />
             </template>
@@ -130,7 +136,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script lang="ts" setup>
@@ -159,7 +165,7 @@ import ExifReader from 'exifreader';
 import { storeToRefs } from 'pinia';
 import { Button, Divider, ProgressSpinner } from 'primevue';
 import { useToast } from 'primevue/usetoast';
-import { computed, type ComputedRef, ref, watch } from 'vue';
+import { computed, type ComputedRef, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 type ExifData = ExifTags &
@@ -183,8 +189,11 @@ const selectedImageIndex = ref(-1);
 const photoFileName = ref('');
 const exifTags = ref<Partial<ExifData>>({});
 const loadImage = ref(false);
+const photoImageDetailRef = ref<HTMLDivElement | null>(null);
 const imageContainerWidth = ref(0);
 const imageContainerHeight = ref(0);
+const naturalWidth = ref(0);
+const naturalHeight = ref(0);
 
 const selectedImage = computed(() => findPhotoByIndex(selectedImageIndex.value));
 const albumId = computed(() => route.params['albumId'] as string);
@@ -205,7 +214,7 @@ const localDateTime = computed(() => {
     const date = new Date(isoDateTime);
 
     // Validate parsed date
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       return null;
     }
     return `${date.toLocaleString()} ${exifTags.value.OffsetTime?.value?.[0] ?? ''}`;
@@ -234,19 +243,19 @@ const longitude: ComputedRef<number> = computed(() => {
 });
 
 const exposureBias = computed(() =>
-  parseFloat(exifTags.value.ExposureBiasValue?.description ?? '0').toFixed(2),
+  Number.parseFloat(exifTags.value.ExposureBiasValue?.description ?? '0').toFixed(2),
 );
 
 const aperture = computed(() =>
-  parseFloat(
+  Number.parseFloat(
     exifTags.value.ApertureValue?.description ??
       exifTags.value.MaxApertureValue?.description ??
       '0',
   ).toFixed(1),
 );
 
-const imageOriginalWidth = computed(() => Number(exifTags.value['Image Width']?.value ?? 0));
-const imageOriginalHeight = computed(() => Number(exifTags.value['Image Height']?.value ?? 0));
+const imageOriginalWidth = computed(() => naturalWidth.value || Number(exifTags.value['Image Width']?.value ?? 0));
+const imageOriginalHeight = computed(() => naturalHeight.value || Number(exifTags.value['Image Height']?.value ?? 0));
 const isPhotoLandscape = computed(
   () =>
     (isPanoramaPhoto.value ||
@@ -290,14 +299,29 @@ const isPanoramaPhoto = computed(() => {
 /** Compute image display size begin */
 const imageStyles = computed(() => {
   const styles = { height: '', width: '' };
+
+  if (imageOriginalWidth.value === 0 || imageOriginalHeight.value === 0) {
+    return { width: '100%', height: 'auto' };
+  }
+
   const aspectRatio = imageOriginalWidth.value / imageOriginalHeight.value;
 
+  // If aspect ratio is invalid, fallback
+  if (!Number.isFinite(aspectRatio) || aspectRatio <= 0) {
+    return { width: '100%', height: 'auto' };
+  }
+
   // Calculate maximum dimensions based on container
-  const maxWidth = Math.min(
-    imageOriginalWidth.value,
-    imageContainerWidth.value > 1080 ? 1080 : imageContainerWidth.value,
-  );
-  const maxHeight = Math.min(imageOriginalHeight.value, imageContainerHeight.value);
+  const containerWidth = imageContainerWidth.value || 0;
+  const containerHeight = imageContainerHeight.value || 0;
+
+  // If container dimensions are 0 (e.g. not mounted yet), fallback to a reasonable default or 100%
+  if (containerWidth === 0 || containerHeight === 0) {
+    return { width: '100%', height: 'auto' };
+  }
+
+  const maxWidth = Math.min(imageOriginalWidth.value, containerWidth > 1080 ? 1080 : containerWidth);
+  const maxHeight = Math.min(imageOriginalHeight.value, containerHeight);
 
   // For square or landscape images
   if (aspectRatio >= 1) {
@@ -343,9 +367,34 @@ const nextPhoto = (dir: number) => {
   }
 };
 
-watch(loadImage, () => {
-  imageContainerWidth.value = document.getElementById('photo-image-detail')?.clientWidth ?? 0;
-  imageContainerHeight.value = document.getElementById('photo-image-detail')?.clientHeight ?? 0;
+const updateContainerDimensions = () => {
+  if (photoImageDetailRef.value) {
+    imageContainerWidth.value = photoImageDetailRef.value.clientWidth;
+    imageContainerHeight.value = photoImageDetailRef.value.clientHeight;
+  }
+};
+
+const onImageLoad = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  naturalWidth.value = img.naturalWidth;
+  naturalHeight.value = img.naturalHeight;
+  loadImage.value = false;
+};
+
+watch(loadImage, async (newVal) => {
+  if (!newVal) {
+    await nextTick();
+    updateContainerDimensions();
+  }
+});
+
+onMounted(() => {
+  updateContainerDimensions();
+  window.addEventListener('resize', updateContainerDimensions);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateContainerDimensions);
 });
 
 // When photo id changes, verify if it exists first
