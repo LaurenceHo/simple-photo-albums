@@ -48,13 +48,13 @@ app.use('*', async (c, next) => {
 
 // Polyfill process.env for AWS SDK
 app.use('*', async (c, next) => {
-  if (c.env.AWS_S3_BUCKET_NAME) process.env['AWS_S3_BUCKET_NAME'] = c.env.AWS_S3_BUCKET_NAME;
-  if (c.env.AWS_REGION_NAME) process.env['AWS_REGION_NAME'] = c.env.AWS_REGION_NAME;
+  if (c.env.R2_BUCKET_NAME) process.env['R2_BUCKET_NAME'] = c.env.R2_BUCKET_NAME;
+  if (c.env.REGION_NAME) process.env['REGION_NAME'] = c.env.REGION_NAME;
   if (c.env.VITE_IMAGEKIT_CDN_URL)
     process.env['VITE_IMAGEKIT_CDN_URL'] = c.env.VITE_IMAGEKIT_CDN_URL;
-  if (c.env.AWS_ACCESS_KEY_ID) process.env['AWS_ACCESS_KEY_ID'] = c.env.AWS_ACCESS_KEY_ID;
-  if (c.env.AWS_SECRET_ACCESS_KEY)
-    process.env['AWS_SECRET_ACCESS_KEY'] = c.env.AWS_SECRET_ACCESS_KEY;
+  if (c.env.R2_ACCESS_KEY) process.env['R2_ACCESS_KEY'] = c.env.R2_ACCESS_KEY;
+  if (c.env.R2_SECRET_KEY)
+    process.env['R2_SECRET_KEY'] = c.env.R2_SECRET_KEY;
   if (c.env.JWT_SECRET) process.env['JWT_SECRET'] = c.env.JWT_SECRET;
   if (c.env.GOOGLE_PLACES_API_KEY)
     process.env['GOOGLE_PLACES_API_KEY'] = c.env.GOOGLE_PLACES_API_KEY;
@@ -63,6 +63,8 @@ app.use('*', async (c, next) => {
   if (c.env.ALBUM_URL) process.env['ALBUM_URL'] = c.env.ALBUM_URL;
   if (c.env.RAPIDAPI_KEY) process.env['RAPIDAPI_KEY'] = c.env.RAPIDAPI_KEY;
   if (c.env.DEVELOPMENT) process.env['DEVELOPMENT'] = c.env.DEVELOPMENT;
+  if (c.env.CLOUDFLARE_ACCOUNT_ID)
+    process.env['CLOUDFLARE_ACCOUNT_ID'] = c.env.CLOUDFLARE_ACCOUNT_ID;
 
   await next();
 });

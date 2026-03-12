@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import app from '../../src/index';
 import { mockAlbumList, mockPhotoList } from '../mock-data';
 
-vi.mock('../../src/services/s3-service', async () => {
+vi.mock('../../src/services/r2-service', async () => {
   const { mockPhotoList } = await import('../mock-data');
   return {
     default: class {

@@ -65,8 +65,8 @@ bun install
 1. Create a `.dev.vars` file in the `server` directory for your local secrets:
 
    ```properties
-   AWS_ACCESS_KEY_ID=your_access_key
-   AWS_SECRET_ACCESS_KEY=your_secret_key
+   R2_ACCESS_KEY=your_access_key
+   R2_SECRET_KEY=your_secret_key
    JWT_SECRET=your_jwt_secret
    GOOGLE_PLACES_API_KEY=your_google_places_api_key
    VITE_GOOGLE_CLIENT_ID=your_google_client_id
@@ -76,8 +76,8 @@ bun install
 2. Update `wrangler.toml` with your configuration (non-secret values):
    ```toml
    [vars]
-   AWS_S3_BUCKET_NAME = "your-bucket-name"
-   AWS_REGION_NAME = "your-region"
+   R2_BUCKET_NAME = "your-bucket-name"
+   REGION_NAME = "your-region"
    VITE_IMAGEKIT_CDN_URL = "your-imagekit-url"
    ALBUM_URL = "http://localhost:5173"
    ```

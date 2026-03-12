@@ -17,7 +17,7 @@ vi.mock('../../src/services/album-service', async () => {
   };
 });
 
-vi.mock('../../src/services/s3-service', async () => {
+vi.mock('../../src/services/r2-service', async () => {
   const { mockPhotoList } = await import('../mock-data');
   return {
     default: class {

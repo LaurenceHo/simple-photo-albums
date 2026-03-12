@@ -7,7 +7,7 @@ import { get, isEmpty } from 'radash';
 import { HonoEnv } from '../env';
 import { cleanJwtCookie } from '../routes/auth-middleware';
 import AlbumService from '../services/album-service';
-import S3Service from '../services/s3-service';
+import R2Service from '../services/r2-service';
 import { PhotoResponse, PhotosRequest, RenamePhotoRequest } from '../types';
 import { UserPermission } from '../types/user-permission';
 import { deleteObjects } from '../utils/helpers';
@@ -20,8 +20,8 @@ export default class PhotoController extends BaseController {
   findAll = async (c: Context<HonoEnv>) => {
     const albumId = c.req.param('albumId');
     const albumService = new AlbumService(c.env.DB);
-    const s3Service = new S3Service();
-    const bucketName = c.env.AWS_S3_BUCKET_NAME;
+    const r2Service = new R2Service();
+    const bucketName = c.env.R2_BUCKET_NAME;
 
     try {
       const album = await albumService.getById(albumId);
@@ -46,7 +46,7 @@ export default class PhotoController extends BaseController {
           }
         }
         const folderNameKey = decodeURIComponent(albumId) + '/';
-        const photos = await s3Service.findAll({
+        const photos = await r2Service.findAll({
           Prefix: folderNameKey,
           Bucket: bucketName,
           MaxKeys: 1000,
@@ -82,12 +82,13 @@ export default class PhotoController extends BaseController {
     const albumId = c.req.param('albumId');
     const filename = c.req.query('filename');
     const mimeType = c.req.query('mimeType');
-    const bucketName = c.env.AWS_S3_BUCKET_NAME;
+    const bucketName = c.env.R2_BUCKET_NAME;
     const s3Client = new S3Client({
-      region: c.env.AWS_REGION_NAME || 'us-east-1',
+      region: c.env.REGION_NAME || 'auto',
+      endpoint: `https://${c.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
       credentials: {
-        accessKeyId: c.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: c.env.AWS_SECRET_ACCESS_KEY || '',
+        accessKeyId: c.env.R2_ACCESS_KEY || '',
+        secretAccessKey: c.env.R2_SECRET_KEY || '',
       },
     });
 
@@ -120,13 +121,13 @@ export default class PhotoController extends BaseController {
    */
   update = async (c: Context<HonoEnv>) => {
     const { destinationAlbumId, albumId, photoKeys } = await c.req.json<PhotosRequest>();
-    const s3Service = new S3Service();
-    const bucketName = c.env.AWS_S3_BUCKET_NAME;
+    const r2Service = new R2Service();
+    const bucketName = c.env.R2_BUCKET_NAME;
 
     const copyPromises = photoKeys.map(async (photoKey) => {
       const sourcePhotoKey = `${albumId}/${photoKey}`;
       try {
-        const result = await s3Service.copy({
+        const result = await r2Service.copy({
           Bucket: bucketName,
           CopySource: `/${bucketName}/${sourcePhotoKey}`,
           Key: `${destinationAlbumId}/${photoKey}`,
@@ -160,13 +161,13 @@ export default class PhotoController extends BaseController {
 
   rename = async (c: Context<HonoEnv>) => {
     const { albumId, newPhotoKey, currentPhotoKey } = await c.req.json<RenamePhotoRequest>();
-    const s3Service = new S3Service();
-    const bucketName = c.env.AWS_S3_BUCKET_NAME;
+    const r2Service = new R2Service();
+    const bucketName = c.env.R2_BUCKET_NAME;
 
     // Currently, the only way to rename an object using the SDK is to copy the object with a different name and
     // then delete the original object.
     try {
-      const result = await s3Service.copy({
+      const result = await r2Service.copy({
         Bucket: bucketName,
         CopySource: `/${bucketName}/${albumId}/${currentPhotoKey}`,
         Key: `${albumId}/${newPhotoKey}`,
