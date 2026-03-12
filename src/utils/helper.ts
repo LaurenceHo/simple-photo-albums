@@ -94,11 +94,29 @@ export const sortByKey = <T>(array: T[], key: keyof T, sortOrder: 'asc' | 'desc'
   });
 };
 
+/**
+ * Calculates an adaptive step count based on the angular distance between two points.
+ * Uses ~10 points per degree of angular distance, clamped to [20, 100].
+ */
+export const calculateAdaptiveSteps = (
+  start: [number, number],
+  end: [number, number],
+): number => {
+  const [lon1, lat1] = start;
+  const [lon2, lat2] = end;
+  const dLon = Math.abs(lon2 - lon1);
+  const dLat = Math.abs(lat2 - lat1);
+  const angularDistance = Math.sqrt(dLon * dLon + dLat * dLat);
+  return Math.min(100, Math.max(20, Math.round(angularDistance * 10)));
+};
+
 export const interpolateGreatCircle = (
   start: [number, number],
   end: [number, number],
-  steps: number,
+  steps?: number,
 ): [number, number][][] => {
+  const resolvedSteps = steps ?? calculateAdaptiveSteps(start, end);
+
   // Destructure start and end coordinates into longitude and latitude
   const [lon1, lat1] = start;
   const [lon2, lat2] = end;
@@ -130,9 +148,9 @@ export const interpolateGreatCircle = (
 
   // Initializing an array to store the interpolated points along the arc path
   const points: [number, number][] = [];
-  for (let i = 0; i <= steps; i++) {
+  for (let i = 0; i <= resolvedSteps; i++) {
     // Calculating the interpolation factor for the current step
-    const f = i / steps;
+    const f = i / resolvedSteps;
     // Computing coefficients for spherical linear interpolation
     const A = Math.sin((1 - f) * distance) / Math.sin(distance); // Weight for start point
     const B = Math.sin(f * distance) / Math.sin(distance); // Weight for end point
