@@ -55,7 +55,7 @@ export default class R2Service implements BaseService<Photo> {
       return { url, key, size, lastModified };
     });
 
-    return Promise.resolve(photos);
+    return photos;
   }
 
   async read(params: GetObjectCommandInput): Promise<any> {
@@ -98,9 +98,11 @@ export default class R2Service implements BaseService<Photo> {
     try {
       const response = await this.r2Client.send(new HeadObjectCommand(params));
       return response.$metadata.httpStatusCode === 200;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      return false;
+    } catch (error: any) {
+      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
+        return false;
+      }
+      throw error;
     }
   }
 
@@ -108,9 +110,11 @@ export default class R2Service implements BaseService<Photo> {
     try {
       const response = await this.r2Client.send(new HeadBucketCommand(params));
       return response.$metadata.httpStatusCode === 200;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      return false;
+    } catch (error: any) {
+      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
+        return false;
+      }
+      throw error;
     }
   }
 }

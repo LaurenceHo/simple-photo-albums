@@ -39,6 +39,7 @@ export default class PhotoController extends BaseController {
                 return cleanJwtCookie(c, 'Unauthorized action.', 403);
               }
             } catch (error) {
+              console.error('JWT verification failed in PhotoController.findAll:', error);
               return cleanJwtCookie(c, 'Authentication failed.');
             }
           } else {

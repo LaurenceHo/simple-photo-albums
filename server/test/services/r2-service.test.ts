@@ -159,7 +159,10 @@ describe('R2Service', () => {
     });
 
     it('should return false when file does not exist', async () => {
-      r2Mock.on(HeadObjectCommand).rejects(new Error('Not Found'));
+      r2Mock.on(HeadObjectCommand).rejects({
+        name: 'NotFound',
+        $metadata: { httpStatusCode: 404 },
+      });
 
       const result = await r2Service.checkIfFileExists({
         Bucket: 'test-bucket',
@@ -184,7 +187,10 @@ describe('R2Service', () => {
     });
 
     it('should return false when bucket does not exist', async () => {
-      r2Mock.on(HeadBucketCommand).rejects(new Error('Not Found'));
+      r2Mock.on(HeadBucketCommand).rejects({
+        name: 'NotFound',
+        $metadata: { httpStatusCode: 404 },
+      });
 
       const result = await r2Service.checkIfBucketExists({
         Bucket: 'test-bucket',
