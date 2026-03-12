@@ -31,8 +31,8 @@ jobs:
       DEV_PHOTO_ALBUMS_DB_ID: 'DEV_PHOTO_ALBUMS_DB_ID'
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2.1.3
 
       - name: Install dependencies and test
         run: |
