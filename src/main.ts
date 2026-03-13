@@ -13,10 +13,8 @@ import './assets/primevue-override.css';
 import router from './router';
 
 declare global {
-  interface Window {
-    dataLayer: any[];
-    gtag?: (...args: any[]) => void;
-  }
+  var dataLayer: any[];
+  var gtag: ((...args: any[]) => void) | undefined;
 }
 
 const prepareApp = async () => {
@@ -90,13 +88,13 @@ if (import.meta.env.MODE === 'MSW') {
 
 const gtagId = import.meta.env.VITE_GTAG_ID;
 if (gtagId) {
-  window.dataLayer = window.dataLayer || [];
+  globalThis.dataLayer = globalThis.dataLayer || [];
 
   function gtag(...args: any[]) {
-    window.dataLayer.push({ event: args[0], ...(args.length > 1 ? args[1] : {}) });
+    globalThis.dataLayer.push({ event: args[0], ...(args.length > 1 ? args[1] : {}) });
   }
 
-  window.gtag = gtag;
+  globalThis.gtag = gtag;
 
   gtag('js', new Date());
   gtag('config', gtagId);
@@ -110,10 +108,10 @@ if (gtagId) {
 }
 
 router.afterEach((to) => {
-  if (window.gtag) {
-    window.gtag('event', 'page_view', {
+  if (globalThis.gtag) {
+    globalThis.gtag('event', 'page_view', {
       page_title: document.title,
-      page_location: window.location.href,
+      page_location: globalThis.location.href,
       page_path: to.fullPath,
     });
   }
