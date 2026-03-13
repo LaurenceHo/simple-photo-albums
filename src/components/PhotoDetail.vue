@@ -354,7 +354,7 @@ const imageStyles = computed(() => {
     return { width: '100%', height: 'auto' };
   }
 
-  const maxWidth = Math.min(imageOriginalWidth.value, containerWidth > 1080 ? 1080 : containerWidth);
+  const maxWidth = Math.min(imageOriginalWidth.value, containerWidth, 1080);
   const maxHeight = Math.min(imageOriginalHeight.value, containerHeight);
 
   // For square or landscape images
@@ -438,13 +438,13 @@ watch(loadImage, async (newVal) => {
 
 onMounted(() => {
   updateContainerDimensions();
-  window.addEventListener('resize', updateContainerDimensions);
-  window.addEventListener('keydown', onHandleKeydown);
+  globalThis.addEventListener('resize', updateContainerDimensions);
+  globalThis.addEventListener('keydown', onHandleKeydown);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('resize', updateContainerDimensions);
-  window.removeEventListener('keydown', onHandleKeydown);
+  globalThis.removeEventListener('resize', updateContainerDimensions);
+  globalThis.removeEventListener('keydown', onHandleKeydown);
 });
 
 // When photo id changes, verify if it exists first

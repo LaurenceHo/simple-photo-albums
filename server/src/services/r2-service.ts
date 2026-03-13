@@ -118,5 +118,3 @@ export default class R2Service implements BaseService<Photo> {
     }
   }
 }
-
-export const r2Client = new R2Service();
