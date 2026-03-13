@@ -38,10 +38,10 @@ export type PlacesAddressComponent = z.infer<typeof PlacesAddressComponentSchema
  * @returns JSON response from Google Places API
  */
 export const getLocation = async (
+  apiKey: string,
   textQuery: string,
   maskFields: string,
 ): Promise<PlacesSearchResponse> => {
-  const apiKey = process.env['GOOGLE_PLACES_API_KEY'];
   if (!apiKey) {
     throw new Error('GOOGLE_PLACES_API_KEY is not configured');
   }

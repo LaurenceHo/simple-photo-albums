@@ -17,6 +17,7 @@ import {
   PutObjectCommandInput,
   S3Client,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { get } from 'radash';
 import { BaseService, Photo } from '../types';
 
@@ -100,6 +101,15 @@ export default class R2Service implements BaseService<Photo> {
 
   async listObjects(params: ListObjectsV2CommandInput): Promise<ListObjectsV2CommandOutput> {
     return await this.r2Client.send(new ListObjectsV2Command(params));
+  }
+
+  async getPresignedUploadUrl(bucket: string, key: string, contentType: string, expiresIn = 60): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      ContentType: contentType,
+    });
+    return getSignedUrl(this.r2Client, command, { expiresIn });
   }
 
   async checkIfFileExists(params: HeadObjectCommandInput): Promise<boolean> {

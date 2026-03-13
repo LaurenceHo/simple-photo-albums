@@ -1,5 +1,3 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Context } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { verifyJwt } from '../utils/jwt';
@@ -84,31 +82,21 @@ export default class PhotoController extends BaseController {
     const albumId = c.req.param('albumId');
     const filename = c.req.query('filename');
     const mimeType = c.req.query('mimeType');
-    const bucketName = c.env.R2_BUCKET_NAME;
-    const s3Client = new S3Client({
-      region: c.env.REGION_NAME || 'auto',
-      endpoint: `https://${c.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: c.env.R2_ACCESS_KEY || '',
-        secretAccessKey: c.env.R2_SECRET_KEY || '',
-      },
-    });
 
     if (!filename || !mimeType) {
       return this.fail(c, 'Filename and mimeType are required in query parameters');
     }
 
+    const r2Config = buildR2Config(c.env);
+    const r2Service = new R2Service(r2Config);
     const filePath = `${albumId}/${filename}`;
 
     try {
-      const command = new PutObjectCommand({
-        Bucket: bucketName,
-        Key: filePath,
-        ContentType: mimeType,
-      });
-
-      // Generate presigned URL (valid for 60 seconds)
-      const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 });
+      const uploadUrl = await r2Service.getPresignedUploadUrl(
+        c.env.R2_BUCKET_NAME,
+        filePath,
+        mimeType,
+      );
 
       console.log(`##### Generated presigned URL for file: ${filePath}`);
       return this.ok(c, 'ok', { uploadUrl });

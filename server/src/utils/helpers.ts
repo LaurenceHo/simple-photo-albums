@@ -52,21 +52,27 @@ export const deleteObjects = async (r2Config: R2Config, bucketName: string, obje
 
 export const emptyR2Folder = async (r2Config: R2Config, bucketName: string, folderName: string) => {
   const r2Service = new R2Service(r2Config);
-  const listedObjects = await r2Service.listObjects({
-    Bucket: bucketName,
-    Prefix: folderName,
-  });
 
-  if (!listedObjects.Contents || listedObjects.Contents?.length === 0) return true;
+  const emptyFolder = async (): Promise<boolean> => {
+    const listedObjects = await r2Service.listObjects({
+      Bucket: bucketName,
+      Prefix: folderName,
+    });
 
-  if (listedObjects.IsTruncated) {
-    await emptyR2Folder(r2Config, bucketName, folderName);
-  }
+    if (!listedObjects.Contents || listedObjects.Contents?.length === 0) return true;
 
-  const listedObjectArray = listedObjects.Contents.map(({ Key }: any) => Key);
+    const listedObjectArray = listedObjects.Contents.map(({ Key }: any) => Key);
+    await deleteObjects(r2Config, bucketName, listedObjectArray);
+
+    if (listedObjects.IsTruncated) {
+      await emptyFolder();
+    }
+
+    return true;
+  };
 
   try {
-    return await deleteObjects(r2Config, bucketName, listedObjectArray);
+    return await emptyFolder();
   } catch (err) {
     console.error(`Failed to empty R2 folder: ${err}`);
     throw new Error('Error when emptying R2 folder', { cause: err });

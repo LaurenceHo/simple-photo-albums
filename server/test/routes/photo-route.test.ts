@@ -12,6 +12,9 @@ vi.mock('../../src/services/r2-service', async () => {
       copy() {
         return Promise.resolve(true);
       }
+      getPresignedUploadUrl() {
+        return Promise.resolve('https://upload-url');
+      }
     },
   };
 });
