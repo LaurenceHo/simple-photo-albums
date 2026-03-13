@@ -105,6 +105,7 @@ describe('PhotoDetail.vue', () => {
     const vm = wrapper.vm as unknown as {
       exifTags: any;
       localDateTime: string;
+      photoFileName: string;
     };
 
     vm.exifTags = {
@@ -114,6 +115,23 @@ describe('PhotoDetail.vue', () => {
     await wrapper.vm.$nextTick();
     expect(vm.localDateTime).toContain('2023');
     expect(vm.localDateTime).toContain('+10:00');
+  });
+
+  it('computes localDateTime from filename if EXIF is missing', async () => {
+    const vm = wrapper.vm as unknown as {
+      exifTags: any;
+      localDateTime: string;
+      photoFileName: string;
+    };
+
+    vm.exifTags = {};
+    vm.photoFileName = '2026-01-02_08.44.59.jpg';
+    await wrapper.vm.$nextTick();
+    expect(vm.localDateTime).toContain('2026');
+    // Use regex to find time components as toLocaleString varies by locale
+    expect(vm.localDateTime).toMatch(/0?8/);
+    expect(vm.localDateTime).toMatch(/44/);
+    expect(vm.localDateTime).toMatch(/59/);
   });
 
   it('calls nextPhoto with correct arguments', async () => {
@@ -282,6 +300,9 @@ describe('PhotoDetail.vue', () => {
     expect(vm.imageOriginalHeight).toBe(1000);
     expect(vm.imageStyles.width).toBe('1000px');
     expect(vm.imageStyles.height).toBe('1000px');
+
+    // Verify visibility in template
+    expect(wrapper.text()).toContain('1000 x 1000');
   });
 
   it('guards against NaN aspect ratios', async () => {

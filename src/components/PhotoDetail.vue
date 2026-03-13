@@ -1,11 +1,5 @@
 <template>
-  <section
-    tabindex="0"
-    aria-label="Photo Detail"
-    @keydown.left="nextPhoto(-1)"
-    @keydown.right="nextPhoto(1)"
-    @keydown.esc="emits('closePhotoDetail')"
-  >
+  <section>
     <div class="flex justify-end">
       <Button
         class="mb-2"
@@ -81,9 +75,9 @@
           <IconCalendarTime :size="24" class="mr-4" />
           <span>{{ localDateTime }}</span>
         </div>
-        <Divider v-if="exifTags['Image Height'] && exifTags['Image Width']" />
+        <Divider v-if="imageOriginalHeight && imageOriginalWidth" />
         <div
-          v-if="exifTags['Image Height'] && exifTags['Image Width']"
+          v-if="imageOriginalHeight && imageOriginalWidth"
           class="mx-4 flex items-center"
         >
           <IconPhoto :size="24" class="mr-4" />
@@ -95,18 +89,45 @@
                   : `${imageOriginalHeight} x ${imageOriginalWidth}`
               }}
             </div>
-            <small class="text-gray-500">
-              <span>f/{{ aperture }}</span>
+            <small
+              v-if="
+                exifTags.ApertureValue ||
+                exifTags.MaxApertureValue ||
+                exifTags.ExposureTime ||
+                exifTags.FocalLength ||
+                exifTags.ISOSpeedRatings ||
+                exifTags.ExposureBiasValue
+              "
+              class="text-gray-500"
+            >
+              <span v-if="aperture !== '0.0'">f/{{ aperture }}</span>
               <span v-if="exifTags.ExposureTime">
-                | {{ (exifTags.ExposureTime as RationalTag).description }}
+                <span v-if="aperture !== '0.0'"> | </span>
+                {{ (exifTags.ExposureTime as RationalTag).description }}
               </span>
               <span v-if="exifTags.FocalLength">
-                | {{ (exifTags.FocalLength as RationalTag).description }}
+                <span v-if="aperture !== '0.0' || exifTags.ExposureTime"> | </span>
+                {{ (exifTags.FocalLength as RationalTag).description }}
               </span>
               <span v-if="exifTags.ISOSpeedRatings">
-                | ISO{{ (exifTags.ISOSpeedRatings as NumberTag).description }}
+                <span v-if="aperture !== '0.0' || exifTags.ExposureTime || exifTags.FocalLength">
+                  |
+                </span>
+                ISO{{ (exifTags.ISOSpeedRatings as NumberTag).description }}
               </span>
-              <span> | EV{{ exposureBias }}</span>
+              <span v-if="exposureBias !== '0.00'">
+                <span
+                  v-if="
+                    aperture !== '0.0' ||
+                    exifTags.ExposureTime ||
+                    exifTags.FocalLength ||
+                    exifTags.ISOSpeedRatings
+                  "
+                >
+                  |
+                </span>
+                EV{{ exposureBias }}
+              </span>
             </small>
           </div>
         </div>
@@ -202,8 +223,21 @@ const photoId = computed(() => route.query['photo'] as string);
 
 /** Compute photo EXIF data begin */
 const localDateTime = computed(() => {
-  if (exifTags.value.DateTime?.description) {
-    const dateTime = exifTags.value.DateTime?.description;
+  let dateTime = exifTags.value.DateTime?.description;
+  const offsetTime = exifTags.value.OffsetTime?.value?.[0] ?? '';
+
+  if (!dateTime && photoFileName.value) {
+    // Try to parse from filename pattern: YYYY-MM-DD_HH.MM.SS or YYYY-MM-DD
+    const match = photoFileName.value.match(
+      /^(\d{4})-(\d{2})-(\d{2})(_(\d{2})\.(\d{2})\.(\d{2}))?/,
+    );
+    if (match) {
+      const [, year, month, day, , hour, minute, second] = match;
+      dateTime = `${year}:${month}:${day} ${hour || '00'}:${minute || '00'}:${second || '00'}`;
+    }
+  }
+
+  if (dateTime) {
     // Validate format: "YYYY:MM:DD HH:MM:SS"
     if (!/^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$/.test(dateTime)) {
       return null;
@@ -217,7 +251,7 @@ const localDateTime = computed(() => {
     if (Number.isNaN(date.getTime())) {
       return null;
     }
-    return `${date.toLocaleString()} ${exifTags.value.OffsetTime?.value?.[0] ?? ''}`;
+    return `${date.toLocaleString()} ${offsetTime}`;
   }
   return null;
 });
@@ -367,6 +401,20 @@ const nextPhoto = (dir: number) => {
   }
 };
 
+const onHandleKeydown = (event: KeyboardEvent) => {
+  switch (event.key) {
+    case 'ArrowLeft':
+      nextPhoto(-1);
+      break;
+    case 'ArrowRight':
+      nextPhoto(1);
+      break;
+    case 'Escape':
+      emits('closePhotoDetail');
+      break;
+  }
+};
+
 const updateContainerDimensions = () => {
   if (photoImageDetailRef.value) {
     imageContainerWidth.value = photoImageDetailRef.value.clientWidth;
@@ -391,10 +439,12 @@ watch(loadImage, async (newVal) => {
 onMounted(() => {
   updateContainerDimensions();
   window.addEventListener('resize', updateContainerDimensions);
+  window.addEventListener('keydown', onHandleKeydown);
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', updateContainerDimensions);
+  window.removeEventListener('keydown', onHandleKeydown);
 });
 
 // When photo id changes, verify if it exists first
