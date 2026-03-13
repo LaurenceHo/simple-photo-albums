@@ -38,7 +38,7 @@
                 :style="imageStyles"
                 class="max-h-full rounded-md"
                 @load="onImageLoad"
-                @error="loadImage = false"
+                @error="onImageError"
               />
               <PanoramaViewer v-else :imageUrl="selectedImage?.url ?? ''" />
             </template>
@@ -392,6 +392,10 @@ const nextPhoto = (dir: number) => {
   exifTags.value = {};
 
   const photoListLength = photosInAlbum.value.length;
+  if (photoListLength === 0) {
+    return;
+  }
+
   selectedImageIndex.value =
     (selectedImageIndex.value + (dir % photoListLength) + photoListLength) % photoListLength;
 
@@ -402,6 +406,11 @@ const nextPhoto = (dir: number) => {
 };
 
 const onHandleKeydown = (event: KeyboardEvent) => {
+  const target = event.target as HTMLElement;
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+    return;
+  }
+
   switch (event.key) {
     case 'ArrowLeft':
       nextPhoto(-1);
@@ -426,6 +435,12 @@ const onImageLoad = (event: Event) => {
   const img = event.target as HTMLImageElement;
   naturalWidth.value = img.naturalWidth;
   naturalHeight.value = img.naturalHeight;
+  loadImage.value = false;
+};
+
+const onImageError = () => {
+  naturalWidth.value = 0;
+  naturalHeight.value = 0;
   loadImage.value = false;
 };
 
@@ -477,6 +492,8 @@ watch(
     if (newValue?.key) {
       // Remove album id for displaying photo file name
       photoFileName.value = newValue.key.split('/')[1] || '';
+      naturalWidth.value = 0;
+      naturalHeight.value = 0;
       loadImage.value = true;
       try {
         // Read EXIF data

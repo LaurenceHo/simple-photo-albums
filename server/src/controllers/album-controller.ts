@@ -3,7 +3,7 @@ import { HonoEnv } from '../env';
 import AlbumService from '../services/album-service';
 import { Album } from '../types/album';
 import { UserPermission } from '../types/user-permission';
-import { emptyS3Folder, uploadObject, verifyIfIsAdmin } from '../utils/helpers';
+import { buildR2Config, emptyR2Folder, uploadObject, verifyIfIsAdmin } from '../utils/helpers';
 import { BaseController } from './base-controller';
 
 export default class AlbumController extends BaseController {
@@ -45,8 +45,9 @@ export default class AlbumController extends BaseController {
       }
 
       await albumService.create(album);
-      // Create folder in S3
-      await uploadObject(album.id + '/', null);
+      // Create folder in R2
+      const r2Config = buildR2Config(c.env);
+      await uploadObject(r2Config, c.env.R2_BUCKET_NAME, album.id + '/', null);
       return this.ok(c, 'Album created');
     } catch (err: any) {
       console.error(`Failed to insert photo album: ${err}`);
@@ -78,8 +79,9 @@ export default class AlbumController extends BaseController {
       console.log('##### Delete album: %s', requestBody.id);
       const albumService = new AlbumService(c.env.DB);
 
-      // Empty S3 folder
-      const result = await emptyS3Folder(requestBody.id);
+      // Empty R2 folder
+      const r2Config = buildR2Config(c.env);
+      const result = await emptyR2Folder(r2Config, c.env.R2_BUCKET_NAME, requestBody.id);
 
       if (result) {
         // Delete album from database

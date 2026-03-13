@@ -9,16 +9,23 @@ import {
 } from '@aws-sdk/client-s3';
 import { mockClient } from 'aws-sdk-client-mock';
 import { beforeEach, describe, expect, it } from 'vitest';
-import R2Service from '../../src/services/r2-service';
+import R2Service, { R2Config } from '../../src/services/r2-service';
 
 const r2Mock = mockClient(S3Client);
+
+const testR2Config: R2Config = {
+  accountId: 'test-account',
+  accessKey: 'test-access-key',
+  secretKey: 'test-secret-key',
+  cdnUrl: '',
+};
 
 describe('R2Service', () => {
   let r2Service: R2Service;
 
   beforeEach(() => {
     r2Mock.reset();
-    r2Service = new R2Service();
+    r2Service = new R2Service(testR2Config);
   });
 
   describe('findAll', () => {

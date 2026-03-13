@@ -10,7 +10,7 @@ import AlbumService from '../services/album-service';
 import R2Service from '../services/r2-service';
 import { PhotoResponse, PhotosRequest, RenamePhotoRequest } from '../types';
 import { UserPermission } from '../types/user-permission';
-import { deleteObjects } from '../utils/helpers';
+import { buildR2Config, deleteObjects } from '../utils/helpers';
 import { BaseController } from './base-controller';
 
 export default class PhotoController extends BaseController {
@@ -20,7 +20,8 @@ export default class PhotoController extends BaseController {
   findAll = async (c: Context<HonoEnv>) => {
     const albumId = c.req.param('albumId');
     const albumService = new AlbumService(c.env.DB);
-    const r2Service = new R2Service();
+    const r2Config = buildR2Config(c.env);
+    const r2Service = new R2Service(r2Config);
     const bucketName = c.env.R2_BUCKET_NAME;
 
     try {
@@ -122,7 +123,8 @@ export default class PhotoController extends BaseController {
    */
   update = async (c: Context<HonoEnv>) => {
     const { destinationAlbumId, albumId, photoKeys } = await c.req.json<PhotosRequest>();
-    const r2Service = new R2Service();
+    const r2Config = buildR2Config(c.env);
+    const r2Service = new R2Service(r2Config);
     const bucketName = c.env.R2_BUCKET_NAME;
 
     const copyPromises = photoKeys.map(async (photoKey) => {
@@ -145,7 +147,7 @@ export default class PhotoController extends BaseController {
       const successfulSourceKeys = results.filter((key): key is string => key !== null);
 
       if (successfulSourceKeys.length > 0) {
-        await deleteObjects(successfulSourceKeys);
+        await deleteObjects(r2Config, bucketName, successfulSourceKeys);
         console.log(`##### Photos moved: ${successfulSourceKeys.join(', ')}`);
       }
 
@@ -162,7 +164,8 @@ export default class PhotoController extends BaseController {
 
   rename = async (c: Context<HonoEnv>) => {
     const { albumId, newPhotoKey, currentPhotoKey } = await c.req.json<RenamePhotoRequest>();
-    const r2Service = new R2Service();
+    const r2Config = buildR2Config(c.env);
+    const r2Service = new R2Service(r2Config);
     const bucketName = c.env.R2_BUCKET_NAME;
 
     // Currently, the only way to rename an object using the SDK is to copy the object with a different name and
@@ -174,7 +177,7 @@ export default class PhotoController extends BaseController {
         Key: `${albumId}/${newPhotoKey}`,
       });
       if (result) {
-        await deleteObjects([`${albumId}/${currentPhotoKey}`]);
+        await deleteObjects(r2Config, bucketName, [`${albumId}/${currentPhotoKey}`]);
         return this.ok(c, 'Photo renamed');
       }
       return this.fail(c, 'Failed to rename photo');
@@ -189,7 +192,9 @@ export default class PhotoController extends BaseController {
 
     const photoKeysArray = photoKeys.map((photoKey) => `${albumId}/${photoKey}`);
     try {
-      const result = await deleteObjects(photoKeysArray);
+      const r2Config = buildR2Config(c.env);
+      const bucketName = c.env.R2_BUCKET_NAME;
+      const result = await deleteObjects(r2Config, bucketName, photoKeysArray);
       if (result) {
         return this.ok(c, 'Photo deleted');
       }

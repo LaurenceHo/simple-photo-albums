@@ -20,20 +20,28 @@ import {
 import { get } from 'radash';
 import { BaseService, Photo } from '../types';
 
+export interface R2Config {
+  accountId: string;
+  accessKey: string;
+  secretKey: string;
+  region?: string;
+  cdnUrl?: string;
+}
+
 export default class R2Service implements BaseService<Photo> {
   public readonly r2Client: S3Client;
   public readonly cdnURL: string;
 
-  constructor() {
+  constructor(config: R2Config) {
     this.r2Client = new S3Client({
-      region: process.env['REGION_NAME'] || 'auto',
-      endpoint: `https://${process.env['CLOUDFLARE_ACCOUNT_ID']}.r2.cloudflarestorage.com`,
+      region: config.region || 'auto',
+      endpoint: `https://${config.accountId}.r2.cloudflarestorage.com`,
       credentials: {
-        accessKeyId: process.env['R2_ACCESS_KEY'] || '',
-        secretAccessKey: process.env['R2_SECRET_KEY'] || '',
+        accessKeyId: config.accessKey,
+        secretAccessKey: config.secretKey,
       },
     });
-    this.cdnURL = process.env['VITE_IMAGEKIT_CDN_URL'] || '';
+    this.cdnURL = config.cdnUrl || '';
   }
 
   async findAll(params: ListObjectsV2CommandInput): Promise<Photo[]> {
@@ -61,7 +69,7 @@ export default class R2Service implements BaseService<Photo> {
   async read(params: GetObjectCommandInput): Promise<any> {
     const response = await this.r2Client.send(new GetObjectCommand(params));
     if (!response.Body) {
-      throw new Error('No data found in the S3 object');
+      throw new Error('No data found in the R2 object');
     }
 
     // Convert the response body (ReadableStream) to a string

@@ -3,20 +3,26 @@ import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
 import { verifyJwt } from './jwt';
 import { get } from 'radash';
-import { HonoEnv } from '../env';
-import R2Service from '../services/r2-service';
+import { Bindings, HonoEnv } from '../env';
+import R2Service, { R2Config } from '../services/r2-service';
 
-const s3BucketName = process.env['R2_BUCKET_NAME'];
+/** Build R2Config from Hono environment bindings. */
+export const buildR2Config = (env: Bindings): R2Config => ({
+  accountId: env.CLOUDFLARE_ACCOUNT_ID,
+  accessKey: env.R2_ACCESS_KEY,
+  secretKey: env.R2_SECRET_KEY,
+  region: env.REGION_NAME,
+  cdnUrl: env.VITE_IMAGEKIT_CDN_URL,
+});
 
-//https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/s3-example-photo-album-full.html
-export const uploadObject = async (filePath: string, object: any) => {
-  console.log(`##### S3 destination file path: ${filePath}`);
-  const r2Service = new R2Service();
+export const uploadObject = async (r2Config: R2Config, bucketName: string, filePath: string, object: any) => {
+  console.log(`##### R2 destination file path: ${filePath}`);
+  const r2Service = new R2Service(r2Config);
 
   try {
     const putObject: PutObjectCommandInput = {
       Body: object ?? '',
-      Bucket: s3BucketName,
+      Bucket: bucketName,
       Key: filePath,
     };
 
@@ -27,14 +33,14 @@ export const uploadObject = async (filePath: string, object: any) => {
   }
 };
 
-export const deleteObjects = async (objectKeys: string[]) => {
+export const deleteObjects = async (r2Config: R2Config, bucketName: string, objectKeys: string[]) => {
   const deleteParams: DeleteObjectsCommandInput = {
-    Bucket: s3BucketName,
+    Bucket: bucketName,
     Delete: { Objects: [] },
   };
 
   objectKeys.forEach((objectKeys) => deleteParams.Delete?.Objects?.push({ Key: objectKeys }));
-  const r2Service = new R2Service();
+  const r2Service = new R2Service(r2Config);
 
   try {
     return await r2Service.delete(deleteParams);
@@ -44,26 +50,26 @@ export const deleteObjects = async (objectKeys: string[]) => {
   }
 };
 
-export const emptyS3Folder = async (folderName: string) => {
-  const r2Service = new R2Service();
+export const emptyR2Folder = async (r2Config: R2Config, bucketName: string, folderName: string) => {
+  const r2Service = new R2Service(r2Config);
   const listedObjects = await r2Service.listObjects({
-    Bucket: s3BucketName,
+    Bucket: bucketName,
     Prefix: folderName,
   });
 
   if (!listedObjects.Contents || listedObjects.Contents?.length === 0) return true;
 
   if (listedObjects.IsTruncated) {
-    await emptyS3Folder(folderName);
+    await emptyR2Folder(r2Config, bucketName, folderName);
   }
 
   const listedObjectArray = listedObjects.Contents.map(({ Key }: any) => Key);
 
   try {
-    return await deleteObjects(listedObjectArray);
+    return await deleteObjects(r2Config, bucketName, listedObjectArray);
   } catch (err) {
-    console.error(`Failed to empty S3 folder: ${err}`);
-    throw new Error('Error when emptying S3 folder', { cause: err });
+    console.error(`Failed to empty R2 folder: ${err}`);
+    throw new Error('Error when emptying R2 folder', { cause: err });
   }
 };
 
@@ -76,6 +82,7 @@ export const verifyIfIsAdmin = async (c: Context<HonoEnv>) => {
       const decodedPayload = await verifyJwt(token, c.env.JWT_SECRET);
       isAdmin = get(decodedPayload, 'role') === 'admin';
     } catch (error) {
+      console.error('JWT verification failed in verifyIfIsAdmin:', error);
       setCookie(c, 'jwt', '', { maxAge: 0, path: '/' });
     }
   }
