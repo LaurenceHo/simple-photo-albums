@@ -33,49 +33,62 @@ export const uploadObject = async (r2Config: R2Config, bucketName: string, fileP
   }
 };
 
-export const deleteObjects = async (r2Config: R2Config, bucketName: string, objectKeys: string[]) => {
-  const deleteParams: DeleteObjectsCommandInput = {
-    Bucket: bucketName,
-    Delete: { Objects: [] },
-  };
-
-  objectKeys.forEach((objectKeys) => deleteParams.Delete?.Objects?.push({ Key: objectKeys }));
+export const deleteObjects = async (
+  r2Config: R2Config,
+  bucketName: string,
+  objectKeys: string[],
+): Promise<boolean> => {
   const r2Service = new R2Service(r2Config);
-
   try {
+    const keysToDelete = Array.isArray(objectKeys) ? objectKeys : [objectKeys];
+    if (keysToDelete.length === 0) return true;
+
+    const deleteParams: DeleteObjectsCommandInput = {
+      Bucket: bucketName,
+      Delete: { Objects: keysToDelete.map((key) => ({ Key: key })) },
+    };
+
     return await r2Service.delete(deleteParams);
-  } catch (err) {
-    console.error(`Failed to delete photos: ${err}`);
-    throw new Error('Error when deleting photos', { cause: err });
+  } catch (err: any) {
+    console.error('Failed to delete objects: %s', err);
+    return false;
   }
 };
 
-export const emptyR2Folder = async (r2Config: R2Config, bucketName: string, folderName: string) => {
+export const emptyR2Folder = async (
+  r2Config: R2Config,
+  bucketName: string,
+  folderName: string,
+): Promise<boolean> => {
   const r2Service = new R2Service(r2Config);
 
-  const emptyFolder = async (): Promise<boolean> => {
+  const emptyFolder = async (currentFolderName: string): Promise<boolean> => {
+    const prefix = currentFolderName.endsWith('/') ? currentFolderName : `${currentFolderName}/`;
     const listedObjects = await r2Service.listObjects({
       Bucket: bucketName,
-      Prefix: folderName,
+      Prefix: prefix,
     });
 
-    if (!listedObjects.Contents || listedObjects.Contents?.length === 0) return true;
+    if (!listedObjects.Contents || listedObjects.Contents.length === 0) return true;
 
-    const listedObjectArray = listedObjects.Contents.map(({ Key }: any) => Key);
-    await deleteObjects(r2Config, bucketName, listedObjectArray);
+    const listedObjectArray = listedObjects.Contents.map(({ Key }: any) => Key).filter(
+      (key): key is string => !!key,
+    );
+    const deleteResult = await deleteObjects(r2Config, bucketName, listedObjectArray);
+    if (!deleteResult) return false;
 
     if (listedObjects.IsTruncated) {
-      await emptyFolder();
+      return await emptyFolder(currentFolderName);
     }
 
     return true;
   };
 
   try {
-    return await emptyFolder();
+    return await emptyFolder(folderName);
   } catch (err) {
     console.error(`Failed to empty R2 folder: ${err}`);
-    throw new Error('Error when emptying R2 folder', { cause: err });
+    return false;
   }
 };
 

@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest';
-import { haversineDistance } from '../../src/utils/helpers';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { haversineDistance, deleteObjects, emptyR2Folder } from '../../src/utils/helpers';
+import R2Service from '../../src/services/r2-service';
+
+vi.mock('../../src/services/r2-service');
 
 describe('haversineDistance', () => {
   it('should calculate distance between two points correctly (km)', () => {
@@ -54,5 +57,72 @@ describe('haversineDistance', () => {
 
     // 3. All NaN → still NaN
     expect(haversineDistance(NaN, NaN, NaN, NaN)).toBeNaN();
+  });
+});
+
+describe('R2 Helpers', () => {
+  const mockConfig = {
+    accountId: 'test-id',
+    accessKey: 'test-key',
+    secretKey: 'test-secret',
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('deleteObjects', () => {
+    it('should return true if no keys provided', async () => {
+      const result = await deleteObjects(mockConfig, 'test-bucket', []);
+      expect(result).toBe(true);
+    });
+
+    it('should return result from R2Service.delete', async () => {
+      const deleteMock = vi.fn().mockResolvedValue(true);
+      (R2Service as any).prototype.delete = deleteMock;
+
+      const result = await deleteObjects(mockConfig, 'test-bucket', ['key1']);
+      expect(result).toBe(true);
+      expect(deleteMock).toHaveBeenCalledWith({
+        Bucket: 'test-bucket',
+        Delete: { Objects: [{ Key: 'key1' }] },
+      });
+    });
+
+    it('should return false on failure', async () => {
+      (R2Service as any).prototype.delete = vi.fn().mockRejectedValue(new Error('FAIL'));
+      const result = await deleteObjects(mockConfig, 'test-bucket', ['key1']);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('emptyR2Folder', () => {
+    it('should return true if no objects found', async () => {
+      (R2Service as any).prototype.listObjects = vi.fn().mockResolvedValue({ Contents: [] });
+      const result = await emptyR2Folder(mockConfig, 'test-bucket', 'folder');
+      expect(result).toBe(true);
+    });
+
+    it('should return false if deletion fails', async () => {
+      (R2Service as any).prototype.listObjects = vi.fn().mockResolvedValue({
+        Contents: [{ Key: 'file1' }],
+        IsTruncated: false,
+      });
+      (R2Service as any).prototype.delete = vi.fn().mockResolvedValue(false);
+
+      const result = await emptyR2Folder(mockConfig, 'test-bucket', 'folder');
+      expect(result).toBe(false);
+    });
+
+    it('should return true if deletion succeeds', async () => {
+      (R2Service as any).prototype.listObjects = vi.fn().mockResolvedValue({
+        Contents: [{ Key: 'file1' }],
+        IsTruncated: false,
+      });
+      (R2Service as any).prototype.delete = vi.fn().mockResolvedValue(true);
+
+      const result = await emptyR2Folder(mockConfig, 'test-bucket', 'folder');
+      expect(result).toBe(true);
+    });
   });
 });

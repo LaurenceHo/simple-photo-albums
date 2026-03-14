@@ -135,7 +135,11 @@ export default class PhotoController extends BaseController {
       const successfulSourceKeys = results.filter((key): key is string => key !== null);
 
       if (successfulSourceKeys.length > 0) {
-        await deleteObjects(r2Config, bucketName, successfulSourceKeys);
+        const deleted = await deleteObjects(r2Config, bucketName, successfulSourceKeys);
+        if (!deleted) {
+          console.error('Failed to delete source photos after copy: %s', successfulSourceKeys.join(', '));
+          return this.fail(c, 'Photos were copied but failed to remove originals');
+        }
         console.log(`##### Photos moved: ${successfulSourceKeys.join(', ')}`);
       }
 
@@ -165,7 +169,11 @@ export default class PhotoController extends BaseController {
         Key: `${albumId}/${newPhotoKey}`,
       });
       if (result) {
-        await deleteObjects(r2Config, bucketName, [`${albumId}/${currentPhotoKey}`]);
+        const deleted = await deleteObjects(r2Config, bucketName, [`${albumId}/${currentPhotoKey}`]);
+        if (!deleted) {
+          console.error('Failed to delete original photo after rename: %s', `${albumId}/${currentPhotoKey}`);
+          return this.fail(c, 'Photo was renamed but failed to remove original');
+        }
         return this.ok(c, 'Photo renamed');
       }
       return this.fail(c, 'Failed to rename photo');
