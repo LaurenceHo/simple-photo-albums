@@ -48,7 +48,7 @@ describe('R2Service', () => {
       expect(result[0]).toEqual({
         key: 'test-photo.jpg',
         size: 1024,
-        lastModified: new Date('2025-01-01'),
+        lastModified: new Date('2025-01-01').toISOString(),
         url: `${r2Service.cdnURL}/test-photo.jpg`,
       });
     });

@@ -54,12 +54,12 @@ export default class R2Service implements BaseService<Photo> {
       let url = '';
       let key = '';
       let size = 0;
-      let lastModified = new Date();
+      let lastModified = new Date().toISOString();
       if (photo?.Key) {
         url = `${this.cdnURL}/${encodeURI(photo.Key)}`;
         key = photo.Key;
         size = photo.Size ?? 0;
-        lastModified = photo.LastModified ?? new Date();
+        lastModified = (photo.LastModified ?? new Date()).toISOString();
       }
       return { url, key, size, lastModified };
     });
