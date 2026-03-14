@@ -9,12 +9,14 @@ import { ref } from 'vue';
 
 // Mock vue-router
 vi.mock('vue-router', async () => {
-  const actual = (await vi.importActual('vue-router')) as any;
+  const actual = (await vi.importActual('vue-router')) as Record<string, unknown>;
   return {
     ...actual,
     useRoute: vi.fn(() => ({
       params: { albumId: 'album', year: '2023' },
       query: { photo: 'photo1' },
+      path: '/album/2023/photo1',
+      fullPath: '/album/2023/photo1',
     })),
     useRouter: vi.fn(() => ({
       replace: vi.fn(),
@@ -100,7 +102,11 @@ describe('PhotoDetail.vue', () => {
   });
 
   it('computes localDateTime correctly', async () => {
-    const { vm } = wrapper as any;
+    const vm = wrapper.vm as unknown as {
+      exifTags: any;
+      localDateTime: string;
+      photoFileName: string;
+    };
 
     vm.exifTags = {
       DateTime: { description: '2023:11:10 12:00:00' },
@@ -111,8 +117,27 @@ describe('PhotoDetail.vue', () => {
     expect(vm.localDateTime).toContain('+10:00');
   });
 
+  it('computes localDateTime from filename if EXIF is missing', async () => {
+    const vm = wrapper.vm as unknown as {
+      exifTags: any;
+      localDateTime: string;
+      photoFileName: string;
+    };
+
+    vm.exifTags = {};
+    vm.photoFileName = '2026-01-02_08.44.59.jpg';
+    await wrapper.vm.$nextTick();
+    expect(vm.localDateTime).toContain('2026');
+    // Use regex to find time components as toLocaleString varies by locale
+    expect(vm.localDateTime).toMatch(/0?8/);
+    expect(vm.localDateTime).toMatch(/44/);
+    expect(vm.localDateTime).toMatch(/59/);
+  });
+
   it('calls nextPhoto with correct arguments', async () => {
-    const { vm } = wrapper as any;
+    const vm = wrapper.vm as unknown as {
+      nextPhoto: (dir: number) => void;
+    };
 
     const spy = vi.spyOn(vm, 'nextPhoto');
     await wrapper.find('[data-test-id="next-photo-button"]').trigger('click');
@@ -127,7 +152,10 @@ describe('PhotoDetail.vue', () => {
   });
 
   it('handles photo navigation correctly', async () => {
-    const { vm } = wrapper as any;
+    const vm = wrapper.vm as unknown as {
+      selectedImageIndex: number;
+      nextPhoto: (dir: number) => void;
+    };
 
     vm.selectedImageIndex = 0;
     vm.nextPhoto(1);
@@ -139,7 +167,11 @@ describe('PhotoDetail.vue', () => {
   });
 
   it('computes latitude and longitude correctly', async () => {
-    const { vm } = wrapper as any;
+    const vm = wrapper.vm as unknown as {
+      exifTags: any;
+      latitude: number;
+      longitude: number;
+    };
 
     vm.exifTags = {
       GPSLatitude: { description: '27.98785' },
@@ -153,7 +185,11 @@ describe('PhotoDetail.vue', () => {
   });
 
   it('computes negative latitude and longitude correctly', async () => {
-    const { vm } = wrapper as any;
+    const vm = wrapper.vm as unknown as {
+      exifTags: any;
+      latitude: number;
+      longitude: number;
+    };
 
     vm.exifTags = {
       GPSLatitude: { description: '33.7490' },
@@ -167,7 +203,10 @@ describe('PhotoDetail.vue', () => {
   });
 
   it('computes isPhotoLandscape correctly', async () => {
-    const { vm } = wrapper as any;
+    const vm = wrapper.vm as unknown as {
+      exifTags: any;
+      isPhotoLandscape: boolean;
+    };
 
     vm.exifTags = {
       'Image Width': { value: 1920 },
@@ -186,7 +225,11 @@ describe('PhotoDetail.vue', () => {
   });
 
   it('computes isPanoramaPhoto correctly', async () => {
-    const { vm } = wrapper as any;
+    const vm = wrapper.vm as unknown as {
+      exifTags: any;
+      isPanoramaPhoto: boolean;
+      photoFileName: string;
+    };
 
     // Test UsePanoramaViewer flag
     vm.exifTags = {
@@ -225,5 +268,52 @@ describe('PhotoDetail.vue', () => {
     };
     vm.photoFileName = 'regular.jpg';
     expect(vm.isPanoramaPhoto).toBe(false);
+  });
+
+  it('handles 0 container dimensions in imageStyles', async () => {
+    const { vm } = wrapper as any;
+    vm.exifTags = {
+      'Image Width': { value: 1000 },
+      'Image Height': { value: 1000 },
+    };
+    vm.imageContainerWidth = 0;
+    vm.imageContainerHeight = 0;
+    await wrapper.vm.$nextTick();
+    expect(vm.imageStyles).toEqual({ width: '100%', height: 'auto' });
+
+    vm.imageContainerWidth = 1000;
+    vm.imageContainerHeight = 500;
+    await wrapper.vm.$nextTick();
+    expect(vm.imageStyles.height).toBe('500px');
+    expect(vm.imageStyles.width).toBe('500px');
+  });
+
+  it('falls back to natural dimensions if EXIF is missing', async () => {
+    const { vm } = wrapper as any;
+    vm.exifTags = {};
+    vm.naturalWidth = 1000;
+    vm.naturalHeight = 1000;
+    vm.imageContainerWidth = 2000;
+    vm.imageContainerHeight = 1000;
+    await wrapper.vm.$nextTick();
+    expect(vm.imageOriginalWidth).toBe(1000);
+    expect(vm.imageOriginalHeight).toBe(1000);
+    expect(vm.imageStyles.width).toBe('1000px');
+    expect(vm.imageStyles.height).toBe('1000px');
+
+    // Verify visibility in template
+    expect(wrapper.text()).toContain('1000 x 1000');
+  });
+
+  it('guards against NaN aspect ratios', async () => {
+    const { vm } = wrapper as any;
+    vm.exifTags = {
+      'Image Width': { value: 0 },
+      'Image Height': { value: 0 },
+    };
+    vm.naturalWidth = 0;
+    vm.naturalHeight = 0;
+    await wrapper.vm.$nextTick();
+    expect(vm.imageStyles).toEqual({ width: '100%', height: 'auto' });
   });
 });

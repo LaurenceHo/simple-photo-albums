@@ -20,10 +20,10 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       # Used by envsubst in Configure Wrangler
-      AWS_REGION_NAME: ${{ secrets.AWS_REGION_NAME }}
       ALBUM_URL: ${{ vars.ALBUM_URL }}
       VITE_IMAGEKIT_CDN_URL: ${{ vars.VITE_IMAGEKIT_CDN_URL }}
-      AWS_S3_BUCKET_NAME: ${{ vars.AWS_S3_BUCKET_NAME }}
+      R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+      REGION_NAME: ${{ vars.REGION_NAME }}
       DEV_PHOTO_ALBUMS_DB_NAME: ${{ secrets.DEV_PHOTO_ALBUMS_DB_NAME }}
       DEV_PHOTO_ALBUMS_DB_ID: ${{ secrets.DEV_PHOTO_ALBUMS_DB_ID }}
       # Dummy values for Prod vars to satisfy wrangler.toml validation
@@ -32,8 +32,8 @@ jobs:
       DEVELOPMENT: 'true'
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2.1.3
 
       - name: Install dependencies and test
         run: |
@@ -50,8 +50,8 @@ jobs:
 
       - name: Upload Secrets
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
+          R2_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
           # Do NOT use real secrets in dev environment - these are dummy values for demo app
           VITE_GOOGLE_CLIENT_ID: 'VITE_GOOGLE_CLIENT_ID'
           GOOGLE_PLACES_API_KEY: 'GOOGLE_PLACES_API_KEY'
@@ -59,8 +59,8 @@ jobs:
           RAPIDAPI_KEY: 'RAPIDAPI_KEY'
         run: |
           cd "$GITHUB_WORKSPACE/server"
-          echo $AWS_ACCESS_KEY_ID | npx wrangler versions secret put AWS_ACCESS_KEY_ID --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
-          echo $AWS_SECRET_ACCESS_KEY | npx wrangler versions secret put AWS_SECRET_ACCESS_KEY --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
+          echo $R2_ACCESS_KEY | npx wrangler versions secret put R2_ACCESS_KEY --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
+          echo $R2_SECRET_KEY | npx wrangler versions secret put R2_SECRET_KEY --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
           echo "VITE_GOOGLE_CLIENT_ID" | npx wrangler versions secret put VITE_GOOGLE_CLIENT_ID --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
           echo "GOOGLE_PLACES_API_KEY" | npx wrangler versions secret put GOOGLE_PLACES_API_KEY --name "$D1_PHOTO_ALBUMS_WORKER" --env=""
           echo "JWT_SECRET" | npx wrangler versions secret put JWT_SECRET --name "$D1_PHOTO_ALBUMS_WORKER" --env=""

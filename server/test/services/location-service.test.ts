@@ -11,15 +11,15 @@ const mockPlacesResponse = {
   ],
 };
 
+const TEST_API_KEY = 'test-api-key';
+
 describe('LocationService', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
-    vi.stubEnv('GOOGLE_PLACES_API_KEY', 'test-api-key');
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    vi.unstubAllEnvs();
   });
 
   it('should fetch and return places data', async () => {
@@ -28,7 +28,7 @@ describe('LocationService', () => {
       json: () => Promise.resolve(mockPlacesResponse),
     } as Response);
 
-    const result = await getLocation('Auckland', 'places.displayName');
+    const result = await getLocation(TEST_API_KEY, 'Auckland', 'places.displayName');
 
     expect(result).toEqual(mockPlacesResponse);
     expect(fetch).toHaveBeenCalledWith(
@@ -36,7 +36,7 @@ describe('LocationService', () => {
       expect.objectContaining({
         method: 'POST',
         headers: expect.objectContaining({
-          'X-Goog-Api-Key': 'test-api-key',
+          'X-Goog-Api-Key': TEST_API_KEY,
           'X-Goog-FieldMask': 'places.displayName',
         }),
         body: JSON.stringify({ textQuery: 'Auckland', languageCode: 'en' }),
@@ -45,9 +45,7 @@ describe('LocationService', () => {
   });
 
   it('should throw when GOOGLE_PLACES_API_KEY is not configured', async () => {
-    vi.stubEnv('GOOGLE_PLACES_API_KEY', '');
-
-    await expect(getLocation('Auckland', 'places.displayName')).rejects.toThrow(
+    await expect(getLocation('', 'Auckland', 'places.displayName')).rejects.toThrow(
       'GOOGLE_PLACES_API_KEY is not configured',
     );
     expect(fetch).not.toHaveBeenCalled();
@@ -59,7 +57,7 @@ describe('LocationService', () => {
       status: 403,
     } as Response);
 
-    await expect(getLocation('Auckland', 'places.displayName')).rejects.toThrow(
+    await expect(getLocation(TEST_API_KEY, 'Auckland', 'places.displayName')).rejects.toThrow(
       'Google Places API returned 403',
     );
   });
@@ -70,7 +68,7 @@ describe('LocationService', () => {
       json: () => Promise.resolve(mockPlacesResponse),
     } as Response);
 
-    await getLocation('Auckland', 'places.displayName');
+    await getLocation(TEST_API_KEY, 'Auckland', 'places.displayName');
 
     const fetchCall = vi.mocked(fetch).mock.calls[0];
     const options = fetchCall?.[1] as RequestInit;

@@ -59,7 +59,8 @@ vi.mock('../../src/routes/auth-middleware', async () => {
 });
 
 vi.mock('../../src/utils/helpers', async () => ({
-  emptyS3Folder: () => Promise.resolve(true),
+  buildR2Config: () => ({}),
+  emptyR2Folder: () => Promise.resolve(true),
   uploadObject: () => Promise.resolve(true),
   verifyIfIsAdmin: () => true,
 }));
@@ -128,14 +129,10 @@ describe('album route', () => {
       });
     });
 
-    // Validation tests are commented out as validation schema was removed.
-    // TODO: Re-implement validation in controller
-    /*
-    it('should return 422 bad request when body is empty', async () => {
+    it('should return 400 bad request when body is empty', async () => {
       const response = await app.request('/api/albums', { method: 'POST' }, env);
-      expect(response.status).toBe(422);
+      expect(response.status).toBe(400);
     });
-    */
   });
 
   describe('update album', () => {

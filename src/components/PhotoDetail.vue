@@ -1,10 +1,5 @@
 <template>
-  <div
-    tabindex="0"
-    @keydown.left="nextPhoto(-1)"
-    @keydown.right="nextPhoto(1)"
-    @keydown.esc="emits('closePhotoDetail')"
-  >
+  <section>
     <div class="flex justify-end">
       <Button
         class="mb-2"
@@ -29,16 +24,21 @@
         </div>
         <IconView360Number v-if="isPanoramaPhoto" />
         <div class="relative h-auto min-h-80 w-full sm:min-h-96 lg:h-[calc(80vh-80px)]">
-          <div id="photo-image-detail" class="flex h-full items-center justify-center">
+          <div
+            id="photo-image-detail"
+            ref="photoImageDetailRef"
+            class="flex h-full items-center justify-center"
+          >
             <ProgressSpinner v-if="loadImage" />
             <template v-else>
               <img
                 v-if="!isPanoramaPhoto"
-                :alt="photoFileName"
+                :alt="photoFileName.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '').replace(/(photo|image)/gi, '').trim() || 'Detail'"
                 :src="selectedImage?.url || ''"
                 :style="imageStyles"
                 class="max-h-full rounded-md"
-                @load="loadImage = false"
+                @load="onImageLoad"
+                @error="onImageError"
               />
               <PanoramaViewer v-else :imageUrl="selectedImage?.url ?? ''" />
             </template>
@@ -75,9 +75,9 @@
           <IconCalendarTime :size="24" class="mr-4" />
           <span>{{ localDateTime }}</span>
         </div>
-        <Divider v-if="exifTags['Image Height'] && exifTags['Image Width']" />
+        <Divider v-if="imageOriginalHeight && imageOriginalWidth" />
         <div
-          v-if="exifTags['Image Height'] && exifTags['Image Width']"
+          v-if="imageOriginalHeight && imageOriginalWidth"
           class="mx-4 flex items-center"
         >
           <IconPhoto :size="24" class="mr-4" />
@@ -89,18 +89,45 @@
                   : `${imageOriginalHeight} x ${imageOriginalWidth}`
               }}
             </div>
-            <small class="text-gray-500">
-              <span>f/{{ aperture }}</span>
+            <small
+              v-if="
+                exifTags.ApertureValue ||
+                exifTags.MaxApertureValue ||
+                exifTags.ExposureTime ||
+                exifTags.FocalLength ||
+                exifTags.ISOSpeedRatings ||
+                exifTags.ExposureBiasValue
+              "
+              class="text-gray-500"
+            >
+              <span v-if="aperture !== '0.0'">f/{{ aperture }}</span>
               <span v-if="exifTags.ExposureTime">
-                | {{ (exifTags.ExposureTime as RationalTag).description }}
+                <span v-if="aperture !== '0.0'"> | </span>
+                {{ (exifTags.ExposureTime as RationalTag).description }}
               </span>
               <span v-if="exifTags.FocalLength">
-                | {{ (exifTags.FocalLength as RationalTag).description }}
+                <span v-if="aperture !== '0.0' || exifTags.ExposureTime"> | </span>
+                {{ (exifTags.FocalLength as RationalTag).description }}
               </span>
               <span v-if="exifTags.ISOSpeedRatings">
-                | ISO{{ (exifTags.ISOSpeedRatings as NumberTag).description }}
+                <span v-if="aperture !== '0.0' || exifTags.ExposureTime || exifTags.FocalLength">
+                  |
+                </span>
+                ISO{{ (exifTags.ISOSpeedRatings as NumberTag).description }}
               </span>
-              <span> | EV{{ exposureBias }}</span>
+              <span v-if="exposureBias !== '0.00'">
+                <span
+                  v-if="
+                    aperture !== '0.0' ||
+                    exifTags.ExposureTime ||
+                    exifTags.FocalLength ||
+                    exifTags.ISOSpeedRatings
+                  "
+                >
+                  |
+                </span>
+                EV{{ exposureBias }}
+              </span>
             </small>
           </div>
         </div>
@@ -130,7 +157,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script lang="ts" setup>
@@ -159,7 +186,7 @@ import ExifReader from 'exifreader';
 import { storeToRefs } from 'pinia';
 import { Button, Divider, ProgressSpinner } from 'primevue';
 import { useToast } from 'primevue/usetoast';
-import { computed, type ComputedRef, ref, watch } from 'vue';
+import { computed, type ComputedRef, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 type ExifData = ExifTags &
@@ -183,8 +210,11 @@ const selectedImageIndex = ref(-1);
 const photoFileName = ref('');
 const exifTags = ref<Partial<ExifData>>({});
 const loadImage = ref(false);
+const photoImageDetailRef = ref<HTMLDivElement | null>(null);
 const imageContainerWidth = ref(0);
 const imageContainerHeight = ref(0);
+const naturalWidth = ref(0);
+const naturalHeight = ref(0);
 
 const selectedImage = computed(() => findPhotoByIndex(selectedImageIndex.value));
 const albumId = computed(() => route.params['albumId'] as string);
@@ -193,8 +223,21 @@ const photoId = computed(() => route.query['photo'] as string);
 
 /** Compute photo EXIF data begin */
 const localDateTime = computed(() => {
-  if (exifTags.value.DateTime?.description) {
-    const dateTime = exifTags.value.DateTime?.description;
+  let dateTime = exifTags.value.DateTime?.description;
+  const offsetTime = exifTags.value.OffsetTime?.value?.[0] ?? '';
+
+  if (!dateTime && photoFileName.value) {
+    // Try to parse from filename pattern: YYYY-MM-DD_HH.MM.SS or YYYY-MM-DD
+    const match = photoFileName.value.match(
+      /^(\d{4})-(\d{2})-(\d{2})(_(\d{2})\.(\d{2})\.(\d{2}))?/,
+    );
+    if (match) {
+      const [, year, month, day, , hour, minute, second] = match;
+      dateTime = `${year}:${month}:${day} ${hour || '00'}:${minute || '00'}:${second || '00'}`;
+    }
+  }
+
+  if (dateTime) {
     // Validate format: "YYYY:MM:DD HH:MM:SS"
     if (!/^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$/.test(dateTime)) {
       return null;
@@ -205,10 +248,10 @@ const localDateTime = computed(() => {
     const date = new Date(isoDateTime);
 
     // Validate parsed date
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       return null;
     }
-    return `${date.toLocaleString()} ${exifTags.value.OffsetTime?.value?.[0] ?? ''}`;
+    return `${date.toLocaleString()} ${offsetTime}`;
   }
   return null;
 });
@@ -234,19 +277,19 @@ const longitude: ComputedRef<number> = computed(() => {
 });
 
 const exposureBias = computed(() =>
-  parseFloat(exifTags.value.ExposureBiasValue?.description ?? '0').toFixed(2),
+  Number.parseFloat(exifTags.value.ExposureBiasValue?.description ?? '0').toFixed(2),
 );
 
 const aperture = computed(() =>
-  parseFloat(
+  Number.parseFloat(
     exifTags.value.ApertureValue?.description ??
       exifTags.value.MaxApertureValue?.description ??
       '0',
   ).toFixed(1),
 );
 
-const imageOriginalWidth = computed(() => Number(exifTags.value['Image Width']?.value ?? 0));
-const imageOriginalHeight = computed(() => Number(exifTags.value['Image Height']?.value ?? 0));
+const imageOriginalWidth = computed(() => naturalWidth.value || Number(exifTags.value['Image Width']?.value ?? 0));
+const imageOriginalHeight = computed(() => naturalHeight.value || Number(exifTags.value['Image Height']?.value ?? 0));
 const isPhotoLandscape = computed(
   () =>
     (isPanoramaPhoto.value ||
@@ -290,14 +333,29 @@ const isPanoramaPhoto = computed(() => {
 /** Compute image display size begin */
 const imageStyles = computed(() => {
   const styles = { height: '', width: '' };
+
+  if (imageOriginalWidth.value === 0 || imageOriginalHeight.value === 0) {
+    return { width: '100%', height: 'auto' };
+  }
+
   const aspectRatio = imageOriginalWidth.value / imageOriginalHeight.value;
 
+  // If aspect ratio is invalid, fallback
+  if (!Number.isFinite(aspectRatio) || aspectRatio <= 0) {
+    return { width: '100%', height: 'auto' };
+  }
+
   // Calculate maximum dimensions based on container
-  const maxWidth = Math.min(
-    imageOriginalWidth.value,
-    imageContainerWidth.value > 1080 ? 1080 : imageContainerWidth.value,
-  );
-  const maxHeight = Math.min(imageOriginalHeight.value, imageContainerHeight.value);
+  const containerWidth = imageContainerWidth.value || 0;
+  const containerHeight = imageContainerHeight.value || 0;
+
+  // If container dimensions are 0 (e.g. not mounted yet), fallback to a reasonable default or 100%
+  if (containerWidth === 0 || containerHeight === 0) {
+    return { width: '100%', height: 'auto' };
+  }
+
+  const maxWidth = Math.min(imageOriginalWidth.value, containerWidth, 1080);
+  const maxHeight = Math.min(imageOriginalHeight.value, containerHeight);
 
   // For square or landscape images
   if (aspectRatio >= 1) {
@@ -334,6 +392,10 @@ const nextPhoto = (dir: number) => {
   exifTags.value = {};
 
   const photoListLength = photosInAlbum.value.length;
+  if (photoListLength === 0) {
+    return;
+  }
+
   selectedImageIndex.value =
     (selectedImageIndex.value + (dir % photoListLength) + photoListLength) % photoListLength;
 
@@ -343,9 +405,61 @@ const nextPhoto = (dir: number) => {
   }
 };
 
-watch(loadImage, () => {
-  imageContainerWidth.value = document.getElementById('photo-image-detail')?.clientWidth ?? 0;
-  imageContainerHeight.value = document.getElementById('photo-image-detail')?.clientHeight ?? 0;
+const onHandleKeydown = (event: KeyboardEvent) => {
+  const target = event.target as HTMLElement;
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+    return;
+  }
+
+  switch (event.key) {
+    case 'ArrowLeft':
+      nextPhoto(-1);
+      break;
+    case 'ArrowRight':
+      nextPhoto(1);
+      break;
+    case 'Escape':
+      emits('closePhotoDetail');
+      break;
+  }
+};
+
+const updateContainerDimensions = () => {
+  if (photoImageDetailRef.value) {
+    imageContainerWidth.value = photoImageDetailRef.value.clientWidth;
+    imageContainerHeight.value = photoImageDetailRef.value.clientHeight;
+  }
+};
+
+const onImageLoad = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  naturalWidth.value = img.naturalWidth;
+  naturalHeight.value = img.naturalHeight;
+  loadImage.value = false;
+};
+
+const onImageError = () => {
+  naturalWidth.value = 0;
+  naturalHeight.value = 0;
+  loadImage.value = false;
+};
+
+watch(loadImage, async (newVal) => {
+  if (!newVal) {
+    await nextTick();
+    updateContainerDimensions();
+  }
+});
+
+onMounted(() => {
+  updateContainerDimensions();
+  globalThis.addEventListener('resize', updateContainerDimensions);
+  globalThis.addEventListener('keydown', onHandleKeydown);
+});
+
+onUnmounted(() => {
+  globalThis.removeEventListener('resize', updateContainerDimensions);
+  globalThis.removeEventListener('keydown', onHandleKeydown);
 });
 
 // When photo id changes, verify if it exists first
@@ -378,6 +492,8 @@ watch(
     if (newValue?.key) {
       // Remove album id for displaying photo file name
       photoFileName.value = newValue.key.split('/')[1] || '';
+      naturalWidth.value = 0;
+      naturalHeight.value = 0;
       loadImage.value = true;
       try {
         // Read EXIF data

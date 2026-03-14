@@ -1,4 +1,5 @@
 import { Context } from 'hono';
+import { HonoEnv } from '../env';
 import type { PlacesSearchResult } from '../services/location-service';
 import { getLocation } from '../services/location-service';
 import { Place } from '../types';
@@ -6,13 +7,14 @@ import { BaseController } from './base-controller';
 
 export default class LocationController extends BaseController {
   /** Find places by keyword. */
-  findAll = async (c: Context) => {
+  findAll = async (c: Context<HonoEnv>) => {
     const textQuery = c.req.query('textQuery');
     if (!textQuery?.trim()) {
       return this.clientError(c, 'textQuery parameter is required');
     }
     try {
       const response = await getLocation(
+        c.env.GOOGLE_PLACES_API_KEY,
         textQuery,
         'places.formattedAddress,places.displayName,places.location,places.addressComponents',
       );

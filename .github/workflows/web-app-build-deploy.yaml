@@ -25,8 +25,8 @@ jobs:
       VITE_GTAG_ID: ${{ secrets.VITE_GTAG_ID }}
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2.1.3
       - run: bun install
 
       - name: Test and build
@@ -35,20 +35,21 @@ jobs:
           bun run test:unit
           bun run build
 
-      - name: Configure AWS credentials
+      - name: Configure S3-compatible credentials for R2
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_GITHUB_DEPLOY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_GITHUB_DEPLOY }}
-          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.R2_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.R2_SECRET_KEY }}
+          aws-region: auto
 
-      - name: Fetch private assets from S3
+      - name: Fetch private assets from R2
         env:
-          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          aws s3 cp s3://$S3_BUCKET/logo.png dist/logo.png
-          aws s3 cp s3://$S3_BUCKET/favicon.ico dist/favicon.ico
-          aws s3 cp s3://$S3_BUCKET/icons dist/icons --recursive
+          aws s3 cp s3://$R2_BUCKET_NAME/logo.png dist/logo.png --endpoint-url https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
+          aws s3 cp s3://$R2_BUCKET_NAME/favicon.ico dist/favicon.ico --endpoint-url https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
+          aws s3 cp s3://$R2_BUCKET_NAME/icons dist/icons --recursive --endpoint-url https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
 
       - name: Deploy to Cloudflare Pages
         env:

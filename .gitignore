@@ -25,4 +25,4 @@ coverage
 *.tsbuildinfo
 .env
 *~
-cdk.context.json
+*dump.sql

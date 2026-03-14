@@ -52,7 +52,8 @@ export default class AggregationService extends D1Service<Album> {
     if (item.tags && typeof item.tags === 'string') {
       try {
         item.tags = JSON.parse(item.tags);
-      } catch (e) {
+      } catch (e: any) {
+        console.error(`Failed to parse tags for album ${item.id || item.title}: ${e.message}`, e);
         item.tags = [];
       }
     } else if (!item.tags) {
@@ -63,7 +64,8 @@ export default class AggregationService extends D1Service<Album> {
     if (item.place && typeof item.place === 'string') {
       try {
         item.place = JSON.parse(item.place);
-      } catch (e) {
+      } catch (e: any) {
+        console.error(`Failed to parse place for album ${item.id || item.title}: ${e.message}`, e);
         item.place = undefined;
       }
     }

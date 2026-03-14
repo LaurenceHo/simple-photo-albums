@@ -15,7 +15,7 @@
       <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#create-s3-bucket">Create S3 bucket</a></li>
+        <li><a href="#create-r2-bucket">Create R2 bucket</a></li>
         <li><a href="#integrate-with-imagekit">Integrate with ImageKit</a></li>
         <li><a href="#mapbox-api-key">Mapbox API key</a></li>
         <li><a href="#aws-lambda-function">AWS Lambda Function</a></li>
@@ -29,11 +29,11 @@
 
 ## About The Project
 
-This is a fullstack photo album web app using Vue3, PrimeVue, Tailwind CSS, Tanstack Query, Hono, Cloudflare Workers, Cloudflare D1 and AWS S3. You can use this web app to display your photos in S3 bucket and manage your photos and albums. This app is supposed to be used by a small group of people (e.g. family members) so it doesn't have any user management feature.
+This is a fullstack photo album web app using Vue3, PrimeVue, Tailwind CSS, Tanstack Query, Hono, Cloudflare Workers, Cloudflare D1 and Cloudflare R2. You can use this web app to display your photos in R2 bucket and manage your photos and albums. This app is supposed to be used by a small group of people (e.g. family members) so it doesn't have any user management feature.
 
 ### Built With
 
-[![Vite][vite]][vite-url][![Vue][Vue.js]][Vue-url][![Tailwind CSS][tailwindcss]][tailwindcss-url][![TypeScript][typescript]][type-url][![Vitest][vitest]][vitest-url][![Hono][hono]][hono-url][![Cloudflare][cloudflare]][cloudflare-url][![AWS][aws]][aws-url]
+[![Vite][vite]][vite-url][![Vue][Vue.js]][Vue-url][![Tailwind CSS][tailwindcss]][tailwindcss-url][![TypeScript][typescript]][type-url][![Vitest][vitest]][vitest-url][![Hono][hono]][hono-url][![Cloudflare][cloudflare]][cloudflare-url]
 
 ## Getting started
 
@@ -43,12 +43,11 @@ You will need the follows:
 
 1. Google Place API key (For admin manage albums and travel records)
 2. Google OAuth 2.0 Client ID (For admin access)
-3. AWS user and role with S3 permission for your local development and deployment
-4. AWS S3 bucket (For storing photos. **You need to create this manually.** )
-5. Cloudflare account (For Workers and D1 database)
-6. ImageKit account (It's optional)
-7. Mapbox API key (For displaying map)
-8. RapidAPI key with AeroDataBox subscription (For flight data lookup in travel records, optional)
+3. Cloudflare account (For Workers, D1 database and R2 storage)
+4. Cloudflare R2 bucket (For storing photos. **You need to create this manually.** )
+5. ImageKit account (It's optional)
+6. Mapbox API key (For displaying map)
+7. RapidAPI key with AeroDataBox subscription (For flight data lookup in travel records, optional)
 
 ‼️ **️Important** ‼️
 
@@ -62,12 +61,12 @@ After deploying the backend to Cloudflare, replace properties `VITE_STATIC_FILES
 
 ### Integrate with ImageKit
 
-In order to reduce the traffic with S3 bucket (to save money!), this project integrate with ImageKit CDN. ImageKit.io is a cloud-based image CDN with real-time image optimisation and transformation features that help you deliver perfectly optimised images across all devices[2]. You can follow this [documentation](https://imagekit.io/blog/image-optimization-resize-aws-s3-imagekit/) to create an account in the ImageKit. You will have 20GB bandwidth per month as a free user. Once you have your own ImageKit URL, replace this property `VITE_IMAGEKIT_CDN_URL` with your real information in`.env.example` and modify file name to `.env`. And
+In order to reduce the traffic with R2 bucket (to save money!), this project integrate with ImageKit CDN. ImageKit.io is a cloud-based image CDN with real-time image optimisation and transformation features that help you deliver perfectly optimised images across all devices[2]. You can follow this [documentation](https://imagekit.io/blog/image-optimization-resize-aws-s3-imagekit/) to create an account in the ImageKit. You will have 20GB bandwidth per month as a free user. Once you have your own ImageKit URL, replace this property `VITE_IMAGEKIT_CDN_URL` with your real information in`.env.example` and modify file name to `.env`. And
 use the same URL in the `server` folder.
 
 #### Important
 
-If you change S3 bucket name, don't forget to update the configuration in ImageKit, and AWS IAM permission for Imagekit.
+If you change R2 bucket name, don't forget to update the configuration in ImageKit.
 
 ### Mapbox API key
 
@@ -127,14 +126,9 @@ $ bun run test:unit
 $ bun run build
 ```
 
-### Customize the Quasar configuration
-
-See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js).
-
 ### References
 
-1. [CORS Configuration](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManageCorsUsing.html)
-2. [Optimize and resize images in AWS S3 in real-time with ImageKit](https://imagekit.io/blog/image-optimization-resize-aws-s3-imagekit/)
+1. [Optimize and resize images with ImageKit](https://imagekit.io/blog/image-optimization-resize-aws-s3-imagekit/)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
@@ -142,8 +136,6 @@ See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js
 [vitest-url]: https://vitest.dev/
 [Vue.js]: https://img.shields.io/badge/Vue%20js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
 [Vue-url]: https://vuejs.org/
-[aws]: https://img.shields.io/badge/Amazon_AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white
-[aws-url]: https://aws.amazon.com/
 [typescript]: https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white
 [type-url]: https://www.typescriptlang.org/
 [vite]: https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E

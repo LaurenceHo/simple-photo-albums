@@ -95,7 +95,8 @@ vi.mock('../../src/routes/auth-middleware', async () => {
 });
 
 vi.mock('../../src/utils/helpers', async () => ({
-  emptyS3Folder: () => Promise.resolve(true),
+  buildR2Config: () => ({}),
+  emptyR2Folder: () => Promise.resolve(true),
   uploadObject: () => Promise.resolve(true),
   verifyIfIsAdmin: () => true,
   haversineDistance: () => 8819,

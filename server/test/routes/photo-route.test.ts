@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import app from '../../src/index';
 import { mockAlbumList, mockPhotoList } from '../mock-data';
 
-vi.mock('../../src/services/s3-service', async () => {
+vi.mock('../../src/services/r2-service', async () => {
   const { mockPhotoList } = await import('../mock-data');
   return {
     default: class {
@@ -11,6 +11,9 @@ vi.mock('../../src/services/s3-service', async () => {
       }
       copy() {
         return Promise.resolve(true);
+      }
+      getPresignedUploadUrl() {
+        return Promise.resolve('https://upload-url');
       }
     },
   };
@@ -33,6 +36,11 @@ vi.mock('@aws-sdk/s3-request-presigner', () => ({
 }));
 
 vi.mock('../../src/utils/helpers', async () => ({
+  buildR2Config: (env: Record<string, string>) => ({
+    accountId: env.CLOUDFLARE_ACCOUNT_ID,
+    accessKey: env.R2_ACCESS_KEY,
+    secretKey: env.R2_SECRET_KEY,
+  }),
   deleteObjects: vi.fn(),
   uploadObject: () => Promise.resolve(true),
 }));
@@ -58,6 +66,7 @@ vi.mock('../../src/services/album-service', async () => {
 const env = {
   DB: {},
   JWT_SECRET: 'test-secret',
+  R2_BUCKET_NAME: 'test-bucket',
 };
 
 describe('photo route', () => {
@@ -146,7 +155,7 @@ describe('Move photo', () => {
     expect(response.status).toBe(200);
     expect(deleteObjects).toHaveBeenCalledTimes(1);
     // The keys passed to deleteObjects should be the source keys
-    expect(deleteObjects).toHaveBeenCalledWith(['Test-album/p1', 'Test-album/p2', 'Test-album/p3']);
+    expect(deleteObjects).toHaveBeenCalledWith(expect.any(Object), 'test-bucket', ['Test-album/p1', 'Test-album/p2', 'Test-album/p3']);
   });
 
   describe('Rename photo', () => {

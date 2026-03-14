@@ -10,7 +10,7 @@ vi.mock('@/services/base-api-request-service', () => ({
   },
 }));
 
-// Mock the global fetch for the S3 upload
+// Mock the global fetch for the R2 upload
 global.fetch = vi.fn();
 
 describe('PhotoService', () => {
@@ -57,11 +57,11 @@ describe('PhotoService', () => {
       const albumId = '123';
       const mockApiResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://s3-presigned-url' } }),
+        json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://r2-presigned-url' } }),
       };
-      const mockS3Response = { ok: true };
+      const mockR2Response = { ok: true };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
-      (global.fetch as any).mockResolvedValue(mockS3Response);
+      (global.fetch as any).mockResolvedValue(mockR2Response);
 
       await PhotoService.uploadPhotos(file, albumId);
 
@@ -78,11 +78,11 @@ describe('PhotoService', () => {
       const albumId = '123';
       const mockApiResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://s3-presigned-url' } }),
+        json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://r2-presigned-url' } }),
       };
-      const mockS3Response = { ok: true };
+      const mockR2Response = { ok: true };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
-      (global.fetch as any).mockResolvedValue(mockS3Response);
+      (global.fetch as any).mockResolvedValue(mockR2Response);
 
       await PhotoService.uploadPhotos(file, albumId);
 
@@ -96,14 +96,14 @@ describe('PhotoService', () => {
     it('should call fetch with the presigned URL and correct parameters', async () => {
       const file = new File([''], 'test.jpg', { type: 'image/jpeg' });
       const albumId = '123';
-      const mockUploadUrl = 'https://s3-presigned-url';
+      const mockUploadUrl = 'https://r2-presigned-url';
       const mockApiResponse = {
         ok: true,
         json: vi.fn().mockResolvedValue({ data: { uploadUrl: mockUploadUrl } }),
       };
-      const mockS3Response = { ok: true };
+      const mockR2Response = { ok: true };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
-      (global.fetch as any).mockResolvedValue(mockS3Response);
+      (global.fetch as any).mockResolvedValue(mockR2Response);
 
       await PhotoService.uploadPhotos(file, albumId);
 
@@ -119,11 +119,11 @@ describe('PhotoService', () => {
       const albumId = '123';
       const mockApiResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://s3-presigned-url' } }),
+        json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://r2-presigned-url' } }),
       };
-      const mockS3Response = { ok: true };
+      const mockR2Response = { ok: true };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
-      (global.fetch as any).mockResolvedValue(mockS3Response);
+      (global.fetch as any).mockResolvedValue(mockR2Response);
 
       const result = await PhotoService.uploadPhotos(file, albumId);
 
@@ -154,16 +154,16 @@ describe('PhotoService', () => {
       );
     });
 
-    it('should throw an error if S3 upload fails', async () => {
+    it('should throw an error if R2 upload fails', async () => {
       const file = new File([''], 'test.jpg', { type: 'image/jpeg' });
       const albumId = '123';
       const mockApiResponse = {
         ok: true,
-        json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://s3-presigned-url' } }),
+        json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://r2-presigned-url' } }),
       };
-      const mockS3Response = { ok: false, statusText: 'Forbidden' };
+      const mockR2Response = { ok: false, statusText: 'Forbidden' };
       (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
-      (global.fetch as any).mockResolvedValue(mockS3Response);
+      (global.fetch as any).mockResolvedValue(mockR2Response);
 
       await expect(PhotoService.uploadPhotos(file, albumId)).rejects.toThrow('Upload failed');
     });
