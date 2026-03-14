@@ -45,6 +45,7 @@ jobs:
       - name: Fetch private assets from R2
         env:
           R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           aws s3 cp s3://$R2_BUCKET_NAME/logo.png dist/logo.png --endpoint-url https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
           aws s3 cp s3://$R2_BUCKET_NAME/favicon.ico dist/favicon.ico --endpoint-url https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
