@@ -7,6 +7,7 @@ import { cleanJwtCookie } from '../routes/auth-middleware';
 import AlbumService from '../services/album-service';
 import R2Service from '../services/r2-service';
 import { PhotoResponse, PhotosRequest, RenamePhotoRequest } from '../types';
+import { Album } from '../types/album';
 import { UserPermission } from '../types/user-permission';
 import { buildR2Config, deleteObjects } from '../utils/helpers';
 import { BaseController } from './base-controller';
@@ -25,58 +26,86 @@ export default class PhotoController extends BaseController {
     try {
       const album = await albumService.getById(albumId);
 
-      // Only fetch photos when album exists
-      if (!isEmpty(album) && album !== null) {
-        // If album is private, check if user has the admin permission
-        if (album.isPrivate) {
-          const token = getCookie(c, 'jwt');
-          if (token) {
-            try {
-              const decodedPayload = await verifyJwt<UserPermission>(token, c.env.JWT_SECRET);
-              const isAdmin = get(decodedPayload, 'role') === 'admin';
-              if (!isAdmin) {
-                return cleanJwtCookie(c, 'Unauthorized action.', 403);
-              }
-            } catch (error) {
-              console.error('JWT verification failed in PhotoController.findAll:', error);
-              return cleanJwtCookie(c, 'Authentication failed.');
-            }
-          } else {
-            return cleanJwtCookie(c, 'Authentication failed.');
-          }
-        }
-        const folderNameKey = decodeURIComponent(albumId) + '/';
-        const photos = await r2Service.findAll({
-          Prefix: folderNameKey,
-          Bucket: bucketName,
-          MaxKeys: 1000,
-          StartAfter: folderNameKey,
-        });
-
-        // If photo list is not empty and doesn't have album cover, set album cover
-        if (!isEmpty(photos) && isEmpty(album.albumCover)) {
-          await albumService.update(album.id, {
-            ...album,
-            albumCover: photos[0]?.key || '',
-            updatedBy: 'System',
-          });
-
-          // Remove album cover photo when photo list is empty
-        } else if (isEmpty(photos) && !isEmpty(album.albumCover)) {
-          await albumService.update(album.id, {
-            ...album,
-            albumCover: '',
-            updatedBy: 'System',
-          });
-        }
-        return this.ok<PhotoResponse>(c, 'ok', { album, photos });
+      if (!album) {
+        return this.notFoundError(c, 'Album does not exist');
       }
-      return this.notFoundError(c, 'Album does not exist');
+
+      // Check authorization for private albums
+      const accessError = await this.checkAlbumAccess(c, album);
+      if (accessError) {
+        return accessError;
+      }
+
+      const folderNameKey = decodeURIComponent(albumId) + '/';
+      const photos = await r2Service.findAll({
+        Prefix: folderNameKey,
+        Bucket: bucketName,
+        MaxKeys: 1000,
+        StartAfter: folderNameKey,
+      });
+
+      // Synchronize album cover
+      await this.syncAlbumCover(albumService, album, photos);
+
+      return this.ok<PhotoResponse>(c, 'ok', { album, photos });
     } catch (err: any) {
       console.error('Failed to get photos: %s', err);
       return this.fail(c, 'Failed to get photos');
     }
   };
+
+  /**
+   * Check if user has access to the album
+   * @param c Hono Context
+   * @param album Album object
+   * @returns Error Response if access is denied, otherwise void
+   */
+  private async checkAlbumAccess(c: Context<HonoEnv>, album: Album): Promise<Response | void> {
+    if (!album.isPrivate) {
+      return;
+    }
+
+    const token = getCookie(c, 'jwt');
+    if (!token) {
+      return cleanJwtCookie(c, 'Authentication failed.');
+    }
+
+    try {
+      const decodedPayload = await verifyJwt<UserPermission>(token, c.env.JWT_SECRET);
+      const isAdmin = get(decodedPayload, 'role') === 'admin';
+      if (!isAdmin) {
+        return cleanJwtCookie(c, 'Unauthorized action.', 403);
+      }
+    } catch (error) {
+      console.error('JWT verification failed in PhotoController.checkAlbumAccess:', error);
+      return cleanJwtCookie(c, 'Authentication failed.');
+    }
+  }
+
+  /**
+   * Update album cover if needed
+   * @param albumService Album service
+   * @param album Album object
+   * @param photos Photo list
+   */
+  private async syncAlbumCover(albumService: AlbumService, album: Album, photos: any[]): Promise<void> {
+    const hasPhotos = !isEmpty(photos);
+    const hasCover = !isEmpty(album.albumCover);
+
+    if (hasPhotos && !hasCover) {
+      await albumService.update(album.id, {
+        ...album,
+        albumCover: photos[0]?.key || '',
+        updatedBy: 'System',
+      });
+    } else if (!hasPhotos && hasCover) {
+      await albumService.update(album.id, {
+        ...album,
+        albumCover: '',
+        updatedBy: 'System',
+      });
+    }
+  }
 
   create = async (c: Context<HonoEnv>) => {
     const albumId = c.req.param('albumId');
