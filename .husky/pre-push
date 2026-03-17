@@ -1,0 +1,10 @@
+echo "Running frontend checks..."
+bun run type-check
+bun run lint
+bun run test:unit
+
+echo "Running backend checks..."
+cd server
+bun run types:server
+bun run lint
+bun run test:server

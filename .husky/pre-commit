@@ -1,5 +1,0 @@
-bun run type-check
-bun run lint-staged
-cd server
-bun run types:server
-bun run lint-staged

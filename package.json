@@ -50,7 +50,6 @@
     "eslint-plugin-vue": "^10.8.0",
     "husky": "^9.1.7",
     "jsdom": "28.1.0",
-    "lint-staged": "16.2.7",
     "msw": "^2.12.10",
     "prettier": "^3.8.1",
     "prettier-plugin-organize-imports": "^4.3.0",
@@ -66,11 +65,6 @@
     "node": "^22",
     "npm": ">= 10",
     "yarn": ">= 4"
-  },
-  "lint-staged": {
-    "*.{ts,vue}": [
-      "eslint --fix"
-    ]
   },
   "msw": {
     "workerDirectory": [
