@@ -131,6 +131,9 @@ export default class TravelRecordController extends BaseController {
 
   delete = async (c: Context<HonoEnv>) => {
     const recordId = c.req.param('recordId');
+    if (!recordId) {
+      return this.clientError(c, 'Record ID is required');
+    }
     console.log('##### Delete travel record: %s', recordId);
     const travelRecordService = new TravelRecordService(c.env.DB);
 
@@ -143,6 +146,7 @@ export default class TravelRecordController extends BaseController {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   findOne = async (_c: Context) => {
     throw new Error('Method not implemented.');
   };

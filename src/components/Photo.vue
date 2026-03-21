@@ -42,7 +42,7 @@
     ]"
     data-test-id="detail-photo-item"
   >
-    <div class="relative flex-shrink-0" @click="goToPhotoDetail">
+    <div class="relative shrink-0" @click="goToPhotoDetail">
       <SquareImage
         :id="`photo-image-${photo['key']}`"
         :alt="`photo image ${photo['key']}`"
@@ -50,12 +50,12 @@
         :src="`${photo['url']}?tr=w-${thumbnailSize},h-${thumbnailSize}`"
       />
     </div>
-    <div class="ml-3 min-w-0 flex-grow" @click="selectPhoto(photo['key'])">
+    <div class="ml-3 min-w-0 grow" @click="selectPhoto(photo['key'])">
       <div class="truncate text-lg">{{ photoId }}</div>
       <div class="text-sm text-gray-400">{{ lastModified }}</div>
       <div class="text-sm text-gray-400">{{ fileSize }}</div>
     </div>
-    <div v-if="isAdmin" class="ml-2 flex-shrink-0">
+    <div v-if="isAdmin" class="ml-2 shrink-0">
       <EditPhotoButton :photo-key="photo['key']" />
     </div>
   </div>

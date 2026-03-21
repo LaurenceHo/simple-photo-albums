@@ -26,3 +26,4 @@ coverage
 .env
 *~
 *dump.sql
+settings.local.json

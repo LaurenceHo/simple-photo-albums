@@ -24,7 +24,7 @@ export const mockFeaturedAlbums = [
     year: 'na',
     albumName: 'This is demo album 4',
     description: 'This is an album description',
-    albumCover: 'demo-album-4/2024-05-02 18.28.53.jpg',
+    albumCover: 'demo-album-4/2026-01-02_08.44.59.jpg',
     isPrivate: false,
     isFeatured: true,
     place: {
@@ -96,7 +96,7 @@ export const mockFeaturedAlbums = [
     year: 'na',
     albumName: 'This is demo album 4',
     description: 'This is an album description',
-    albumCover: 'demo-album-4/2024-05-02 18.28.53.jpg',
+    albumCover: 'demo-album-4/2026-01-02_08.44.59.jpg',
     isPrivate: false,
     isFeatured: true,
     place: {

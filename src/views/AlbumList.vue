@@ -97,14 +97,7 @@ import {
 } from '@/stores';
 import { IconSortAscendingLetters, IconSortDescendingLetters } from '@tabler/icons-vue';
 import { storeToRefs } from 'pinia';
-import {
-  Button,
-  type PageState,
-  Paginator,
-  ScrollTop,
-  Skeleton,
-  ToggleSwitch,
-} from 'primevue';
+import { Button, type PageState, Paginator, ScrollTop, Skeleton, ToggleSwitch } from 'primevue';
 import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

@@ -1,9 +1,9 @@
 import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
 import { createMiddleware } from 'hono/factory';
-import { verifyJwt } from '../utils/jwt';
 import { HonoEnv } from '../env';
 import { UserPermission } from '../types/user-permission';
+import { verifyJwt } from '../utils/jwt';
 
 export const setJwtCookies = async (c: Context, token: string) => {
   const expiresIn = 1000 * 60 * 60 * 24 * 7; // 7 days

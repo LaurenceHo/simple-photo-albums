@@ -127,8 +127,7 @@ describe('CreateAlbum', () => {
         plugins: [pinia, router, PrimeVue, [VueQueryPlugin, options]],
         stubs: {
           Dialog: {
-            template:
-              '<div class="p-dialog"><slot name="header"></slot><slot></slot></div>',
+            template: '<div class="p-dialog"><slot name="header"></slot><slot></slot></div>',
           },
           AutoComplete,
         },

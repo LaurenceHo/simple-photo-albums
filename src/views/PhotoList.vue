@@ -6,7 +6,7 @@
     <div v-if="!photoId && !showPhotoUploader" class="py-4">
       <div class="flex flex-col items-start pb-4 sm:flex-row sm:items-center">
         <div class="flex w-full items-center sm:w-auto">
-          <Button class="flex-shrink-0" rounded @click="goBack">
+          <Button class="shrink-0" rounded @click="goBack">
             <template #icon>
               <IconArrowNarrowLeft :size="24" />
             </template>
@@ -15,7 +15,7 @@
             v-model="photoStyle"
             :options="['grid', 'detail']"
             aria-labelledby="basic"
-            class="ml-2 flex-shrink-0"
+            class="ml-2 shrink-0"
             @update:model-value="
               (value) => router.replace({ query: { ...route.query, photoStyle: value } })
             "
@@ -31,7 +31,7 @@
           </SelectButton>
           <Button
             v-if="currentAlbum?.place"
-            class="ml-2 flex-shrink-0"
+            class="ml-2 shrink-0"
             data-test-id="album-map-button"
             outlined
             severity="secondary"
@@ -241,11 +241,9 @@ import {
 } from '@tabler/icons-vue';
 import { storeToRefs } from 'pinia';
 import { Button, Popover, ScrollTop, SelectButton, Tag, Toolbar } from 'primevue';
-import { useToast } from 'primevue/usetoast';
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const toast = useToast();
 const route = useRoute();
 const router = useRouter();
 

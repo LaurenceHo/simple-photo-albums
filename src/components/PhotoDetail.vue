@@ -33,7 +33,12 @@
             <template v-else>
               <img
                 v-if="!isPanoramaPhoto"
-                :alt="photoFileName.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '').replace(/(photo|image)/gi, '').trim() || 'Detail'"
+                :alt="
+                  photoFileName
+                    .replace(/\.(jpg|jpeg|png|gif|webp)$/i, '')
+                    .replace(/(photo|image)/gi, '')
+                    .trim() || 'Detail'
+                "
                 :src="selectedImage?.url || ''"
                 :style="imageStyles"
                 class="max-h-full rounded-md"
@@ -44,7 +49,7 @@
             </template>
           </div>
           <Button
-            class="!absolute !top-1/2 !left-0"
+            class="absolute! top-1/2! left-0!"
             data-test-id="previous-photo-button"
             rounded
             @click="nextPhoto(-1)"
@@ -54,7 +59,7 @@
             </template>
           </Button>
           <Button
-            class="!absolute !top-1/2 !right-0"
+            class="absolute! top-1/2! right-0!"
             data-test-id="next-photo-button"
             rounded
             @click="nextPhoto(1)"
@@ -76,10 +81,7 @@
           <span>{{ localDateTime }}</span>
         </div>
         <Divider v-if="imageOriginalHeight && imageOriginalWidth" />
-        <div
-          v-if="imageOriginalHeight && imageOriginalWidth"
-          class="mx-4 flex items-center"
-        >
+        <div v-if="imageOriginalHeight && imageOriginalWidth" class="mx-4 flex items-center">
           <IconPhoto :size="24" class="mr-4" />
           <div>
             <div>
@@ -288,8 +290,12 @@ const aperture = computed(() =>
   ).toFixed(1),
 );
 
-const imageOriginalWidth = computed(() => naturalWidth.value || Number(exifTags.value['Image Width']?.value ?? 0));
-const imageOriginalHeight = computed(() => naturalHeight.value || Number(exifTags.value['Image Height']?.value ?? 0));
+const imageOriginalWidth = computed(
+  () => naturalWidth.value || Number(exifTags.value['Image Width']?.value ?? 0),
+);
+const imageOriginalHeight = computed(
+  () => naturalHeight.value || Number(exifTags.value['Image Height']?.value ?? 0),
+);
 const isPhotoLandscape = computed(
   () =>
     (isPanoramaPhoto.value ||

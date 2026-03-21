@@ -31,7 +31,7 @@ export const getPhotos = http.get('/api/photos/**', async ({ params }) => {
         },
         photos: [
           {
-            url: `${imageCDNUrl}/demo-album-4/2024-05-02%2018.28.53.jpg`,
+            url: `${imageCDNUrl}/demo-album-4/2026-01-02_08.44.59.jpg`,
             key: 'demo-album-4/2024-05-02 18.28.53.jpg',
             size: 3509509,
             lastModified: '2024-07-24T21:49:42.000Z',
@@ -107,7 +107,7 @@ export const getPhotos = http.get('/api/photos/**', async ({ params }) => {
       },
       photos: [
         {
-          url: `${imageCDNUrl}/demo-album3/batch_berlin-8429780.jpg`,
+          url: `${imageCDNUrl}/demo-album3/batch_berlin.jpg`,
           key: 'demo-album3/batch_berlin-8429780.jpg',
           size: 180940,
           lastModified: '2024-07-24T21:49:44.000Z',

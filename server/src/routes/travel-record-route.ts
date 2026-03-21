@@ -26,6 +26,11 @@ app.put(
   controller.update,
 );
 
-app.delete('/api/travel-records/:recordId', verifyJwtClaim, verifyUserPermission, controller.delete);
+app.delete(
+  '/api/travel-records/:recordId',
+  verifyJwtClaim,
+  verifyUserPermission,
+  controller.delete,
+);
 
 export default app;

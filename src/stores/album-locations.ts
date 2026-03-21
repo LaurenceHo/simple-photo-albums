@@ -23,7 +23,9 @@ const fetchAlbumsWithLocation = async () => {
       data: albums,
       code,
       message,
-    } = (await AggregateService.getAggregateData('albums-with-location')) as ApiResponse<AlbumItem[]>;
+    } = (await AggregateService.getAggregateData('albums-with-location')) as ApiResponse<
+      AlbumItem[]
+    >;
 
     if (code !== 200) {
       console.error('Error fetching album locations:', message);

@@ -86,7 +86,7 @@ export const useUploadStore = defineStore('upload', () => {
   };
 
   const sanitiseFilename = (filename: string) => {
-    return filename.replaceAll(/[^a-zA-Z0-9._-]/g, '_');
+    return filename.replaceAll(/[^a-zA-Z0-9._\- ]/g, '_');
   };
 
   const uploadFile = async (file: IUploadFile, albumId: string) => {
@@ -135,5 +135,6 @@ export const useUploadStore = defineStore('upload', () => {
     clearFiles,
     setIsCompleteUploading, // Kept for compatibility if manually needed, or just let uploadFiles handle it
     uploadFiles,
+    sanitiseFilename,
   };
 });

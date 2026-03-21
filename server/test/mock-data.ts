@@ -86,9 +86,6 @@ const mockUserPermission = {
 export const mockSignedCookies = async () => {
   const secret = process.env['JWT_SECRET'];
   if (!secret) throw new Error('JWT_SECRET is not set in test environment');
-  const token = await signJwt(
-    mockUserPermission as unknown as Record<string, unknown>,
-    secret,
-  );
+  const token = await signJwt(mockUserPermission as unknown as Record<string, unknown>, secret);
   return token;
 };

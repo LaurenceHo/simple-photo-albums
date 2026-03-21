@@ -103,7 +103,12 @@ export default class R2Service implements BaseService<Photo> {
     return await this.r2Client.send(new ListObjectsV2Command(params));
   }
 
-  async getPresignedUploadUrl(bucket: string, key: string, contentType: string, expiresIn = 60): Promise<string> {
+  async getPresignedUploadUrl(
+    bucket: string,
+    key: string,
+    contentType: string,
+    expiresIn = 60,
+  ): Promise<string> {
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: key,

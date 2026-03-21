@@ -82,7 +82,9 @@ describe('TravelRecordService', () => {
       const mockResponse = { ok: false, statusText: 'Bad Request' };
       (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
-      await expect(TravelRecordService.createTravelRecord(mockTravelRecord as any)).rejects.toThrow('Bad Request');
+      await expect(TravelRecordService.createTravelRecord(mockTravelRecord as any)).rejects.toThrow(
+        'Bad Request',
+      );
     });
   });
 
@@ -114,7 +116,9 @@ describe('TravelRecordService', () => {
       const mockResponse = { ok: false, statusText: 'Not Found' };
       (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
-      await expect(TravelRecordService.updateTravelRecord(mockTravelRecord as any)).rejects.toThrow('Not Found');
+      await expect(TravelRecordService.updateTravelRecord(mockTravelRecord as any)).rejects.toThrow(
+        'Not Found',
+      );
     });
   });
 

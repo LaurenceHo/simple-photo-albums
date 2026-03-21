@@ -63,11 +63,8 @@ describe('PhotoStore', () => {
 
   it('should find photo index', () => {
     const store = usePhotoStore();
-    store.photosInAlbum = [
-      { key: 'album1/photo1' },
-      { key: 'album1/photo2' },
-    ] as any;
-    
+    store.photosInAlbum = [{ key: 'album1/photo1' }, { key: 'album1/photo2' }] as any;
+
     expect(store.findPhotoIndex('photo1')).toBe(0);
     expect(store.findPhotoIndex('photo2')).toBe(1);
     expect(store.findPhotoIndex('photo3')).toBe(-1);
@@ -77,7 +74,7 @@ describe('PhotoStore', () => {
     const store = usePhotoStore();
     const mockPhoto = { key: 'album1/photo1' };
     store.photosInAlbum = [mockPhoto] as any;
-    
+
     expect(store.findPhotoByIndex(0)).toEqual(mockPhoto);
     expect(store.findPhotoByIndex(1)).toBeUndefined();
   });

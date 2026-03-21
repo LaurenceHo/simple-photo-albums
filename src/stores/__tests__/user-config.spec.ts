@@ -20,7 +20,7 @@ describe('UserConfigStore', () => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
     localStorage.clear();
-    
+
     // Default mock for useQuery
     (useQuery as Mock).mockReturnValue({
       isFetching: ref(false),

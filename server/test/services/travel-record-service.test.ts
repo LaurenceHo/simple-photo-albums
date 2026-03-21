@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import TravelRecordService from '../../src/services/travel-record-service';
 
 describe('TravelRecordService', () => {
@@ -20,8 +20,14 @@ describe('TravelRecordService', () => {
     it('should parse valid JSON strings for departure and destination', async () => {
       const rawData = {
         id: '1',
-        departure: JSON.stringify({ displayName: 'Tokyo', location: { latitude: 35.6, longitude: 139.6 } }),
-        destination: JSON.stringify({ displayName: 'London', location: { latitude: 51.5, longitude: -0.1 } }),
+        departure: JSON.stringify({
+          displayName: 'Tokyo',
+          location: { latitude: 35.6, longitude: 139.6 },
+        }),
+        destination: JSON.stringify({
+          displayName: 'London',
+          location: { latitude: 51.5, longitude: -0.1 },
+        }),
         transportType: 'flight',
         travelDate: '2024-01-01',
       };
@@ -31,8 +37,14 @@ describe('TravelRecordService', () => {
       const results = await service.getAll();
       const record = results[0];
 
-      expect(record.departure).toEqual({ displayName: 'Tokyo', location: { latitude: 35.6, longitude: 139.6 } });
-      expect(record.destination).toEqual({ displayName: 'London', location: { latitude: 51.5, longitude: -0.1 } });
+      expect(record.departure).toEqual({
+        displayName: 'Tokyo',
+        location: { latitude: 35.6, longitude: 139.6 },
+      });
+      expect(record.destination).toEqual({
+        displayName: 'London',
+        location: { latitude: 51.5, longitude: -0.1 },
+      });
     });
 
     it('should handle invalid JSON strings by logging error and setting field to undefined', async () => {
@@ -54,7 +66,9 @@ describe('TravelRecordService', () => {
       expect(record.destination).toBeUndefined();
       expect(consoleSpy).toHaveBeenCalledTimes(2);
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to parse departure'));
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to parse destination'));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to parse destination'),
+      );
 
       consoleSpy.mockRestore();
     });
@@ -82,7 +96,10 @@ describe('TravelRecordService', () => {
     it('should map the record returned by getById', async () => {
       const rawData = {
         id: '4',
-        departure: JSON.stringify({ displayName: 'Paris', location: { latitude: 48.8, longitude: 2.3 } }),
+        departure: JSON.stringify({
+          displayName: 'Paris',
+          location: { latitude: 48.8, longitude: 2.3 },
+        }),
         transportType: 'flight',
         travelDate: '2024-01-04',
       };
@@ -91,7 +108,10 @@ describe('TravelRecordService', () => {
 
       const record = await service.getById('4');
 
-      expect(record?.departure).toEqual({ displayName: 'Paris', location: { latitude: 48.8, longitude: 2.3 } });
+      expect(record?.departure).toEqual({
+        displayName: 'Paris',
+        location: { latitude: 48.8, longitude: 2.3 },
+      });
     });
 
     it('should return null if record is not found', async () => {

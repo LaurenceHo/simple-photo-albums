@@ -107,7 +107,10 @@ export const useTravelRecordsStore = defineStore('travelRecords', () => {
     };
   });
 
-  const extractCountry = (place?: { country?: string; formattedAddress?: string }): string | undefined => {
+  const extractCountry = (place?: {
+    country?: string;
+    formattedAddress?: string;
+  }): string | undefined => {
     if (place?.country) return place.country;
     if (place?.formattedAddress) {
       const segments = place.formattedAddress.split(',').map((s) => s.trim());

@@ -15,7 +15,12 @@ vi.mock('@/services/travel-record-service', () => ({
 }));
 
 vi.mock('@/utils/helper', () => ({
-  interpolateGreatCircle: vi.fn().mockReturnValue([[ [0, 0], [1, 1] ]]),
+  interpolateGreatCircle: vi.fn().mockReturnValue([
+    [
+      [0, 0],
+      [1, 1],
+    ],
+  ]),
 }));
 
 describe('TravelRecordsStore', () => {

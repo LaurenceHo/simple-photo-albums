@@ -35,7 +35,7 @@ export default class FlightService {
 
   /**
    * https://doc.aerodatabox.com/rapidapi.html#/operations/GetFlight_FlightOnSpecificDate
-   * 
+   *
    * Get flight data by flight number and date
    * @param flightNumber Flight number (e.g., "QF123")
    * @param date Date in YYYY-MM-DD format
@@ -79,12 +79,10 @@ export default class FlightService {
 
     const departure: Place = {
       displayName: departureAirport?.name ? departureAirport?.name + ' Airport' : 'Unknown',
-      formattedAddress: [
-        departureAirport?.municipalityName,
-        departureAirport?.countryCode,
-      ]
-        .filter(Boolean)
-        .join(', ') || 'Unknown',
+      formattedAddress:
+        [departureAirport?.municipalityName, departureAirport?.countryCode]
+          .filter(Boolean)
+          .join(', ') || 'Unknown',
       location: {
         latitude: departureAirport?.location?.lat ?? 0,
         longitude: departureAirport?.location?.lon ?? 0,
@@ -94,12 +92,10 @@ export default class FlightService {
 
     const destination: Place = {
       displayName: arrivalAirport?.name ? arrivalAirport?.name + ' Airport' : 'Unknown',
-      formattedAddress: [
-        arrivalAirport?.municipalityName,
-        arrivalAirport?.countryCode,
-      ]
-        .filter(Boolean)
-        .join(', ') || 'Unknown',
+      formattedAddress:
+        [arrivalAirport?.municipalityName, arrivalAirport?.countryCode]
+          .filter(Boolean)
+          .join(', ') || 'Unknown',
       location: {
         latitude: arrivalAirport?.location?.lat ?? 0,
         longitude: arrivalAirport?.location?.lon ?? 0,

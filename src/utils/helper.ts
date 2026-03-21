@@ -98,10 +98,7 @@ export const sortByKey = <T>(array: T[], key: keyof T, sortOrder: 'asc' | 'desc'
  * Calculates an adaptive step count based on the angular distance between two points.
  * Uses ~10 points per degree of angular distance, clamped to [20, 100].
  */
-export const calculateAdaptiveSteps = (
-  start: [number, number],
-  end: [number, number],
-): number => {
+export const calculateAdaptiveSteps = (start: [number, number], end: [number, number]): number => {
   const [lon1, lat1] = start;
   const [lon2, lat2] = end;
   const dLon = Math.abs(lon2 - lon1);

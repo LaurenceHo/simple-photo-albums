@@ -1,6 +1,5 @@
 import { Context } from 'hono';
 import { getCookie } from 'hono/cookie';
-import { verifyJwt } from '../utils/jwt';
 import { get, isEmpty } from 'radash';
 import { HonoEnv } from '../env';
 import { cleanJwtCookie } from '../routes/auth-middleware';
@@ -10,6 +9,7 @@ import { PhotoResponse, PhotosRequest, RenamePhotoRequest } from '../types';
 import { Album } from '../types/album';
 import { UserPermission } from '../types/user-permission';
 import { buildR2Config, deleteObjects } from '../utils/helpers';
+import { verifyJwt } from '../utils/jwt';
 import { BaseController } from './base-controller';
 
 export default class PhotoController extends BaseController {
@@ -18,6 +18,9 @@ export default class PhotoController extends BaseController {
    */
   findAll = async (c: Context<HonoEnv>) => {
     const albumId = c.req.param('albumId');
+    if (!albumId) {
+      return this.clientError(c, 'Album ID is required');
+    }
     const albumService = new AlbumService(c.env.DB);
     const r2Config = buildR2Config(c.env);
     const r2Service = new R2Service(r2Config);
@@ -88,7 +91,11 @@ export default class PhotoController extends BaseController {
    * @param album Album object
    * @param photos Photo list
    */
-  private async syncAlbumCover(albumService: AlbumService, album: Album, photos: any[]): Promise<void> {
+  private async syncAlbumCover(
+    albumService: AlbumService,
+    album: Album,
+    photos: any[],
+  ): Promise<void> {
     const hasPhotos = !isEmpty(photos);
     const hasCover = !isEmpty(album.albumCover);
 
@@ -166,7 +173,10 @@ export default class PhotoController extends BaseController {
       if (successfulSourceKeys.length > 0) {
         const deleted = await deleteObjects(r2Config, bucketName, successfulSourceKeys);
         if (!deleted) {
-          console.error('Failed to delete source photos after copy: %s', successfulSourceKeys.join(', '));
+          console.error(
+            'Failed to delete source photos after copy: %s',
+            successfulSourceKeys.join(', '),
+          );
           return this.fail(c, 'Photos were copied but failed to remove originals');
         }
         console.log(`##### Photos moved: ${successfulSourceKeys.join(', ')}`);
@@ -198,9 +208,14 @@ export default class PhotoController extends BaseController {
         Key: `${albumId}/${newPhotoKey}`,
       });
       if (result) {
-        const deleted = await deleteObjects(r2Config, bucketName, [`${albumId}/${currentPhotoKey}`]);
+        const deleted = await deleteObjects(r2Config, bucketName, [
+          `${albumId}/${currentPhotoKey}`,
+        ]);
         if (!deleted) {
-          console.error('Failed to delete original photo after rename: %s', `${albumId}/${currentPhotoKey}`);
+          console.error(
+            'Failed to delete original photo after rename: %s',
+            `${albumId}/${currentPhotoKey}`,
+          );
           return this.fail(c, 'Photo was renamed but failed to remove original');
         }
         return this.ok(c, 'Photo renamed');
@@ -230,6 +245,7 @@ export default class PhotoController extends BaseController {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   findOne = async (_c: Context) => {
     throw new Error('Method not implemented.');
   };

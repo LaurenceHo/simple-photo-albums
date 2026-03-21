@@ -210,21 +210,35 @@ const initializeMapLayers = (mapInstance: Map) => {
             '#0000FF', // Blue as default
           ],
           'line-width': [
-            'interpolate', ['linear'], ['zoom'],
-            2, 2,     // World view: slightly thicker for anti-aliasing
-            6, 1.5,   // Regional: original width
-            12, 1,    // City level: thinner
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            2,
+            2, // World view: slightly thicker for anti-aliasing
+            6,
+            1.5, // Regional: original width
+            12,
+            1, // City level: thinner
           ],
           'line-opacity': [
-            'interpolate', ['linear'], ['zoom'],
-            2, 0.65,  // Compensate for blur spread
-            6, 0.75,  // Original opacity
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            2,
+            0.65, // Compensate for blur spread
+            6,
+            0.75, // Original opacity
           ],
           'line-blur': [
-            'interpolate', ['linear'], ['zoom'],
-            2, 1,     // 1px blur at world zoom for smooth anti-aliasing
-            8, 0.5,
-            14, 0,    // No blur at street level
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            2,
+            1, // 1px blur at world zoom for smooth anti-aliasing
+            8,
+            0.5,
+            14,
+            0, // No blur at street level
           ],
         },
       },

@@ -2,7 +2,7 @@
   <ProgressBar v-if="isFetching" mode="indeterminate" style="height: 4px"></ProgressBar>
   <main class="mx-auto mt-2 mb-10 max-w-screen-2xl">
     <div id="container" class="px-8 sm:px-4">
-      <Breadcrumb :model="breadcrumbs" class="!px-0">
+      <Breadcrumb :model="breadcrumbs" class="px-0!">
         <template #item="{ item }">
           <div class="flex min-w-0 items-center">
             <component :is="item.icon" :size="20" />

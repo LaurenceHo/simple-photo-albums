@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import FlightService, { FlightApiError, FlightNotFoundError } from '../../src/services/flight-service';
+import FlightService, {
+  FlightApiError,
+  FlightNotFoundError,
+} from '../../src/services/flight-service';
 
 const mockApiResponse = [
   {
@@ -80,7 +83,9 @@ describe('FlightService', () => {
       statusText: 'Internal Server Error',
     } as Response);
 
-    await expect(flightService.getFlightByNumber('XX999', '2025-01-15')).rejects.toThrow(FlightApiError);
+    await expect(flightService.getFlightByNumber('XX999', '2025-01-15')).rejects.toThrow(
+      FlightApiError,
+    );
     await expect(flightService.getFlightByNumber('XX999', '2025-01-15')).rejects.toThrow(
       'AeroDataBox API returned 500',
     );
@@ -92,7 +97,9 @@ describe('FlightService', () => {
       json: () => Promise.resolve({ message: 'not found' }),
     } as Response);
 
-    await expect(flightService.getFlightByNumber('NH106', '2025-01-15')).rejects.toThrow(FlightNotFoundError);
+    await expect(flightService.getFlightByNumber('NH106', '2025-01-15')).rejects.toThrow(
+      FlightNotFoundError,
+    );
   });
 
   it('should throw FlightNotFoundError on empty flights array', async () => {
@@ -101,7 +108,9 @@ describe('FlightService', () => {
       json: () => Promise.resolve([]),
     } as Response);
 
-    await expect(flightService.getFlightByNumber('NH106', '2025-01-15')).rejects.toThrow(FlightNotFoundError);
+    await expect(flightService.getFlightByNumber('NH106', '2025-01-15')).rejects.toThrow(
+      FlightNotFoundError,
+    );
   });
 
   it('should handle missing aircraft data gracefully', async () => {

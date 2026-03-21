@@ -1,10 +1,10 @@
 import { DeleteObjectsCommandInput, PutObjectCommandInput } from '@aws-sdk/client-s3';
 import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
-import { verifyJwt } from './jwt';
 import { get } from 'radash';
 import { Bindings, HonoEnv } from '../env';
 import R2Service, { R2Config } from '../services/r2-service';
+import { verifyJwt } from './jwt';
 
 /** Build R2Config from Hono environment bindings. */
 export const buildR2Config = (env: Bindings): R2Config => ({
@@ -15,7 +15,12 @@ export const buildR2Config = (env: Bindings): R2Config => ({
   cdnUrl: env.VITE_IMAGEKIT_CDN_URL,
 });
 
-export const uploadObject = async (r2Config: R2Config, bucketName: string, filePath: string, object: any) => {
+export const uploadObject = async (
+  r2Config: R2Config,
+  bucketName: string,
+  filePath: string,
+  object: any,
+) => {
   console.log(`##### R2 destination file path: ${filePath}`);
   const r2Service = new R2Service(r2Config);
 
@@ -148,5 +153,7 @@ export const haversineDistance = (
 };
 
 export const isValidCoordination = (lat: number, lon: number): boolean => {
-  return typeof lat === 'number' && typeof lon === 'number' && !Number.isNaN(lat) && !Number.isNaN(lon);
+  return (
+    typeof lat === 'number' && typeof lon === 'number' && !Number.isNaN(lat) && !Number.isNaN(lon)
+  );
 };

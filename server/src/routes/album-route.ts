@@ -2,11 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import AlbumController from '../controllers/album-controller';
 import { HonoEnv } from '../env';
-import {
-  CreateAlbumSchema,
-  DeleteAlbumSchema,
-  UpdateAlbumSchema,
-} from '../types/request-schemas';
+import { CreateAlbumSchema, DeleteAlbumSchema, UpdateAlbumSchema } from '../types/request-schemas';
 import { verifyJwtClaim, verifyUserPermission } from './auth-middleware';
 
 const controller = new AlbumController();

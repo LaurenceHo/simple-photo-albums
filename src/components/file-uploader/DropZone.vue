@@ -21,7 +21,7 @@
           <label class="cursor-pointer" for="overwrite-checkbox">Overwrite existing photos</label>
         </div>
 
-        <Divider class="!mb-0" />
+        <Divider class="mb-0!" />
         <ProgressBar v-if="isUploading" class="mb-4 h-1.5" mode="indeterminate" />
 
         <div

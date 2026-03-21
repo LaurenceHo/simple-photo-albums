@@ -8,7 +8,7 @@
   >
     <template #header>
       <span class="text-lg font-semibold" data-test-id="dialog-title">
-        {{ (albumToBeUpdate?.id) ? 'Edit' : 'New' }} Album
+        {{ albumToBeUpdate?.id ? 'Edit' : 'New' }} Album
       </span>
     </template>
 

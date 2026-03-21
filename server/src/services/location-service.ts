@@ -53,7 +53,7 @@ export const getLocation = async (
     const response = await fetch('https://places.googleapis.com/v1/places:searchText', {
       method: 'POST',
       headers: {
-        'Accept': '*/*',
+        Accept: '*/*',
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': apiKey,
         'X-Goog-FieldMask': maskFields,

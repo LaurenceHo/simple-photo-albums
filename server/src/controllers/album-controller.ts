@@ -98,6 +98,9 @@ export default class AlbumController extends BaseController {
 
   findOne = async (c: Context<HonoEnv>) => {
     const albumId = c.req.param('id');
+    if (!albumId) {
+      return this.clientError(c, 'Album ID is required');
+    }
     const albumService = new AlbumService(c.env.DB);
 
     try {

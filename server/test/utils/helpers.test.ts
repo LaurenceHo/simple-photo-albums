@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { haversineDistance, deleteObjects, emptyR2Folder } from '../../src/utils/helpers';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import R2Service from '../../src/services/r2-service';
+import { deleteObjects, emptyR2Folder, haversineDistance } from '../../src/utils/helpers';
 
 vi.mock('../../src/services/r2-service');
 

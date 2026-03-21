@@ -81,7 +81,10 @@
             <span class="text-gray-500">From</span>
             <span class="font-semibold">{{ hoveredRecord.departure.formattedAddress }}</span>
           </div>
-          <div v-if="hoveredRecord.destination?.formattedAddress" class="flex justify-between gap-4">
+          <div
+            v-if="hoveredRecord.destination?.formattedAddress"
+            class="flex justify-between gap-4"
+          >
             <span class="text-gray-500">To</span>
             <span class="font-semibold">{{ hoveredRecord.destination.formattedAddress }}</span>
           </div>

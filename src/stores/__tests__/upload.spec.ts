@@ -18,7 +18,7 @@ describe('UploadStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
-    
+
     // Mock URL methods
     globalThis.URL.createObjectURL = vi.fn().mockReturnValue('mock-url');
     globalThis.URL.revokeObjectURL = vi.fn();
@@ -36,20 +36,20 @@ describe('UploadStore', () => {
     const store = useUploadStore();
     store.addFiles([mockFile]);
     expect(store.files).toHaveLength(1);
-    expect(store.files![0]?.fileValidation).toBe('valid');
+    expect(store.files[0]?.fileValidation).toBe('valid');
   });
 
   it('should handle invalid file format', () => {
     const store = useUploadStore();
     const invalidFile = new File([''], 'test.txt', { type: 'text/plain' });
     store.addFiles([invalidFile]);
-    expect(store.files![0]?.fileValidation).toBe('invalid_format');
+    expect(store.files[0]?.fileValidation).toBe('invalid_format');
   });
 
   it('should remove file', () => {
     const store = useUploadStore();
     store.addFiles([mockFile]);
-    const fileToRemove = store.files![0];
+    const fileToRemove = store.files[0];
     if (fileToRemove) {
       store.removeFile(fileToRemove);
     }
@@ -63,5 +63,25 @@ describe('UploadStore', () => {
     store.clearFiles();
     expect(store.files).toHaveLength(0);
     expect(store.isUploading).toBe(false);
+  });
+
+  describe('sanitiseFilename', () => {
+    it('should allow spaces in filenames', () => {
+      const store = useUploadStore();
+      const filename = 'photo with spaces.jpg';
+      expect(store.sanitiseFilename(filename)).toBe('photo with spaces.jpg');
+    });
+
+    it('should replace invalid characters with underscores', () => {
+      const store = useUploadStore();
+      const filename = 'photo@#%^.jpg';
+      expect(store.sanitiseFilename(filename)).toBe('photo____.jpg');
+    });
+
+    it('should allow alphanumeric, dots, underscores, and hyphens', () => {
+      const store = useUploadStore();
+      const filename = 'my-photo_v1.0.jpg';
+      expect(store.sanitiseFilename(filename)).toBe('my-photo_v1.0.jpg');
+    });
   });
 });

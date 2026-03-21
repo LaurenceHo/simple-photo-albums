@@ -8,7 +8,7 @@
   >
     <template #header>
       <div class="flex">
-        <IconAlertCircle :size="40" class="flex-shrink-0 pr-2 text-red-400" />
+        <IconAlertCircle :size="40" class="shrink-0 pr-2 text-red-400" />
         <span class="text-lg font-semibold" data-test-id="confirm-delete-photos-dialog-title">
           Do you want to delete photo{{ selectedPhotos.length > 1 ? 's' : '' }} as below?
         </span>

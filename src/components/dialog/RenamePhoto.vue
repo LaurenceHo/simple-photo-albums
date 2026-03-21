@@ -78,7 +78,7 @@ const rules = computed(() => ({
   newPhotoNameWithoutExtension: {
     required: helpers.withMessage('This field is required.', required),
     minLength: helpers.withMessage('It must be at least 2 characters long', minLength(2)),
-    maxLength: helpers.withMessage('It cannot exceed 30 characters', maxLength(30)),
+    maxLength: helpers.withMessage('It cannot exceed 30 characters', maxLength(50)),
     validName: helpers.withMessage(
       'Only alphanumeric, space, full stop, underscore and dash are allowed',
       (value: string) => /^[A-Za-z0-9\s.\-_]*$/.test(value),

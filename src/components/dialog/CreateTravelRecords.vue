@@ -66,7 +66,9 @@
           </AutoComplete>
           <label for="departure">Departure</label>
         </FloatLabel>
-        <small v-if="!isFlightApiMode && v$.departure.$invalid" class="p-error">Departure is required</small>
+        <small v-if="!isFlightApiMode && v$.departure.$invalid" class="p-error">
+          Departure is required
+        </small>
       </div>
       <div v-if="!isFlightApiMode" class="mb-4">
         <FloatLabel>
@@ -94,7 +96,9 @@
           </AutoComplete>
           <label for="destination">Destination</label>
         </FloatLabel>
-        <small v-if="!isFlightApiMode && v$.destination.$invalid" class="p-error">Destination is required</small>
+        <small v-if="!isFlightApiMode && v$.destination.$invalid" class="p-error">
+          Destination is required
+        </small>
       </div>
       <div v-if="!isFlightApiMode" class="mb-4">
         <Select
@@ -169,10 +173,16 @@ const rules = computed(() => ({
     required: helpers.withMessage('Flight number is required.', requiredIf(isFlightApiMode)),
   },
   departure: {
-    required: helpers.withMessage('This field is required.', requiredIf(() => !isFlightApiMode.value)),
+    required: helpers.withMessage(
+      'This field is required.',
+      requiredIf(() => !isFlightApiMode.value),
+    ),
   },
   destination: {
-    required: helpers.withMessage('This field is required.', requiredIf(() => !isFlightApiMode.value)),
+    required: helpers.withMessage(
+      'This field is required.',
+      requiredIf(() => !isFlightApiMode.value),
+    ),
   },
 }));
 

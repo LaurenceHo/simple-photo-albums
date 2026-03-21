@@ -41,6 +41,9 @@ export default class AlbumTagController extends BaseController {
 
   delete = async (c: Context<HonoEnv>) => {
     const tag = c.req.param('tagId');
+    if (!tag) {
+      return this.clientError(c, 'Tag ID is required');
+    }
     const albumTagService = new AlbumTagService(c.env.DB);
     try {
       console.log('##### Delete tag: %s', tag);
@@ -53,10 +56,12 @@ export default class AlbumTagController extends BaseController {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   findOne = async (_c: Context) => {
     throw new Error('Method not implemented.');
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   update = async (_c: Context) => {
     throw new Error('Method not implemented.');
   };
