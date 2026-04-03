@@ -58,10 +58,10 @@
       <Button severity="secondary" text @click="toggleDarkMode">
         <template #icon>
           <template v-if="darkMode">
-            <IconMoonStars :size="24" />
+            <IconSun :size="24" />
           </template>
           <template v-else>
-            <IconSun :size="24" />
+            <IconMoonStars :size="24" />
           </template>
         </template>
       </Button>

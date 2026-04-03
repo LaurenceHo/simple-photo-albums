@@ -1,5 +1,8 @@
 <template>
-  <div class="rounded-md border border-gray-200" :data-test-id="dataTestId">
+  <div
+    class="rounded-md border border-surface-100 dark:border-surface-800"
+    :data-test-id="dataTestId"
+  >
     <button
       class="flex w-full cursor-pointer items-center justify-between px-4 py-3"
       type="button"

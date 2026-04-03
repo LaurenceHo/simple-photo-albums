@@ -66,7 +66,7 @@
         </div>
         <p
           v-if="currentAlbum?.description"
-          class="mt-2 w-full py-2 text-lg text-gray-600 sm:mt-0 sm:ml-2 sm:w-auto sm:min-w-0 sm:flex-grow"
+          class="mt-2 w-full py-2 text-lg text-gray-600 sm:mt-0 sm:ml-2 sm:w-auto sm:min-w-0 sm:grow"
           data-test-id="album-desc"
         >
           {{ currentAlbum?.description }}
@@ -84,7 +84,11 @@
           severity="success"
         />
       </div>
-      <Toolbar v-if="isAdmin" class="mb-4 p-2" data-test-id="photo-manage-panel">
+      <Toolbar
+        v-if="isAdmin"
+        class="mb-4 p-2 bg-gray-50/50 dark:bg-surface-900 border-surface-100 dark:border-surface-800"
+        data-test-id="photo-manage-panel"
+      >
         <template #start>
           <Button
             v-tooltip="'Upload photos'"

@@ -36,7 +36,7 @@
   <div
     v-else
     :class="[
-      'flex h-26 cursor-pointer items-center rounded-md border border-gray-300 p-2 sm:h-32 sm:p-3',
+      'flex h-26 cursor-pointer items-center rounded-md border border-surface-100 hover:border-surface-200 hover:shadow-xs dark:border-surface-800 dark:hover:border-surface-600 p-2 sm:h-32 sm:p-3',
       { 'photo-selected': isPhotoSelected },
       { 'border-primary-400': darkMode && isPhotoSelected },
     ]"
@@ -51,9 +51,9 @@
       />
     </div>
     <div class="ml-3 min-w-0 grow" @click="selectPhoto(photo['key'])">
-      <div class="truncate text-lg">{{ photoId }}</div>
-      <div class="text-sm text-gray-400">{{ lastModified }}</div>
-      <div class="text-sm text-gray-400">{{ fileSize }}</div>
+      <div class="truncate text-lg text-surface-900 dark:text-surface-300">{{ photoId }}</div>
+      <div class="text-sm text-surface-400 dark:text-surface-500">{{ lastModified }}</div>
+      <div class="text-sm text-surface-400 dark:text-surface-500">{{ fileSize }}</div>
     </div>
     <div v-if="isAdmin" class="ml-2 shrink-0">
       <EditPhotoButton :photo-key="photo['key']" />
