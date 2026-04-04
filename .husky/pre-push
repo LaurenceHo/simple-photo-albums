@@ -1,10 +1,8 @@
-echo "Running frontend checks..."
+echo "Running type checks..."
 bun run type-check
-bun run lint
-bun run test:unit
 
-echo "Running backend checks..."
-cd server
-bun run types:server
+echo "Running lint..."
 bun run lint
-bun run test:server
+
+echo "Running tests..."
+bun run test:all

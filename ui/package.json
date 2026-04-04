@@ -1,0 +1,74 @@
+{
+  "name": "simple-photo-albums-ui",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --port=9000 --open",
+    "format": "prettier --write src/ --ignore-unknown --ignore-path .gitignore",
+    "lint": "eslint --fix",
+    "msw": "vite --mode MSW --open",
+    "preview": "vite preview",
+    "test:unit": "vitest run --coverage",
+    "type-check": "vue-tsc --build --force"
+  },
+  "dependencies": {
+    "@primevue/themes": "^4.5.4",
+    "@tabler/icons-vue": "^3.40.0",
+    "@tanstack/vue-query": "^5.92.12",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
+    "dompurify": "^3.3.3",
+    "embla-carousel-vue": "^8.6.0",
+    "exifreader": "^4.37.0",
+    "mapbox-gl": "^3.20.0",
+    "pinia": "^3.0.4",
+    "primevue": "^4.5.4",
+    "radash": "^12.1.1",
+    "tailwindcss": "^4.2.2",
+    "tailwindcss-primeui": "0.6.1",
+    "vue": "^3.5.30",
+    "vue-router": "5.0.4",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@pinia/testing": "^1.0.3",
+    "@tailwindcss/vite": "^4.2.2",
+    "@tsconfig/node22": "^22.0.5",
+    "@types/geojson": "^7946.0.16",
+    "@types/jsdom": "28.0.1",
+    "@types/node": "25.5.0",
+    "@vitejs/plugin-vue": "6.0.5",
+    "@vitest/coverage-v8": "4.1.0",
+    "@vitest/eslint-plugin": "^1.6.12",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.7.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/tsconfig": "0.9.0",
+    "embla-carousel": "^8.6.0",
+    "eslint": "10.1.0",
+    "eslint-plugin-vue": "^10.8.0",
+    "jsdom": "29.0.1",
+    "msw": "^2.12.14",
+    "prettier": "^3.8.1",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "prettier-plugin-tailwindcss": "0.7.2",
+    "sass-embedded": "^1.98.0",
+    "typescript": "^5.9.3",
+    "vite": "8.0.1",
+    "vite-plugin-vue-devtools": "8.1.0",
+    "vitest": "4.1.0",
+    "vue-tsc": "3.2.6"
+  },
+  "engines": {
+    "node": "^22",
+    "npm": ">= 10",
+    "yarn": ">= 4"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}
