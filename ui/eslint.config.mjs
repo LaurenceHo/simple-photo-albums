@@ -1,3 +1,5 @@
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import pluginVue from 'eslint-plugin-vue';
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 import pluginVitest from '@vitest/eslint-plugin';
@@ -8,6 +10,11 @@ export default defineConfigWithVueTs(
   vueTsConfigs.recommended,
   {
     files: ['**/*.{ts,mts,tsx,vue}'],
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: dirname(fileURLToPath(import.meta.url)),
+      },
+    },
     rules: {
       quotes: [
         'warn',

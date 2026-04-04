@@ -36,7 +36,7 @@
   <div
     v-else
     :class="[
-      'border-surface-100 hover:border-surface-200 dark:border-surface-800 dark:hover:border-surface-600 flex h-26 cursor-pointer items-center rounded-md border p-2 hover:shadow-xs sm:h-32 sm:p-3',
+      'border-surface-200 hover:border-surface-200 dark:border-surface-800 dark:hover:border-surface-600 dark:bg-surface-800/50 flex h-26 cursor-pointer items-center rounded-md border p-2 hover:shadow-xs sm:h-32 sm:p-3',
       { 'border-primary-400!': isPhotoSelected },
     ]"
     data-test-id="detail-photo-item"
@@ -68,6 +68,7 @@ import { useAlbumStore, usePhotoStore, useUserConfigStore } from '@/stores';
 import { IconCircleCheckFilled, IconInfoCircle } from '@tabler/icons-vue';
 import { storeToRefs } from 'pinia';
 import Button from 'primevue/button';
+import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref, toRefs } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -89,12 +90,15 @@ const imageWidth = ref(250);
 const route = useRoute();
 const router = useRouter();
 
-const { isAdmin, darkMode } = storeToRefs(useUserConfigStore());
+const { isAdmin } = storeToRefs(useUserConfigStore());
 const { isAlbumCover } = useAlbumStore();
 const photoStore = usePhotoStore();
 const { selectedPhotos } = storeToRefs(photoStore);
 const { setSelectedPhotos } = photoStore;
 const { isXSmallDevice } = useDevice();
+const toast = useToast();
+
+const MAX_SELECTED_PHOTOS = 50;
 
 const photoId = computed(() => photo.value['key'].split('/')[1]);
 const thumbnailSize = computed(() => (isXSmallDevice.value ? 80 : 100));
@@ -112,6 +116,15 @@ const goToPhotoDetail = async () => {
 const selectPhoto = (key: string) => {
   if (!isAdmin.value) {
     goToPhotoDetail();
+    return;
+  }
+  if (!isPhotoSelected.value && selectedPhotos.value.length >= MAX_SELECTED_PHOTOS) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Selection limit reached',
+      detail: `You can select up to ${MAX_SELECTED_PHOTOS} photos at a time.`,
+      life: 3000,
+    });
     return;
   }
   const newSelectedPhotos = isPhotoSelected.value

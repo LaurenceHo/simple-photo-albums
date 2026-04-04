@@ -88,7 +88,7 @@
       </div>
       <Toolbar
         v-if="isAdmin"
-        class="dark:bg-surface-900 border-surface-100 dark:border-surface-800 mb-4 bg-gray-50/50 p-2"
+        class="dark:bg-surface-800/50 border-surface-200 dark:border-surface-800 mb-4 bg-gray-50/50 p-2"
         data-test-id="photo-manage-panel"
       >
         <template #start>

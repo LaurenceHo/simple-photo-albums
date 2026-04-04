@@ -1,6 +1,6 @@
 <template>
   <div
-    class="album-list-item border-surface-100 hover:border-surface-200 dark:border-surface-800 dark:hover:border-surface-600 flex h-28 cursor-pointer items-center rounded-md border p-3 hover:shadow-xs sm:h-36"
+    class="album-list-item border-surface-200 hover:border-surface-300 dark:border-surface-800 dark:hover:border-surface-600 dark:bg-surface-800/50 flex h-28 cursor-pointer items-center rounded-md border p-3 hover:shadow-xs sm:h-36"
     data-test-id="list-album-item"
   >
     <div class="relative shrink-0" @click="goToAlbum">

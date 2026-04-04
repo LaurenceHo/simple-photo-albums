@@ -39,7 +39,7 @@
 
         <!-- Overall -->
         <div
-          class="dark:bg-surface-800/60 border-surface-100 dark:border-surface-800 mb-4 rounded-lg border bg-white/60 p-3"
+          class="dark:bg-surface-800/50 border-surface-100 dark:border-surface-800 mb-4 rounded-lg border bg-white/60 p-3"
         >
           <h3 class="text-surface-900 dark:text-surface-300 mb-2 text-sm font-semibold">Overall</h3>
           <div class="grid grid-cols-3 gap-2 text-center">
@@ -68,7 +68,7 @@
         <div
           v-for="section in transportSections"
           :key="section.type"
-          class="dark:bg-surface-800/60 border-surface-100 dark:border-surface-800 mb-3 rounded-lg border bg-white/60 p-3"
+          class="dark:bg-surface-800/50 border-surface-100 dark:border-surface-800 mb-3 rounded-lg border bg-white/60 p-3"
         >
           <div class="mb-2 flex items-center gap-2">
             <span
