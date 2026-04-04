@@ -1,5 +1,7 @@
 <template>
-  <Toolbar class="sticky top-0 z-50 rounded-none max-[768px]:p-1.5">
+  <Toolbar
+    class="border-surface-100 dark:border-surface-800 sticky top-0 z-50 rounded-none max-[768px]:p-1.5"
+  >
     <template #start>
       <router-link class="flex items-center" to="/">
         <img

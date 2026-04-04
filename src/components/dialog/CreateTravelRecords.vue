@@ -27,16 +27,16 @@
       <div class="mb-4 pb-4">
         <FloatLabel>
           <InputText
+            id="flight-number"
             v-model="flightNumber"
             :disabled="isCreatingRecord"
             :invalid="v$.flightNumber.$invalid"
             class="w-full"
-            id="flight-number"
           />
           <label for="flight-number">Flight number</label>
         </FloatLabel>
         <small v-if="v$.flightNumber.$invalid" class="p-error">Flight number is required</small>
-        <small v-if="isFlightApiMode" class="text-yellow-600 block mt-1">
+        <small v-if="isFlightApiMode" class="mt-1 block text-yellow-600">
           Departure and destination will be auto-populated from flight data.
         </small>
       </div>

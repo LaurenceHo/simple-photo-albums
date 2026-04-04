@@ -54,7 +54,7 @@
         <Column header="">
           <template #body="{ data }">
             <span
-              class="cursor-pointer inline-flex"
+              class="inline-flex cursor-pointer"
               @mouseenter="(e) => onDetailHover(e, data)"
               @mouseleave="onDetailLeave"
             >
@@ -76,7 +76,7 @@
         </Column>
       </DataTable>
       <Popover ref="detailPopover">
-        <div v-if="hoveredRecord" class="flex flex-col gap-2 p-1 min-w-48">
+        <div v-if="hoveredRecord" class="flex min-w-48 flex-col gap-2 p-1">
           <div v-if="hoveredRecord.departure?.formattedAddress" class="flex justify-between gap-4">
             <span class="text-gray-500">From</span>
             <span class="font-semibold">{{ hoveredRecord.departure.formattedAddress }}</span>

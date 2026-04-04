@@ -43,7 +43,9 @@
           </Button>
           <Popover ref="showMap">
             <div class="flex flex-col gap-4">
-              <h3 class="text-lg text-gray-600">{{ currentAlbum.place?.displayName }}</h3>
+              <h3 class="text-surface-900 dark:text-surface-300 text-lg">
+                {{ currentAlbum.place?.displayName }}
+              </h3>
               <PhotoLocationMap
                 :latitude="currentAlbum.place?.location.latitude"
                 :longitude="currentAlbum.place?.location.longitude"
@@ -55,18 +57,18 @@
             v-if="currentAlbum?.isPrivate"
             v-tooltip="'This is a private album'"
             :size="24"
-            class="ml-2 text-gray-600"
+            class="text-surface-900 dark:text-surface-300 ml-2"
           />
           <IconStar
             v-else-if="currentAlbum?.isFeatured"
             v-tooltip="'This is a featured album'"
             :size="24"
-            class="ml-2 text-gray-600"
+            class="text-surface-900 dark:text-surface-300 ml-2"
           />
         </div>
         <p
           v-if="currentAlbum?.description"
-          class="mt-2 w-full py-2 text-lg text-gray-600 sm:mt-0 sm:ml-2 sm:w-auto sm:min-w-0 sm:grow"
+          class="mt-2 w-full py-2 text-lg text-surface-900 dark:text-surface-300 sm:mt-0 sm:ml-2 sm:w-auto sm:min-w-0 sm:grow"
           data-test-id="album-desc"
         >
           {{ currentAlbum?.description }}
@@ -86,7 +88,7 @@
       </div>
       <Toolbar
         v-if="isAdmin"
-        class="mb-4 p-2 bg-gray-50/50 dark:bg-surface-900 border-surface-100 dark:border-surface-800"
+        class="dark:bg-surface-900 border-surface-100 dark:border-surface-800 mb-4 bg-gray-50/50 p-2"
         data-test-id="photo-manage-panel"
       >
         <template #start>

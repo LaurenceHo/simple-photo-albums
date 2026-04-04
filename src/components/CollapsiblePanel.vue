@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-md border border-surface-100 dark:border-surface-800"
+    class="border-surface-100 dark:border-surface-800 rounded-md border"
     :data-test-id="dataTestId"
   >
     <button

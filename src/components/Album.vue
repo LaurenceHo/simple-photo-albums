@@ -1,6 +1,6 @@
 <template>
   <div
-    class="album-list-item flex h-28 cursor-pointer items-center rounded-md border border-surface-100 hover:border-surface-200 hover:shadow-xs dark:border-surface-800 dark:hover:border-surface-600 p-3 sm:h-36"
+    class="album-list-item border-surface-100 hover:border-surface-200 dark:border-surface-800 dark:hover:border-surface-600 flex h-28 cursor-pointer items-center rounded-md border p-3 hover:shadow-xs sm:h-36"
     data-test-id="list-album-item"
   >
     <div class="relative shrink-0" @click="goToAlbum">
@@ -23,10 +23,10 @@
       />
     </div>
     <div class="ml-3 min-w-0 grow" @click="goToAlbum">
-      <h3 class="truncate text-lg font-semibold text-surface-900 dark:text-surface-300">
+      <h3 class="text-surface-900 dark:text-surface-300 truncate text-lg font-semibold">
         {{ albumItem.albumName }}
       </h3>
-      <p v-if="albumItem.description" class="truncate text-surface-400 dark:text-surface-500">
+      <p v-if="albumItem.description" class="text-surface-400 dark:text-surface-500 truncate">
         {{ albumItem.description }}
       </p>
       <div class="mt-1 flex flex-nowrap overflow-hidden">

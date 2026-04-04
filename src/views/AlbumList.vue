@@ -21,7 +21,7 @@
     <div
       v-for="n in 3"
       :key="n"
-      class="flex h-28 items-center rounded-md border border-surface-100 dark:border-surface-800 p-3 sm:h-36"
+      class="border-surface-100 dark:border-surface-800 flex h-28 items-center rounded-md border p-3 sm:h-36"
     >
       <Skeleton :size="isXSmallDevice ? '6rem' : '7rem'" />
       <div class="ml-3 grow">

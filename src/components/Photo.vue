@@ -36,9 +36,8 @@
   <div
     v-else
     :class="[
-      'flex h-26 cursor-pointer items-center rounded-md border border-surface-100 hover:border-surface-200 hover:shadow-xs dark:border-surface-800 dark:hover:border-surface-600 p-2 sm:h-32 sm:p-3',
-      { 'photo-selected': isPhotoSelected },
-      { 'border-primary-400': darkMode && isPhotoSelected },
+      'border-surface-100 hover:border-surface-200 dark:border-surface-800 dark:hover:border-surface-600 flex h-26 cursor-pointer items-center rounded-md border p-2 hover:shadow-xs sm:h-32 sm:p-3',
+      { 'border-primary-400!': isPhotoSelected },
     ]"
     data-test-id="detail-photo-item"
   >
@@ -51,9 +50,9 @@
       />
     </div>
     <div class="ml-3 min-w-0 grow" @click="selectPhoto(photo['key'])">
-      <div class="truncate text-lg text-surface-900 dark:text-surface-300">{{ photoId }}</div>
-      <div class="text-sm text-surface-400 dark:text-surface-500">{{ lastModified }}</div>
-      <div class="text-sm text-surface-400 dark:text-surface-500">{{ fileSize }}</div>
+      <div class="text-surface-900 dark:text-surface-300 truncate text-lg">{{ photoId }}</div>
+      <div class="text-surface-400 dark:text-surface-500 text-sm">{{ lastModified }}</div>
+      <div class="text-surface-400 dark:text-surface-500 text-sm">{{ fileSize }}</div>
     </div>
     <div v-if="isAdmin" class="ml-2 shrink-0">
       <EditPhotoButton :photo-key="photo['key']" />
@@ -149,11 +148,6 @@ onMounted(() => {
 }
 
 .photo-selected {
-  box-shadow:
-    0 1px 5px rgba(0, 0, 0, 0.2),
-    0 2px 2px rgba(0, 0, 0, 0.14),
-    0 3px 1px -2px rgba(0, 0, 0, 0.12);
-
   .photo-top-button-container {
     opacity: 1;
   }

@@ -6,7 +6,7 @@
       `${isFetching ? 'mt-[72px]' : 'mt-14 md:mt-16'}`,
     ]"
   >
-    <div id="album-location-map" class="w-full h-full"></div>
+    <div id="album-location-map" class="h-full w-full"></div>
     <TravelStatsPanel />
   </div>
 

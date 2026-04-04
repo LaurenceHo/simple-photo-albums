@@ -20,6 +20,7 @@ export default defineConfigWithVueTs(
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       'vue/multi-word-component-names': 'off',
+      'vue/attributes-order': 'warn',
     },
   },
   {

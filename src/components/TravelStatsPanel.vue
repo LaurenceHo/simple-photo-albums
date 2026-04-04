@@ -1,34 +1,24 @@
 <template>
-  <button
-    class="absolute top-2 right-2 z-10 flex items-center justify-center w-9 h-9 rounded-lg bg-white/90 dark:bg-zinc-800/90 shadow-md hover:bg-white dark:hover:bg-zinc-700 transition-colors"
-    title="Travel stats"
+  <Button
+    v-tooltip.left="'Travel stats'"
+    class="absolute top-2 right-2 z-10"
+    severity="secondary"
     @click="isOpen = !isOpen"
   >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      class="w-5 h-5 text-zinc-700 dark:text-zinc-200"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      stroke-width="2"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M3 13h2v8H3zM9 8h2v13H9zM15 11h2v10h-2zM21 4h2v17h-2z"
-      />
-    </svg>
-  </button>
+    <template #icon>
+      <IconChartBar :size="20" />
+    </template>
+  </Button>
 
   <Transition :name="isMobile ? 'slide-up' : 'slide-right'">
     <div
       v-if="isOpen"
       ref="panelEl"
       :class="[
-        'absolute z-5 bg-white/85 dark:bg-zinc-900/85 backdrop-blur-md shadow-lg',
+        'dark:bg-surface-900/85 absolute z-5 bg-white/85 shadow-lg backdrop-blur-md',
         isDragging ? 'overflow-hidden' : 'overflow-y-auto',
         isMobile
-          ? 'bottom-0 left-0 right-0 max-h-[60%] rounded-t-2xl'
+          ? 'right-0 bottom-0 left-0 max-h-[60%] rounded-t-2xl'
           : 'top-0 right-0 h-full w-72 sm:w-80',
       ]"
       :style="panelDragStyle"
@@ -37,37 +27,39 @@
         <!-- Drag handle for mobile swipe-to-dismiss -->
         <div
           v-if="isMobile"
-          class="flex justify-center py-3 -mx-4 -mt-2 touch-none"
+          class="-mx-4 -mt-2 flex touch-none justify-center py-3"
           @touchstart="onTouchStart"
           @touchmove="onTouchMove"
           @touchend="onTouchEnd"
         >
-          <div class="w-10 h-1 rounded-full bg-zinc-300 dark:bg-zinc-600"></div>
+          <div class="h-1 w-10 rounded-full bg-zinc-300 dark:bg-zinc-600"></div>
         </div>
 
-        <h2 class="text-lg font-bold mb-4 text-zinc-800 dark:text-zinc-100">Travel Stats</h2>
+        <h2 class="text-surface-900 dark:text-surface-300 mb-4 text-lg font-bold">Travel Stats</h2>
 
         <!-- Overall -->
-        <div class="mb-4 p-3 rounded-lg bg-white/60 dark:bg-zinc-800/60">
-          <h3 class="text-sm font-semibold text-zinc-600 dark:text-zinc-300 mb-2">Overall</h3>
+        <div
+          class="dark:bg-surface-800/60 border-surface-100 dark:border-surface-800 mb-4 rounded-lg border bg-white/60 p-3"
+        >
+          <h3 class="text-surface-900 dark:text-surface-300 mb-2 text-sm font-semibold">Overall</h3>
           <div class="grid grid-cols-3 gap-2 text-center">
             <div>
-              <div class="text-xl font-bold text-zinc-800 dark:text-zinc-100">
+              <div class="text-surface-800 dark:text-surface-100 text-xl font-bold">
                 {{ travelStats.overall.countries.length }}
               </div>
-              <div class="text-xs text-zinc-500 dark:text-zinc-400">Countries</div>
+              <div class="text-surface-500 dark:text-surface-400 text-xs">Countries</div>
             </div>
             <div>
-              <div class="text-xl font-bold text-zinc-800 dark:text-zinc-100">
+              <div class="text-surface-800 dark:text-surface-100 text-xl font-bold">
                 {{ travelStats.overall.totalDistance.toLocaleString() }}
               </div>
-              <div class="text-xs text-zinc-500 dark:text-zinc-400">km</div>
+              <div class="text-surface-500 dark:text-surface-400 text-xs">km</div>
             </div>
             <div>
-              <div class="text-xl font-bold text-zinc-800 dark:text-zinc-100">
+              <div class="text-surface-800 dark:text-surface-100 text-xl font-bold">
                 {{ travelStats.overall.tripCount }}
               </div>
-              <div class="text-xs text-zinc-500 dark:text-zinc-400">Trips</div>
+              <div class="text-surface-500 dark:text-surface-400 text-xs">Trips</div>
             </div>
           </div>
         </div>
@@ -76,35 +68,35 @@
         <div
           v-for="section in transportSections"
           :key="section.type"
-          class="mb-3 p-3 rounded-lg bg-white/60 dark:bg-zinc-800/60"
+          class="dark:bg-surface-800/60 border-surface-100 dark:border-surface-800 mb-3 rounded-lg border bg-white/60 p-3"
         >
-          <div class="flex items-center gap-2 mb-2">
+          <div class="mb-2 flex items-center gap-2">
             <span
-              class="inline-block w-3 h-3 rounded-full"
+              class="inline-block h-3 w-3 rounded-full"
               :style="{ backgroundColor: section.color }"
             ></span>
-            <h3 class="text-sm font-semibold text-zinc-600 dark:text-zinc-300 capitalize">
+            <h3 class="text-surface-900 dark:text-surface-300 text-sm font-semibold capitalize">
               {{ section.type }}
             </h3>
           </div>
           <div class="grid grid-cols-3 gap-2 text-center">
             <div>
-              <div class="text-xl font-bold text-zinc-800 dark:text-zinc-100">
+              <div class="text-surface-800 dark:text-surface-100 text-xl font-bold">
                 {{ section.stats.countries.length }}
               </div>
-              <div class="text-xs text-zinc-500 dark:text-zinc-400">Countries</div>
+              <div class="text-surface-500 dark:text-surface-400 text-xs">Countries</div>
             </div>
             <div>
-              <div class="text-xl font-bold text-zinc-800 dark:text-zinc-100">
+              <div class="text-surface-800 dark:text-surface-100 text-xl font-bold">
                 {{ section.stats.totalDistance.toLocaleString() }}
               </div>
-              <div class="text-xs text-zinc-500 dark:text-zinc-400">km</div>
+              <div class="text-surface-500 dark:text-surface-400 text-xs">km</div>
             </div>
             <div>
-              <div class="text-xl font-bold text-zinc-800 dark:text-zinc-100">
+              <div class="text-surface-800 dark:text-surface-100 text-xl font-bold">
                 {{ section.stats.tripCount }}
               </div>
-              <div class="text-xs text-zinc-500 dark:text-zinc-400">Trips</div>
+              <div class="text-surface-500 dark:text-surface-400 text-xs">Trips</div>
             </div>
           </div>
         </div>
@@ -115,7 +107,9 @@
 
 <script lang="ts" setup>
 import { useTravelRecordsStore } from '@/stores';
+import { IconChartBar } from '@tabler/icons-vue';
 import { storeToRefs } from 'pinia';
+import { Button } from 'primevue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const isOpen = ref(false);
