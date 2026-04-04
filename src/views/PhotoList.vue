@@ -68,7 +68,7 @@
         </div>
         <p
           v-if="currentAlbum?.description"
-          class="mt-2 w-full py-2 text-lg text-surface-900 dark:text-surface-300 sm:mt-0 sm:ml-2 sm:w-auto sm:min-w-0 sm:grow"
+          class="text-surface-900 dark:text-surface-300 mt-2 w-full py-2 text-lg sm:mt-0 sm:ml-2 sm:w-auto sm:min-w-0 sm:grow"
           data-test-id="album-desc"
         >
           {{ currentAlbum?.description }}
@@ -279,7 +279,7 @@ onUnmounted(() => {
   setSelectedPhotos([]);
 });
 
-const toggle = (event: any) => {
+const toggle = (event: MouseEvent) => {
   showMap.value.toggle(event);
 };
 

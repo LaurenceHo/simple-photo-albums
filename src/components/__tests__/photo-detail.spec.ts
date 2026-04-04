@@ -103,7 +103,7 @@ describe('PhotoDetail.vue', () => {
 
   it('computes localDateTime correctly', async () => {
     const vm = wrapper.vm as unknown as {
-      exifTags: any;
+      exifTags: Record<string, unknown>;
       localDateTime: string;
       photoFileName: string;
     };
@@ -119,7 +119,7 @@ describe('PhotoDetail.vue', () => {
 
   it('computes localDateTime from filename if EXIF is missing', async () => {
     const vm = wrapper.vm as unknown as {
-      exifTags: any;
+      exifTags: Record<string, unknown>;
       localDateTime: string;
       photoFileName: string;
     };
@@ -168,7 +168,7 @@ describe('PhotoDetail.vue', () => {
 
   it('computes latitude and longitude correctly', async () => {
     const vm = wrapper.vm as unknown as {
-      exifTags: any;
+      exifTags: Record<string, unknown>;
       latitude: number;
       longitude: number;
     };
@@ -186,7 +186,7 @@ describe('PhotoDetail.vue', () => {
 
   it('computes negative latitude and longitude correctly', async () => {
     const vm = wrapper.vm as unknown as {
-      exifTags: any;
+      exifTags: Record<string, unknown>;
       latitude: number;
       longitude: number;
     };
@@ -204,7 +204,7 @@ describe('PhotoDetail.vue', () => {
 
   it('computes isPhotoLandscape correctly', async () => {
     const vm = wrapper.vm as unknown as {
-      exifTags: any;
+      exifTags: Record<string, unknown>;
       isPhotoLandscape: boolean;
     };
 
@@ -226,7 +226,7 @@ describe('PhotoDetail.vue', () => {
 
   it('computes isPanoramaPhoto correctly', async () => {
     const vm = wrapper.vm as unknown as {
-      exifTags: any;
+      exifTags: Record<string, unknown>;
       isPanoramaPhoto: boolean;
       photoFileName: string;
     };
@@ -271,7 +271,14 @@ describe('PhotoDetail.vue', () => {
   });
 
   it('handles 0 container dimensions in imageStyles', async () => {
-    const { vm } = wrapper as any;
+    const { vm } = wrapper as unknown as {
+      vm: {
+        exifTags: Record<string, unknown>;
+        imageContainerWidth: number;
+        imageContainerHeight: number;
+        imageStyles: Record<string, string>;
+      };
+    };
     vm.exifTags = {
       'Image Width': { value: 1000 },
       'Image Height': { value: 1000 },
@@ -289,7 +296,18 @@ describe('PhotoDetail.vue', () => {
   });
 
   it('falls back to natural dimensions if EXIF is missing', async () => {
-    const { vm } = wrapper as any;
+    const { vm } = wrapper as unknown as {
+      vm: {
+        exifTags: Record<string, unknown>;
+        naturalWidth: number;
+        naturalHeight: number;
+        imageContainerWidth: number;
+        imageContainerHeight: number;
+        imageOriginalWidth: number;
+        imageOriginalHeight: number;
+        imageStyles: Record<string, string>;
+      };
+    };
     vm.exifTags = {};
     vm.naturalWidth = 1000;
     vm.naturalHeight = 1000;
@@ -306,7 +324,14 @@ describe('PhotoDetail.vue', () => {
   });
 
   it('guards against NaN aspect ratios', async () => {
-    const { vm } = wrapper as any;
+    const { vm } = wrapper as unknown as {
+      vm: {
+        exifTags: Record<string, unknown>;
+        naturalWidth: number;
+        naturalHeight: number;
+        imageStyles: Record<string, string>;
+      };
+    };
     vm.exifTags = {
       'Image Width': { value: 0 },
       'Image Height': { value: 0 },

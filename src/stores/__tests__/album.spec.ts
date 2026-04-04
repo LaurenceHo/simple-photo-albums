@@ -1,3 +1,4 @@
+import type { Album } from '@/schema';
 import { useQuery, useQueryClient } from '@tanstack/vue-query';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
@@ -82,14 +83,14 @@ describe('AlbumStore', () => {
 
   it('should set current album', () => {
     const store = useAlbumStore();
-    const mockAlbum = { id: '1', albumName: 'Test' } as any;
+    const mockAlbum = { id: '1', albumName: 'Test' } as Partial<Album> as Album;
     store.setCurrentAlbum(mockAlbum);
     expect(store.currentAlbum).toEqual(mockAlbum);
   });
 
   it('should check if photo is album cover', () => {
     const store = useAlbumStore();
-    store.setCurrentAlbum({ albumCover: 'cover.jpg' } as any);
+    store.setCurrentAlbum({ albumCover: 'cover.jpg' } as Partial<Album> as Album);
     expect(store.isAlbumCover('cover.jpg')).toBe(true);
     expect(store.isAlbumCover('other.jpg')).toBe(false);
   });

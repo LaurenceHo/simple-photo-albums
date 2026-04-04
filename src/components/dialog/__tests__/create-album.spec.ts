@@ -170,8 +170,11 @@ describe('CreateAlbum', () => {
 
     vi.clearAllMocks();
     queryClient.clear(); // Clear query cache between tests
-    (useToast as any).mockReturnValue({
+    vi.mocked(useToast).mockReturnValue({
       add: vi.fn(),
+      remove: vi.fn(),
+      removeGroup: vi.fn(),
+      removeAllGroups: vi.fn(),
     });
   });
 

@@ -84,7 +84,7 @@ const deleteAlbumDialog = ref(false);
 const albumName = ref(albumItem.value.albumName);
 const menu = ref();
 
-const toggleMenu = (event: any) => {
+const toggleMenu = (event: MouseEvent) => {
   menu.value.toggle(event);
 };
 
@@ -130,12 +130,12 @@ const confirmDeleteAlbum = (e: MouseEvent) => {
 const menuItems = [
   {
     label: 'Edit Album',
-    icon: IconEdit as any,
+    icon: IconEdit as unknown as string,
     command: setAlbum,
   },
   {
     label: 'Delete Album',
-    icon: IconTrash as any,
+    icon: IconTrash as unknown as string,
     command: () => (deleteAlbumDialog.value = true),
   },
 ];

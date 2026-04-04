@@ -1,3 +1,4 @@
+import type { TravelRecord } from '@/schema';
 import { ApiBaseUrl } from '@/services/api-base-url';
 import { BaseApiRequestService } from '@/services/base-api-request-service';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
@@ -15,12 +16,12 @@ describe('TravelRecordService', () => {
     vi.resetAllMocks();
   });
 
-  const mockTravelRecord = {
+  const mockTravelRecord: TravelRecord = {
     id: '1',
-    description: 'Test Record',
-    title: 'Test Title',
-    date: '2023-01-01',
-    location: 'Test Location',
+    travelDate: '2023-01-01',
+    transportType: 'flight',
+    airline: 'Test Airline',
+    flightNumber: 'TA123',
   };
 
   describe('getTravelRecords', () => {
@@ -59,7 +60,7 @@ describe('TravelRecordService', () => {
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ status: 'success' }) };
       (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
-      await TravelRecordService.createTravelRecord(mockTravelRecord as any);
+      await TravelRecordService.createTravelRecord(mockTravelRecord);
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'POST',
@@ -73,7 +74,7 @@ describe('TravelRecordService', () => {
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockStatus) };
       (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
-      const result = await TravelRecordService.createTravelRecord(mockTravelRecord as any);
+      const result = await TravelRecordService.createTravelRecord(mockTravelRecord);
 
       expect(result).toEqual(mockStatus);
     });
@@ -82,7 +83,7 @@ describe('TravelRecordService', () => {
       const mockResponse = { ok: false, statusText: 'Bad Request' };
       (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
-      await expect(TravelRecordService.createTravelRecord(mockTravelRecord as any)).rejects.toThrow(
+      await expect(TravelRecordService.createTravelRecord(mockTravelRecord)).rejects.toThrow(
         'Bad Request',
       );
     });
@@ -93,7 +94,7 @@ describe('TravelRecordService', () => {
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ status: 'success' }) };
       (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
-      await TravelRecordService.updateTravelRecord(mockTravelRecord as any);
+      await TravelRecordService.updateTravelRecord(mockTravelRecord);
 
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(
         'PUT',
@@ -107,7 +108,7 @@ describe('TravelRecordService', () => {
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockStatus) };
       (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
-      const result = await TravelRecordService.updateTravelRecord(mockTravelRecord as any);
+      const result = await TravelRecordService.updateTravelRecord(mockTravelRecord);
 
       expect(result).toEqual(mockStatus);
     });
@@ -116,7 +117,7 @@ describe('TravelRecordService', () => {
       const mockResponse = { ok: false, statusText: 'Not Found' };
       (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
-      await expect(TravelRecordService.updateTravelRecord(mockTravelRecord as any)).rejects.toThrow(
+      await expect(TravelRecordService.updateTravelRecord(mockTravelRecord)).rejects.toThrow(
         'Not Found',
       );
     });

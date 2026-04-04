@@ -1,3 +1,4 @@
+import type { Photo } from '@/schema';
 import { useAlbumStore } from '@/stores/album';
 import { useQuery } from '@tanstack/vue-query';
 import { createPinia, setActivePinia } from 'pinia';
@@ -28,10 +29,10 @@ describe('PhotoStore', () => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
 
-    (useAlbumStore as any).mockReturnValue({
+    vi.mocked(useAlbumStore).mockReturnValue({
       currentAlbum: mockCurrentAlbum,
       setCurrentAlbum: mockSetCurrentAlbum,
-    });
+    } as unknown as ReturnType<typeof useAlbumStore>);
 
     (useQuery as Mock).mockReturnValue({
       data: ref(null),
@@ -63,7 +64,10 @@ describe('PhotoStore', () => {
 
   it('should find photo index', () => {
     const store = usePhotoStore();
-    store.photosInAlbum = [{ key: 'album1/photo1' }, { key: 'album1/photo2' }] as any;
+    store.photosInAlbum = [
+      { key: 'album1/photo1' },
+      { key: 'album1/photo2' },
+    ] as Partial<Photo>[] as Photo[];
 
     expect(store.findPhotoIndex('photo1')).toBe(0);
     expect(store.findPhotoIndex('photo2')).toBe(1);
@@ -73,7 +77,7 @@ describe('PhotoStore', () => {
   it('should find photo by index', () => {
     const store = usePhotoStore();
     const mockPhoto = { key: 'album1/photo1' };
-    store.photosInAlbum = [mockPhoto] as any;
+    store.photosInAlbum = [mockPhoto] as Partial<Photo>[] as Photo[];
 
     expect(store.findPhotoByIndex(0)).toEqual(mockPhoto);
     expect(store.findPhotoByIndex(1)).toBeUndefined();

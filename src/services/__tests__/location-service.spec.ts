@@ -1,6 +1,6 @@
 import { ApiBaseUrl } from '@/services/api-base-url';
 import { BaseApiRequestService } from '@/services/base-api-request-service';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { LocationService } from '../location-service';
 
 // Mock the BaseApiRequestService
@@ -19,7 +19,7 @@ describe('LocationService', () => {
     it('should call BaseApiRequestService.perform with correct parameters', async () => {
       const searchText = 'New York';
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue([]) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await LocationService.searchPlaces(searchText);
 
@@ -35,7 +35,7 @@ describe('LocationService', () => {
         { id: '2', name: 'New York Mills', country: 'USA' },
       ];
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockPlaces) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       const result = await LocationService.searchPlaces('New York');
 
@@ -44,7 +44,7 @@ describe('LocationService', () => {
 
     it('should throw an error if the API request fails', async () => {
       const mockResponse = { ok: false, statusText: 'Not Found' };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await expect(LocationService.searchPlaces('Invalid Location')).rejects.toThrow('Not Found');
     });
@@ -52,7 +52,7 @@ describe('LocationService', () => {
     it('should properly encode the search text in the URL', async () => {
       const searchText = 'New York City, NY';
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue([]) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await LocationService.searchPlaces(searchText);
 
@@ -65,7 +65,7 @@ describe('LocationService', () => {
     it('should handle empty search text', async () => {
       const searchText = '';
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue([]) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await LocationService.searchPlaces(searchText);
 

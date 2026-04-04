@@ -369,7 +369,7 @@ const { isPending: isCreatingAlbum, mutate: createAlbum } = useMutation({
       });
     }
   },
-  onError: (error: any) => {
+  onError: (error: Error) => {
     toast.add({
       severity: 'error',
       summary: 'Error',

@@ -1,19 +1,27 @@
 import { mockFeaturedAlbums } from '@/mocks/aggregate-handler';
 import { mockAlbums } from '@/mocks/album-handler';
 import { mockTravelRecords } from '@/mocks/travel-records-handler';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/vue-query';
 import { vi } from 'vitest';
 import { ref } from 'vue';
 
-type QueryOptions = {
+interface QueryOptions {
   queryKey: (string | string[] | undefined)[];
-  queryFn: () => Promise<any>;
+  queryFn: () => Promise<unknown>;
   enabled?: boolean | undefined;
   refetchOnWindowFocus?: boolean;
   refetchOnReconnect?: boolean;
-};
+}
 
-export const createBaseMockQueryReturn = <T>(data: T, useQuery?: any) => {
+interface MutationOptions {
+  mutationFn?: (...args: unknown[]) => Promise<unknown>;
+  onSuccess?: (result: unknown) => Promise<void>;
+  onError?: (err: unknown) => Promise<void>;
+}
+
+type QueryReturnOverrides = Partial<Record<string, unknown>>;
+
+export const createBaseMockQueryReturn = <T>(data: T, overrides?: QueryReturnOverrides) => {
   const defaultQueryState = {
     data: ref(data),
     isError: ref(false),
@@ -22,21 +30,24 @@ export const createBaseMockQueryReturn = <T>(data: T, useQuery?: any) => {
     refetch: vi.fn(),
   };
 
-  // Merge defaults with overrides, prioritizing override values
   return {
     ...defaultQueryState,
-    ...useQuery,
-    // Ensure ref values are preserved or updated correctly
-    data: useQuery?.data ?? defaultQueryState.data,
-    isError: useQuery?.isError ?? defaultQueryState.isError,
-    isFetching: useQuery?.isFetching ?? defaultQueryState.isFetching,
-    error: useQuery?.error ?? defaultQueryState.error,
-    refetch: useQuery?.refetch ?? defaultQueryState.refetch,
-  } as any;
+    ...overrides,
+    data: overrides?.data ?? defaultQueryState.data,
+    isError: overrides?.isError ?? defaultQueryState.isError,
+    isFetching: overrides?.isFetching ?? defaultQueryState.isFetching,
+    error: overrides?.error ?? defaultQueryState.error,
+    refetch: overrides?.refetch ?? defaultQueryState.refetch,
+  } as ReturnType<typeof useQuery>;
 };
 
-export const setupQueryMocks = (overrides: { useQuery?: any; useQueryClient?: any } = {}) => {
-  vi.mocked(useQuery).mockImplementation((options: QueryOptions | any) => {
+export const setupQueryMocks = (
+  overrides: {
+    useQuery?: QueryReturnOverrides;
+    useQueryClient?: Partial<QueryClient>;
+  } = {},
+) => {
+  vi.mocked(useQuery).mockImplementation(((options: QueryOptions) => {
     const queryKey = Array.isArray(options.queryKey) ? options.queryKey[0] : options.queryKey;
     switch (queryKey) {
       case 'fetchAlbumsByYears':
@@ -48,27 +59,27 @@ export const setupQueryMocks = (overrides: { useQuery?: any; useQueryClient?: an
       default:
         return createBaseMockQueryReturn(null);
     }
-  });
+  }) as unknown as typeof useQuery);
 
-  vi.mocked(useMutation).mockImplementation((options: any) => {
+  vi.mocked(useMutation).mockImplementation(((options: MutationOptions) => {
     const isPending = ref(false);
     const isError = ref(false);
     const isSuccess = ref(false);
     const error = ref(null);
 
-    const executeMutation = async (...args: any[]) => {
+    const executeMutation = async (...args: unknown[]) => {
       isPending.value = true;
       isError.value = false;
       isSuccess.value = false;
       error.value = null;
       try {
-        const result = await options.mutationFn(...args);
+        const result = options.mutationFn ? await options.mutationFn(...args) : undefined;
         isSuccess.value = true;
         if (options.onSuccess) await options.onSuccess(result);
         return result;
-      } catch (err: any) {
+      } catch (err: unknown) {
         isError.value = true;
-        error.value = err;
+        error.value = err as null;
         if (options.onError) await options.onError(err);
         throw err;
       } finally {
@@ -76,7 +87,7 @@ export const setupQueryMocks = (overrides: { useQuery?: any; useQueryClient?: an
       }
     };
 
-    const mutate = (...args: any[]) => {
+    const mutate = (...args: unknown[]) => {
       void executeMutation(...args).catch(() => undefined);
     };
 
@@ -87,13 +98,13 @@ export const setupQueryMocks = (overrides: { useQuery?: any; useQueryClient?: an
       isError,
       isSuccess,
       error,
-    } as any;
-  });
+    } as ReturnType<typeof useMutation>;
+  }) as unknown as typeof useMutation);
 
   vi.mocked(useQueryClient).mockReturnValue(
-    overrides.useQueryClient || {
+    (overrides.useQueryClient || {
       invalidateQueries: vi.fn(),
       removeQueries: vi.fn(),
-    },
+    }) as QueryClient,
   );
 };

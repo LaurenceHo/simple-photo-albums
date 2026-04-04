@@ -17,8 +17,10 @@
     <div class="grid grid-cols-4 gap-3">
       <div class="col-span-4 flex flex-col items-center lg:col-span-3">
         <div class="mb-3 w-full text-center">
-          <div data-test-id="photo-file-name">{{ photoFileName }}</div>
-          <div data-test-id="photo-index">
+          <div data-test-id="photo-file-name" class="text-surface-900 dark:text-surface-300">
+            {{ photoFileName }}
+          </div>
+          <div data-test-id="photo-index" class="text-surface-400 dark:text-surface-500">
             ({{ selectedImageIndex + 1 }}/{{ photosInAlbum.length }})
           </div>
         </div>
@@ -72,18 +74,18 @@
       </div>
       <div class="col-span-4 mt-3 lg:col-span-1 lg:mt-0">
         <div class="mx-4 flex justify-between">
-          <span class="text-semibold text-2xl">Details</span>
+          <span class="text-semibold text-surface-900 dark:text-surface-300 text-2xl">Details</span>
           <EditPhotoButton v-if="isAdmin && selectedImage" :photo-key="selectedImage?.key" />
         </div>
         <Divider v-if="localDateTime" />
         <div v-if="localDateTime" class="mx-4 flex items-center">
           <IconCalendarTime :size="24" class="mr-4" />
-          <span>{{ localDateTime }}</span>
+          <span class="text-surface-900 dark:text-surface-300">{{ localDateTime }}</span>
         </div>
         <Divider v-if="imageOriginalHeight && imageOriginalWidth" />
         <div v-if="imageOriginalHeight && imageOriginalWidth" class="mx-4 flex items-center">
           <IconPhoto :size="24" class="mr-4" />
-          <div>
+          <div class="text-surface-900 dark:text-surface-300">
             <div>
               {{
                 isPhotoLandscape || exifTags.Orientation?.value === 0
@@ -100,7 +102,7 @@
                 exifTags.ISOSpeedRatings ||
                 exifTags.ExposureBiasValue
               "
-              class="text-gray-500"
+              class="text-surface-400 dark:text-surface-500"
             >
               <span v-if="aperture !== '0.0'">f/{{ aperture }}</span>
               <span v-if="exifTags.ExposureTime">
@@ -136,11 +138,11 @@
         <Divider v-if="exifTags.Model" />
         <div v-if="exifTags.Model" class="mx-4 flex items-center">
           <IconCamera :size="24" class="mr-4" />
-          <div>
+          <div class="text-surface-900 dark:text-surface-300">
             <div>
               {{ exifTags.Make?.description }} {{ (exifTags.Model as StringArrayTag).value[0] }}
             </div>
-            <small v-if="exifTags.LensModel" class="text-gray-500">
+            <small v-if="exifTags.LensModel" class="text-surface-400 dark:text-surface-500">
               {{ (exifTags.LensModel as StringArrayTag).value[0] }}
             </small>
           </div>

@@ -1,3 +1,4 @@
+import type { UserPermission } from '@/schema';
 import { DARK_MODE_ENABLED } from '@/utils/local-storage-key';
 import { useQuery } from '@tanstack/vue-query';
 import { createPinia, setActivePinia } from 'pinia';
@@ -47,10 +48,10 @@ describe('UserConfigStore', () => {
 
   it('should compute isAdmin correctly', () => {
     const store = useUserConfigStore();
-    store.setUserPermission({ role: 'admin' } as any);
+    store.setUserPermission({ role: 'admin' } as Partial<UserPermission> as UserPermission);
     expect(store.isAdmin).toBe(true);
 
-    store.setUserPermission({ role: 'user' } as any);
+    store.setUserPermission({ role: 'user' } as Partial<UserPermission> as UserPermission);
     expect(store.isAdmin).toBe(false);
   });
 

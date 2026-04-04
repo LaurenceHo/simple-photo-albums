@@ -1,6 +1,6 @@
 import { ApiBaseUrl } from '@/services/api-base-url';
 import { BaseApiRequestService } from '@/services/base-api-request-service';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { AggregateService } from '../aggregate-service';
 
 vi.mock('@/services/base-api-request-service', () => ({
@@ -20,7 +20,7 @@ describe('AggregateService', () => {
         ok: true,
         json: vi.fn().mockResolvedValue({ data: 'mock data' }),
       };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await AggregateService.getAggregateData('albums-with-location');
 
@@ -33,7 +33,7 @@ describe('AggregateService', () => {
     it('should return the JSON response from the API', async () => {
       const mockData = { data: 'mock data' };
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockData) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       const result = await AggregateService.getAggregateData('featured-albums');
 
@@ -42,7 +42,7 @@ describe('AggregateService', () => {
 
     it('should throw an error if the API request fails', async () => {
       const mockError = new Error('API request failed');
-      (BaseApiRequestService.perform as any).mockRejectedValue(mockError);
+      (BaseApiRequestService.perform as Mock).mockRejectedValue(mockError);
 
       await expect(AggregateService.getAggregateData('featured-albums')).rejects.toThrow(
         'API request failed',
@@ -51,7 +51,7 @@ describe('AggregateService', () => {
 
     it('should handle different aggregate types', async () => {
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ data: 'mock data' }) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await AggregateService.getAggregateData('albums-with-location');
       expect(BaseApiRequestService.perform).toHaveBeenCalledWith(

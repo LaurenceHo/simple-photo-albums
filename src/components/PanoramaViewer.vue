@@ -6,11 +6,21 @@ import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue';
 
 interface PannellumViewer {
   destroy(): void;
-  [key: string]: any;
+  [key: string]: unknown;
+}
+
+interface PannellumConfig {
+  type: string;
+  panorama: string;
+  autoLoad?: boolean;
+  autoRotate?: number;
+  compass?: boolean;
+  showFullscreenCtrl?: boolean;
+  showZoomCtrl?: boolean;
 }
 
 interface Pannellum {
-  viewer(container: string | HTMLElement, config: any): PannellumViewer;
+  viewer(container: string | HTMLElement, config: PannellumConfig): PannellumViewer;
 }
 
 declare global {

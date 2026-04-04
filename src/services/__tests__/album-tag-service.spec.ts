@@ -1,6 +1,6 @@
 import { ApiBaseUrl } from '@/services/api-base-url';
 import { BaseApiRequestService } from '@/services/base-api-request-service';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { AlbumTagService } from '../album-tag-service';
 
 // Mock the BaseApiRequestService
@@ -18,7 +18,7 @@ describe('AlbumTagService', () => {
   describe('getAlbumTags', () => {
     it('should call BaseApiRequestService.perform with correct parameters', async () => {
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue([]) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await AlbumTagService.getAlbumTags();
 
@@ -28,7 +28,7 @@ describe('AlbumTagService', () => {
     it('should return the JSON response from the API', async () => {
       const mockTags = [{ tag: 'Tag 1' }, { tag: 'Tag 2' }];
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockTags) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       const result = await AlbumTagService.getAlbumTags();
 
@@ -37,7 +37,7 @@ describe('AlbumTagService', () => {
 
     it('should throw an error if the API request fails', async () => {
       const mockResponse = { ok: false, statusText: 'Not Found' };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await expect(AlbumTagService.getAlbumTags()).rejects.toThrow('Not Found');
     });
@@ -47,7 +47,7 @@ describe('AlbumTagService', () => {
     it('should call BaseApiRequestService.perform with correct parameters', async () => {
       const mockTags = [{ tag: 'New Tag' }];
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ status: 'success' }) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await AlbumTagService.createAlbumTags(mockTags);
 
@@ -61,7 +61,7 @@ describe('AlbumTagService', () => {
     it('should return the ResponseStatus from the API', async () => {
       const mockStatus = { status: 'success' };
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockStatus) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       const result = await AlbumTagService.createAlbumTags([{ tag: 'New Tag' }]);
 
@@ -70,7 +70,7 @@ describe('AlbumTagService', () => {
 
     it('should throw an error if the API request fails', async () => {
       const mockResponse = { ok: false, statusText: 'Bad Request' };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await expect(AlbumTagService.createAlbumTags([{ tag: 'New Tag' }])).rejects.toThrow(
         'Bad Request',
@@ -81,7 +81,7 @@ describe('AlbumTagService', () => {
   describe('deleteAlbumTag', () => {
     it('should call BaseApiRequestService.perform with correct parameters', async () => {
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ status: 'success' }) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await AlbumTagService.deleteAlbumTag('1');
 
@@ -94,7 +94,7 @@ describe('AlbumTagService', () => {
     it('should return the ResponseStatus from the API', async () => {
       const mockStatus = { status: 'success' };
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockStatus) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       const result = await AlbumTagService.deleteAlbumTag('1');
 
@@ -103,7 +103,7 @@ describe('AlbumTagService', () => {
 
     it('should encode special characters in tagId', async () => {
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ status: 'success' }) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await AlbumTagService.deleteAlbumTag('tag/with spaces');
 
@@ -115,7 +115,7 @@ describe('AlbumTagService', () => {
 
     it('should throw an error if the API request fails', async () => {
       const mockResponse = { ok: false, statusText: 'Not Found' };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await expect(AlbumTagService.deleteAlbumTag('1')).rejects.toThrow('Not Found');
     });

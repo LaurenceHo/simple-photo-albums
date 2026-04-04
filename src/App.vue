@@ -151,25 +151,25 @@ if (title) {
 const items = [
   {
     label: 'New Album',
-    icon: IconFolderPlus as any,
+    icon: IconFolderPlus as unknown as string,
     visible: () => routeName.value === 'albumsByYear',
     command: () => dialogStore.setDialogState('updateAlbum', true),
   },
   {
     label: 'Manage Album Tags',
-    icon: IconTags as any,
+    icon: IconTags as unknown as string,
     visible: () => routeName.value === 'albumsByYear',
     command: () => dialogStore.setDialogState('showAlbumTags', true),
   },
   {
     label: 'Manage Travel Records',
-    icon: IconMapPins as any,
+    icon: IconMapPins as unknown as string,
     visible: () => routeName.value === 'albumMap',
     command: () => dialogStore.setDialogState('showTravelRecords', true),
   },
   {
     label: 'Logout',
-    icon: IconLogout as any,
+    icon: IconLogout as unknown as string,
     command: () =>
       AuthService.logout().then(() => {
         localStorage.clear();
@@ -189,7 +189,7 @@ const searchKey = computed({
   set: (value: string) => albumStore.setSearchKey(value),
 });
 
-const toggle = (event: any) => {
+const toggle = (event: MouseEvent) => {
   menu.value.toggle(event);
 };
 

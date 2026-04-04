@@ -154,8 +154,8 @@ describe('AlbumList.vue', () => {
     const wrapper = createWrapper();
     const paginator = wrapper.findComponent({ name: 'Paginator' });
     await paginator.vm.$emit('page', { page: 2, rows: 20 });
-    expect((wrapper.vm as any).pageNumber).toBe(3);
-    expect((wrapper.vm as any).itemsPerPage).toBe(20);
+    expect((wrapper.vm as unknown as { pageNumber: number }).pageNumber).toBe(3);
+    expect((wrapper.vm as unknown as { itemsPerPage: number }).itemsPerPage).toBe(20);
   });
 
   it('displays featured albums when available', async () => {
@@ -175,7 +175,9 @@ describe('AlbumList.vue', () => {
     });
 
     // Ensure useRoute returns a reactive object with a valid params.year
-    vi.mocked(useRoute).mockReturnValue(reactive({ params: { year: 'na' } }) as any);
+    vi.mocked(useRoute).mockReturnValue(
+      reactive({ params: { year: 'na' } }) as unknown as RouteLocationNormalizedLoadedGeneric,
+    );
     const wrapper = createWrapper();
     await wrapper.vm.$nextTick();
     expect(wrapper.findAllComponents({ name: 'Skeleton' }).length).toBeGreaterThan(0);

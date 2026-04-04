@@ -137,27 +137,27 @@ const toggle = (event: Event) => {
 const items = [
   {
     label: 'Copy Link',
-    icon: IconLink as any,
+    icon: IconLink as unknown as string,
     command: copyPhotoLink,
   },
   {
     label: 'Delete Photo',
-    icon: IconTrash as any,
+    icon: IconTrash as unknown as string,
     command: deletePhoto,
   },
   {
     label: 'Move Photo',
-    icon: IconFileExport as any,
+    icon: IconFileExport as unknown as string,
     command: movePhoto,
   },
   {
     label: 'Rename Photo',
-    icon: IconEdit as any,
+    icon: IconEdit as unknown as string,
     command: renamePhoto,
   },
   {
     label: 'Make Album Cover',
-    icon: IconPhotoStar as any,
+    icon: IconPhotoStar as unknown as string,
     command: makeCoverPhoto,
     visible: !isAlbumCover(photoKey.value),
   },

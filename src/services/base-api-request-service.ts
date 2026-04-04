@@ -4,39 +4,42 @@ export const BaseApiRequestService = {
   perform: (
     method: string,
     urlPath: string,
-    requestJsonBody?: any,
-    urlencodedParams?: any,
-    formParams?: any,
-  ): Promise<any> => {
+    requestJsonBody?: Record<string, unknown> | unknown[],
+    urlencodedParams?: Record<string, string>,
+    formParams?: Record<string, string | Blob>,
+  ): Promise<Response> => {
     const headers = new Headers({ Accept: '*/*' });
 
-    const requestOptions: any = {};
-    requestOptions.mode = 'cors';
-    requestOptions.credentials = 'include';
-    requestOptions.cache = 'no-cache';
+    let body: BodyInit | undefined;
 
     // Construct request body
     if (!isEmpty(requestJsonBody)) {
       // JSON content
       headers.append('Content-Type', 'application/json');
-      requestOptions.body = JSON.stringify(requestJsonBody);
-    } else if (!isEmpty(urlencodedParams)) {
+      body = JSON.stringify(requestJsonBody);
+    } else if (urlencodedParams && !isEmpty(urlencodedParams)) {
       headers.append('Content-Type', 'application/x-www-form-urlencoded');
       const urlSearchParams = new URLSearchParams();
       for (const param of Object.keys(urlencodedParams)) {
         urlSearchParams.append(param, urlencodedParams[param]);
       }
-      requestOptions.body = urlSearchParams;
-    } else if (!isEmpty(formParams)) {
+      body = urlSearchParams;
+    } else if (formParams && !isEmpty(formParams)) {
       const formData = new FormData();
       for (const formParam of Object.keys(formParams)) {
         formData.append(formParam, formParams[formParam]);
       }
-      requestOptions.body = formData;
+      body = formData;
     }
 
-    requestOptions.method = method.toUpperCase();
-    requestOptions.headers = headers;
+    const requestOptions: RequestInit = {
+      method: method.toUpperCase(),
+      mode: 'cors',
+      credentials: 'include',
+      cache: 'no-cache',
+      headers,
+      ...(body !== undefined && { body }),
+    };
 
     return fetch(urlPath, requestOptions);
   },

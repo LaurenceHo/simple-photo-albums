@@ -25,9 +25,9 @@ class MockHeaders {
 }
 
 class MockFormData {
-  private data: Record<string, any> = {};
+  private data: Record<string, unknown> = {};
 
-  append(name: string, value: any) {
+  append(name: string, value: unknown) {
     this.data[name] = value;
   }
 
@@ -36,8 +36,8 @@ class MockFormData {
   }
 }
 
-global.Headers = MockHeaders as any;
-global.FormData = MockFormData as any;
+global.Headers = MockHeaders as unknown as typeof Headers;
+global.FormData = MockFormData as unknown as typeof FormData;
 
 describe('BaseApiRequestService', () => {
   beforeEach(() => {
@@ -80,7 +80,7 @@ describe('BaseApiRequestService', () => {
   it('should make a PUT request with URL-encoded params', async () => {
     const url = 'https://api.example.com/data';
     const params = { key: 'value' };
-    await BaseApiRequestService.perform('PUT', url, null, params);
+    await BaseApiRequestService.perform('PUT', url, undefined, params);
 
     expect(fetch).toHaveBeenCalledWith(url, {
       method: 'PUT',
@@ -99,7 +99,7 @@ describe('BaseApiRequestService', () => {
   it('should make a POST request with form data', async () => {
     const url = 'https://api.example.com/upload';
     const formParams = { file: new Blob(['test'], { type: 'text/plain' }) };
-    await BaseApiRequestService.perform('POST', url, null, null, formParams);
+    await BaseApiRequestService.perform('POST', url, undefined, undefined, formParams);
 
     expect(fetch).toHaveBeenCalledWith(url, {
       method: 'POST',

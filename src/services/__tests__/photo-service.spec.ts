@@ -1,6 +1,6 @@
 import { ApiBaseUrl } from '@/services/api-base-url';
 import { BaseApiRequestService } from '@/services/base-api-request-service';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { PhotoService } from '../photo-service';
 
 // Mock the BaseApiRequestService
@@ -23,7 +23,7 @@ describe('PhotoService', () => {
       const albumId = '123';
       const year = '2023';
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue([]) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await PhotoService.getPhotosByAlbumId(albumId, year);
 
@@ -36,7 +36,7 @@ describe('PhotoService', () => {
     it('should return the JSON response from the API when successful', async () => {
       const mockPhotos = { photos: [{ id: '1', url: 'http://example.com/photo1.jpg' }] };
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockPhotos) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       const result = await PhotoService.getPhotosByAlbumId('123', '2023');
 
@@ -45,7 +45,7 @@ describe('PhotoService', () => {
 
     it('should throw an error if the API request fails', async () => {
       const mockResponse = { ok: false, statusText: 'Not Found' };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await expect(PhotoService.getPhotosByAlbumId('123', '2023')).rejects.toThrow('Not Found');
     });
@@ -60,8 +60,8 @@ describe('PhotoService', () => {
         json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://r2-presigned-url' } }),
       };
       const mockR2Response = { ok: true };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
-      (global.fetch as any).mockResolvedValue(mockR2Response);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockApiResponse);
+      (global.fetch as Mock).mockResolvedValue(mockR2Response);
 
       await PhotoService.uploadPhotos(file, albumId);
 
@@ -81,8 +81,8 @@ describe('PhotoService', () => {
         json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://r2-presigned-url' } }),
       };
       const mockR2Response = { ok: true };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
-      (global.fetch as any).mockResolvedValue(mockR2Response);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockApiResponse);
+      (global.fetch as Mock).mockResolvedValue(mockR2Response);
 
       await PhotoService.uploadPhotos(file, albumId);
 
@@ -102,8 +102,8 @@ describe('PhotoService', () => {
         json: vi.fn().mockResolvedValue({ data: { uploadUrl: mockUploadUrl } }),
       };
       const mockR2Response = { ok: true };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
-      (global.fetch as any).mockResolvedValue(mockR2Response);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockApiResponse);
+      (global.fetch as Mock).mockResolvedValue(mockR2Response);
 
       await PhotoService.uploadPhotos(file, albumId);
 
@@ -122,8 +122,8 @@ describe('PhotoService', () => {
         json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://r2-presigned-url' } }),
       };
       const mockR2Response = { ok: true };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
-      (global.fetch as any).mockResolvedValue(mockR2Response);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockApiResponse);
+      (global.fetch as Mock).mockResolvedValue(mockR2Response);
 
       const result = await PhotoService.uploadPhotos(file, albumId);
 
@@ -138,7 +138,7 @@ describe('PhotoService', () => {
       const file = new File([''], 'test.jpg', { type: 'image/jpeg' });
       const albumId = '123';
       const mockResponse = { ok: false, statusText: 'Bad Request' };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await expect(PhotoService.uploadPhotos(file, albumId)).rejects.toThrow('Bad Request');
     });
@@ -147,7 +147,7 @@ describe('PhotoService', () => {
       const file = new File([''], 'test.jpg', { type: 'image/jpeg' });
       const albumId = '123';
       const mockApiResponse = { ok: true, json: vi.fn().mockResolvedValue({ data: {} }) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockApiResponse);
 
       await expect(PhotoService.uploadPhotos(file, albumId)).rejects.toThrow(
         'Upload URL not found',
@@ -162,8 +162,8 @@ describe('PhotoService', () => {
         json: vi.fn().mockResolvedValue({ data: { uploadUrl: 'https://r2-presigned-url' } }),
       };
       const mockR2Response = { ok: false, statusText: 'Forbidden' };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockApiResponse);
-      (global.fetch as any).mockResolvedValue(mockR2Response);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockApiResponse);
+      (global.fetch as Mock).mockResolvedValue(mockR2Response);
 
       await expect(PhotoService.uploadPhotos(file, albumId)).rejects.toThrow('Upload failed');
     });
@@ -175,7 +175,7 @@ describe('PhotoService', () => {
       const destinationAlbumId = '456';
       const photoKeys = ['photo1.jpg', 'photo2.jpg'];
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ status: 'success' }) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await PhotoService.movePhotos(albumId, destinationAlbumId, photoKeys);
 
@@ -189,7 +189,7 @@ describe('PhotoService', () => {
     it('should return the ResponseStatus from the API when successful', async () => {
       const mockStatus = { status: 'success' };
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockStatus) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       const result = await PhotoService.movePhotos('123', '456', ['photo1.jpg', 'photo2.jpg']);
 
@@ -198,7 +198,7 @@ describe('PhotoService', () => {
 
     it('should throw an error if the API request fails', async () => {
       const mockResponse = { ok: false, statusText: 'Not Found' };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await expect(
         PhotoService.movePhotos('123', '456', ['photo1.jpg', 'photo2.jpg']),
@@ -211,7 +211,7 @@ describe('PhotoService', () => {
       const albumId = '123';
       const photoKeys = ['photo1.jpg', 'photo2.jpg'];
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ status: 'success' }) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await PhotoService.deletePhotos(albumId, photoKeys);
 
@@ -224,7 +224,7 @@ describe('PhotoService', () => {
     it('should return the ResponseStatus from the API when successful', async () => {
       const mockStatus = { status: 'success' };
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockStatus) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       const result = await PhotoService.deletePhotos('123', ['photo1.jpg', 'photo2.jpg']);
 
@@ -233,7 +233,7 @@ describe('PhotoService', () => {
 
     it('should throw an error if the API request fails', async () => {
       const mockResponse = { ok: false, statusText: 'Bad Request' };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await expect(PhotoService.deletePhotos('123', ['photo1.jpg', 'photo2.jpg'])).rejects.toThrow(
         'Bad Request',
@@ -247,7 +247,7 @@ describe('PhotoService', () => {
       const newPhotoKey = 'newname.jpg';
       const currentPhotoKey = 'oldname.jpg';
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue({ status: 'success' }) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await PhotoService.renamePhoto(albumId, newPhotoKey, currentPhotoKey);
 
@@ -265,7 +265,7 @@ describe('PhotoService', () => {
     it('should return the ResponseStatus from the API when successful', async () => {
       const mockStatus = { status: 'success' };
       const mockResponse = { ok: true, json: vi.fn().mockResolvedValue(mockStatus) };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       const result = await PhotoService.renamePhoto('123', 'newname.jpg', 'oldname.jpg');
 
@@ -274,7 +274,7 @@ describe('PhotoService', () => {
 
     it('should throw an error if the API request fails', async () => {
       const mockResponse = { ok: false, statusText: 'Not Found' };
-      (BaseApiRequestService.perform as any).mockResolvedValue(mockResponse);
+      (BaseApiRequestService.perform as Mock).mockResolvedValue(mockResponse);
 
       await expect(PhotoService.renamePhoto('123', 'newname.jpg', 'oldname.jpg')).rejects.toThrow(
         'Not Found',

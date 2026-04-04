@@ -1,6 +1,8 @@
 import UploadPhotos from '@/components/UploadPhotos.vue';
+import type { UploadFile } from '@/schema';
 import { useUploadStore } from '@/stores/upload';
 import { createTestingPinia } from '@pinia/testing';
+import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import Button from 'primevue/button';
@@ -38,7 +40,7 @@ describe('UploadPhotos.vue', () => {
     },
   ];
 
-  let wrapper: any;
+  let wrapper: VueWrapper;
 
   const mountWrapper = () => {
     return mount(UploadPhotos, {
@@ -110,7 +112,7 @@ describe('UploadPhotos.vue', () => {
 
   it('disables upload button when no valid files', async () => {
     const store = useUploadStore();
-    store.files = mockFiles as any;
+    store.files = mockFiles as unknown as UploadFile[];
     await nextTick();
 
     const uploadButton = wrapper.find('[data-test-id="upload-file-button"]');
@@ -120,7 +122,7 @@ describe('UploadPhotos.vue', () => {
     expect(uploadButton.attributes('disabled')).toBeUndefined();
 
     // Set only invalid files
-    store.files = [mockFiles[1]] as any;
+    store.files = [mockFiles[1]] as unknown as UploadFile[];
     await nextTick();
     expect(uploadButton.attributes('disabled')).toBeDefined();
   });
@@ -137,7 +139,7 @@ describe('UploadPhotos.vue', () => {
 
   it('clears all files when clear button is clicked', async () => {
     const store = useUploadStore();
-    store.files = mockFiles as any;
+    store.files = mockFiles as unknown as UploadFile[];
     await nextTick();
 
     await wrapper.find('[data-test-id="clear-file-button"]').trigger('click');
@@ -157,15 +159,15 @@ describe('UploadPhotos.vue', () => {
   it('validates drag and drop files', async () => {
     const dropZone = wrapper.findComponent({ name: 'DropZone' });
     await dropZone.vm.$emit('valid-drag', true);
-    expect(wrapper.vm.isValidDrag).toBe(true);
+    expect((wrapper.vm as unknown as { isValidDrag: boolean }).isValidDrag).toBe(true);
 
     await dropZone.vm.$emit('valid-drag', false);
-    expect(wrapper.vm.isValidDrag).toBe(false);
+    expect((wrapper.vm as unknown as { isValidDrag: boolean }).isValidDrag).toBe(false);
   });
 
   it('clears files when albumId changes', async () => {
     const store = useUploadStore();
-    store.files = mockFiles as any;
+    store.files = mockFiles as unknown as UploadFile[];
     await nextTick();
 
     await wrapper.setProps({ albumId: 'new-album-456' });
@@ -174,7 +176,7 @@ describe('UploadPhotos.vue', () => {
 
   it('calls uploadFiles with albumId', async () => {
     const store = useUploadStore();
-    store.files = [mockFiles[0]] as any;
+    store.files = [mockFiles[0]] as unknown as UploadFile[];
     await nextTick();
 
     await wrapper.find('[data-test-id="upload-file-button"]').trigger('click');

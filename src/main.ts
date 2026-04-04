@@ -13,8 +13,8 @@ import './assets/primevue-override.css';
 import router from './router';
 
 declare global {
-  var dataLayer: any[];
-  var gtag: ((...args: any[]) => void) | undefined;
+  var dataLayer: Record<string, unknown>[];
+  var gtag: ((...args: unknown[]) => void) | undefined;
 }
 
 const prepareApp = async () => {
@@ -90,8 +90,11 @@ const gtagId = import.meta.env.VITE_GTAG_ID;
 if (gtagId) {
   globalThis.dataLayer = globalThis.dataLayer || [];
 
-  function gtag(...args: any[]) {
-    globalThis.dataLayer.push({ event: args[0], ...(args.length > 1 ? args[1] : {}) });
+  function gtag(...args: unknown[]) {
+    globalThis.dataLayer.push({
+      event: args[0],
+      ...(args.length > 1 ? (args[1] as Record<string, unknown>) : {}),
+    });
   }
 
   globalThis.gtag = gtag;
