@@ -5,8 +5,8 @@ on:
     branches:
       - master
     paths:
-      - 'src/**'
-      - 'package.json'
+      - 'ui/src/**'
+      - 'ui/package.json'
   workflow_dispatch:
 
 jobs:
@@ -31,13 +31,13 @@ jobs:
 
       - name: Test and build
         run: |
-          bun run type-check
-          bun run test:unit
-          bun run build
+          bun run --cwd ui type-check
+          bun run --cwd ui test:unit
+          bun run --cwd ui build
 
       - name: Deploy to Cloudflare Pages
         env:
           PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }}
         run: |
           npx wrangler pages project create "$PAGES_PROJECT" --production-branch=master 2>/dev/null || true
-          npx wrangler pages deploy dist --project-name="$PAGES_PROJECT" --commit-dirty=true --branch=master
+          npx wrangler pages deploy ui/dist --project-name="$PAGES_PROJECT" --commit-dirty=true --branch=master

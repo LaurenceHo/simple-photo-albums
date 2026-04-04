@@ -33,13 +33,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2.1.3
+      - run: bun install
 
-      - name: Install dependencies and test
+      - name: Test
         run: |
-          cd ./server
-          bun install
-          bun run types:server
-          bun run test:server
+          bun run --cwd server types:server
+          bun run --cwd server test:server
 
       - name: Configure Wrangler
         run: |
