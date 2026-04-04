@@ -13,7 +13,7 @@ import './assets/primevue-override.css';
 import router from './router';
 
 declare global {
-  var dataLayer: Record<string, unknown>[];
+  var dataLayer: IArguments[];
   var gtag: ((...args: unknown[]) => void) | undefined;
 }
 
@@ -90,17 +90,14 @@ const gtagId = import.meta.env.VITE_GTAG_ID;
 if (gtagId) {
   globalThis.dataLayer = globalThis.dataLayer || [];
 
-  function gtag(...args: unknown[]) {
-    globalThis.dataLayer.push({
-      event: args[0],
-      ...(args.length > 1 ? (args[1] as Record<string, unknown>) : {}),
-    });
-  }
+  // Must use traditional function (not arrow) so `arguments` is available — gtag.js expects raw arguments pushed to dataLayer
+  globalThis.gtag = function () {
+    // eslint-disable-next-line prefer-rest-params
+    globalThis.dataLayer.push(arguments);
+  };
 
-  globalThis.gtag = gtag;
-
-  gtag('js', new Date());
-  gtag('config', gtagId);
+  globalThis.gtag('js', new Date());
+  globalThis.gtag('config', gtagId);
 
   const script = document.createElement('script');
   script.async = true;
