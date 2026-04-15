@@ -74,4 +74,86 @@ describe('LocationService', () => {
     const options = fetchCall?.[1] as RequestInit;
     expect(options.signal).toBeInstanceOf(AbortSignal);
   });
+
+  it('should throw Zod validation error for unexpected response shape', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ places: [{ unexpectedField: true }] }),
+    } as Response);
+
+    await expect(getLocation(TEST_API_KEY, 'Auckland', 'places.displayName')).rejects.toThrow();
+  });
+
+  it('should accept response with empty places array', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ places: [] }),
+    } as Response);
+
+    const result = await getLocation(TEST_API_KEY, 'Auckland', 'places.displayName');
+
+    expect(result.places).toEqual([]);
+  });
+
+  it('should accept response with no places field (optional)', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
+    } as Response);
+
+    const result = await getLocation(TEST_API_KEY, 'Auckland', 'places.displayName');
+
+    expect(result.places).toBeUndefined();
+  });
+
+  it('should include addressComponents when present in response', async () => {
+    const responseWithComponents = {
+      places: [
+        {
+          ...mockPlacesResponse.places[0],
+          addressComponents: [{ types: ['country'], shortText: 'NZ', longText: 'New Zealand' }],
+        },
+      ],
+    };
+
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(responseWithComponents),
+    } as Response);
+
+    const result = await getLocation(
+      TEST_API_KEY,
+      'Auckland',
+      'places.displayName,places.addressComponents',
+    );
+
+    expect(result.places?.[0].addressComponents).toHaveLength(1);
+    expect(result.places?.[0].addressComponents?.[0].shortText).toBe('NZ');
+  });
+
+  it('should send correct request body with textQuery and languageCode', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockPlacesResponse),
+    } as Response);
+
+    await getLocation(TEST_API_KEY, 'Sydney Opera House', 'places.location');
+
+    const fetchCall = vi.mocked(fetch).mock.calls[0];
+    const options = fetchCall?.[1] as RequestInit;
+    expect(JSON.parse(options.body as string)).toEqual({
+      textQuery: 'Sydney Opera House',
+      languageCode: 'en',
+    });
+  });
+
+  it('should throw for various non-ok status codes', async () => {
+    for (const status of [400, 401, 404, 500, 503]) {
+      vi.mocked(fetch).mockResolvedValue({ ok: false, status } as Response);
+
+      await expect(getLocation(TEST_API_KEY, 'test', 'places.displayName')).rejects.toThrow(
+        `Google Places API returned ${status}`,
+      );
+    }
+  });
 });

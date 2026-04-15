@@ -2,10 +2,10 @@ import { DOMParser } from '@xmldom/xmldom';
 import { Hono } from 'hono';
 
 // Polyfill DOMParser and Node for AWS SDK in Cloudflare Workers
-globalThis.DOMParser = DOMParser as any;
+(globalThis as Record<string, unknown>)['DOMParser'] = DOMParser;
 // @ts-expect-error - Node is not exported from @xmldom/xmldom/lib/dom but is available at runtime
 import { Node } from '@xmldom/xmldom/lib/dom';
-globalThis.Node = Node as any;
+(globalThis as Record<string, unknown>)['Node'] = Node;
 
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';

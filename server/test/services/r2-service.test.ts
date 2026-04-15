@@ -1,6 +1,7 @@
 import {
   CopyObjectCommand,
   DeleteObjectsCommand,
+  GetObjectCommand,
   HeadBucketCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
@@ -226,6 +227,89 @@ describe('R2Service', () => {
       });
 
       expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('read', () => {
+    it('should parse JSON body from R2 object', async () => {
+      const jsonData = { key: 'value', count: 42 };
+      r2Mock.on(GetObjectCommand).resolves({
+        Body: {
+          transformToString: () => Promise.resolve(JSON.stringify(jsonData)),
+        } as any,
+      });
+
+      const result = await r2Service.read({ Bucket: 'test-bucket', Key: 'data.json' });
+
+      expect(result).toEqual(jsonData);
+    });
+
+    it('should throw when Body is empty', async () => {
+      r2Mock.on(GetObjectCommand).resolves({ Body: undefined });
+
+      await expect(r2Service.read({ Bucket: 'test-bucket', Key: 'missing.json' })).rejects.toThrow(
+        'No data found in the R2 object',
+      );
+    });
+
+    it('should throw when Body contains invalid JSON', async () => {
+      r2Mock.on(GetObjectCommand).resolves({
+        Body: {
+          transformToString: () => Promise.resolve('not-json'),
+        } as any,
+      });
+
+      await expect(r2Service.read({ Bucket: 'test-bucket', Key: 'bad.json' })).rejects.toThrow();
+    });
+  });
+
+  describe('getPresignedUploadUrl', () => {
+    it('should return a presigned URL string', async () => {
+      const result = await r2Service.getPresignedUploadUrl(
+        'test-bucket',
+        'photos/test.jpg',
+        'image/jpeg',
+      );
+
+      expect(typeof result).toBe('string');
+      expect(result).toContain('test-bucket');
+    });
+
+    it('should accept custom expiresIn', async () => {
+      const result = await r2Service.getPresignedUploadUrl(
+        'test-bucket',
+        'photos/test.jpg',
+        'image/png',
+        300,
+      );
+
+      expect(typeof result).toBe('string');
+    });
+  });
+
+  describe('checkIfFileExists - non-404 errors', () => {
+    it('should re-throw non-NotFound errors', async () => {
+      r2Mock.on(HeadObjectCommand).rejects({
+        name: 'AccessDenied',
+        $metadata: { httpStatusCode: 403 },
+      });
+
+      await expect(
+        r2Service.checkIfFileExists({ Bucket: 'test-bucket', Key: 'forbidden.jpg' }),
+      ).rejects.toMatchObject({ name: 'AccessDenied' });
+    });
+  });
+
+  describe('checkIfBucketExists - non-404 errors', () => {
+    it('should re-throw non-NotFound errors', async () => {
+      r2Mock.on(HeadBucketCommand).rejects({
+        name: 'AccessDenied',
+        $metadata: { httpStatusCode: 403 },
+      });
+
+      await expect(
+        r2Service.checkIfBucketExists({ Bucket: 'forbidden-bucket' }),
+      ).rejects.toMatchObject({ name: 'AccessDenied' });
     });
   });
 });

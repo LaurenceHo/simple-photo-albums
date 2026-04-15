@@ -184,4 +184,173 @@ describe('FlightService', () => {
 
     expect(result.distance).toBe(0);
   });
+
+  it('should default to "Unknown" when airport name is missing', async () => {
+    const noNameResponse = [
+      {
+        ...mockApiResponse[0],
+        departure: {
+          airport: { iata: 'HND', location: { lat: 35, lon: 139 } },
+          scheduledTime: mockApiResponse[0].departure.scheduledTime,
+        },
+        arrival: {
+          airport: { iata: 'LAX', location: { lat: 33, lon: -118 } },
+          scheduledTime: mockApiResponse[0].arrival.scheduledTime,
+        },
+      },
+    ];
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(noNameResponse),
+    } as Response);
+
+    const result = await flightService.getFlightByNumber('NH106', '2025-01-15');
+
+    expect(result.departure.displayName).toBe('Unknown');
+    expect(result.destination.displayName).toBe('Unknown');
+  });
+
+  it('should default formattedAddress to "Unknown" when municipality and country missing', async () => {
+    const noAddressResponse = [
+      {
+        ...mockApiResponse[0],
+        departure: {
+          airport: { name: 'Test', location: { lat: 0, lon: 0 } },
+          scheduledTime: mockApiResponse[0].departure.scheduledTime,
+        },
+      },
+    ];
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(noAddressResponse),
+    } as Response);
+
+    const result = await flightService.getFlightByNumber('NH106', '2025-01-15');
+
+    expect(result.departure.formattedAddress).toBe('Unknown');
+  });
+
+  it('should default location to 0,0 when airport location missing', async () => {
+    const noLocationResponse = [
+      {
+        ...mockApiResponse[0],
+        departure: {
+          airport: { name: 'Test' },
+          scheduledTime: mockApiResponse[0].departure.scheduledTime,
+        },
+        arrival: {
+          airport: { name: 'Test2' },
+          scheduledTime: mockApiResponse[0].arrival.scheduledTime,
+        },
+      },
+    ];
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(noLocationResponse),
+    } as Response);
+
+    const result = await flightService.getFlightByNumber('NH106', '2025-01-15');
+
+    expect(result.departure.location).toEqual({ latitude: 0, longitude: 0 });
+    expect(result.destination.location).toEqual({ latitude: 0, longitude: 0 });
+  });
+
+  it('should set durationMinutes to 0 when scheduled times missing', async () => {
+    const noTimesResponse = [
+      {
+        ...mockApiResponse[0],
+        departure: {
+          airport: mockApiResponse[0].departure.airport,
+          scheduledTime: {},
+        },
+        arrival: {
+          airport: mockApiResponse[0].arrival.airport,
+          scheduledTime: {},
+        },
+      },
+    ];
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(noTimesResponse),
+    } as Response);
+
+    const result = await flightService.getFlightByNumber('NH106', '2025-01-15');
+
+    expect(result.durationMinutes).toBe(0);
+  });
+
+  it('should default airline to "Unknown" when airline name missing', async () => {
+    const noAirlineResponse = [{ ...mockApiResponse[0], airline: undefined }];
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(noAirlineResponse),
+    } as Response);
+
+    const result = await flightService.getFlightByNumber('NH106', '2025-01-15');
+
+    expect(result.airline).toBe('Unknown');
+  });
+
+  it('should use original flightNumber when flight.number is missing', async () => {
+    const noNumberResponse = [{ ...mockApiResponse[0], number: undefined }];
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(noNumberResponse),
+    } as Response);
+
+    const result = await flightService.getFlightByNumber('QF1', '2025-01-15');
+
+    expect(result.flightNumber).toBe('QF1');
+  });
+
+  it('should handle completely missing departure/arrival airport objects', async () => {
+    const minimalResponse = [
+      {
+        ...mockApiResponse[0],
+        departure: {},
+        arrival: {},
+      },
+    ];
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(minimalResponse),
+    } as Response);
+
+    const result = await flightService.getFlightByNumber('NH106', '2025-01-15');
+
+    expect(result.departure.displayName).toBe('Unknown');
+    expect(result.destination.displayName).toBe('Unknown');
+    expect(result.departure.location).toEqual({ latitude: 0, longitude: 0 });
+    expect(result.durationMinutes).toBe(0);
+  });
+
+  it('should handle FlightApiError with correct name property', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: false,
+      status: 429,
+    } as Response);
+
+    try {
+      await flightService.getFlightByNumber('NH106', '2025-01-15');
+      expect.unreachable('should have thrown');
+    } catch (err: any) {
+      expect(err.name).toBe('FlightApiError');
+      expect(err.message).toBe('AeroDataBox API returned 429');
+    }
+  });
+
+  it('should handle FlightNotFoundError with correct name property', async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([]),
+    } as Response);
+
+    try {
+      await flightService.getFlightByNumber('NH106', '2025-01-15');
+      expect.unreachable('should have thrown');
+    } catch (err: any) {
+      expect(err.name).toBe('FlightNotFoundError');
+      expect(err.message).toBe('No flight data found');
+    }
+  });
 });
