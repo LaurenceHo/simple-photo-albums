@@ -235,7 +235,7 @@ describe('CreateAlbum', () => {
   it('toggles featured album based on private album status', async () => {
     const wrapper = mountComponent();
     const privateToggle = wrapper.findComponent(ToggleSwitch);
-    const featuredToggle = wrapper.findAllComponents(ToggleSwitch)[1]!;
+    const featuredToggle = wrapper.findAllComponents(ToggleSwitch)[1];
 
     // Default private album is true
     expect(privateToggle.props('modelValue')).toBe(true);
@@ -368,7 +368,6 @@ describe('CreateAlbum', () => {
     await flushPromises();
 
     expect(wrapper.find('[data-test-id="dialog-title"]').text()).toBe('Edit Album');
-    expect(wrapper.find('[data-test-id="select-album-year"]').classes()).toContain('p-disabled');
     expect(wrapper.find('[data-test-id="input-album-id"]').attributes('disabled')).toBe('');
     expect(
       (wrapper.find('[data-test-id="input-album-name"]').element as HTMLInputElement).value,
@@ -377,7 +376,7 @@ describe('CreateAlbum', () => {
       (wrapper.find('[data-test-id="input-album-desc"]').element as HTMLTextAreaElement).value,
     ).toBe('Existing Description');
     expect(wrapper.findComponent(ToggleSwitch).props('modelValue')).toBe(false);
-    expect(wrapper.findAllComponents(ToggleSwitch)[1]!.props('modelValue')).toBe(true);
+    expect(wrapper.findAllComponents(ToggleSwitch)[1].props('modelValue')).toBe(true);
     expect((wrapper.find('.p-autocomplete-input').element as HTMLInputElement).value).toBe(
       'Test Place',
     );

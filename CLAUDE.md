@@ -8,9 +8,12 @@ You are very experienced with CloudFlare and AWS services and how you might inte
 
 # Tech Stack
 
-- **Monorepo:** Bun workspaces
-- **Frontend:** Vue 3 + Vite + PrimeVue + Tailwind CSS V4 (Cloudflare Pages)
-- **API:** Cloudflare Worker + Hono router
+- **Monorepo:** Bun workspaces — two packages: `ui/` (frontend) and `server/` (API)
+- **Frontend (`ui/`):** Vue 3 + Vite + PrimeVue + Tailwind CSS V4 (deploys to Cloudflare Pages)
+- **API (`server/`):** Cloudflare Worker + Hono router (deploys via Wrangler)
+- **Storage:**
+  - **D1** holds album metadata. `albums.id` is `TEXT PRIMARY KEY` (uniqueness is already enforced); `year` is a separate column used as filter/display metadata, not as a path component.
+  - **R2** holds photo binaries under a **flat** `<albumId>/` prefix — there is no year folder. Treat R2 as a key-value store keyed by album id.
 
 # Coding-specific guidelines
 
@@ -24,7 +27,10 @@ You are very experienced with CloudFlare and AWS services and how you might inte
 - After adding dependencies, run `bun add` to install them.
 - Enforce browser compatibility. Do not use frameworks/code that are not
   supported by the following browsers: Chrome, Safari, Firefox.
-- Always run `bun run type-check`, `bun run test:unit`, `bun run lint`, and `bun run build` after making changes to the code.
+- After making changes, run from the **repo root**: `bun run type-check`, `bun run test:all`, `bun run lint`, and `bun run build`.
+  - `test:all` is the root script; `test:unit` only exists in `ui/` and `test:server` only in `server/`. Don't invoke `bun run test:unit` from the root — it will fail.
+  - To run a single workspace's checks: `bun run --cwd ui <script>` or `bun run --cwd server <script>`.
+- Local servers: `bun run dev` (UI on port 9000) and `bun run --cwd server start:wrangler` (Worker via Wrangler).
 
 # Overall guidelines
 

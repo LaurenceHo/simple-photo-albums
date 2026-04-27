@@ -23,7 +23,6 @@
           <FloatLabel>
             <Select
               v-model="selectedYear"
-              :disabled="albumToBeUpdate?.id !== ''"
               :invalid="v$.selectedYear.$invalid"
               :options="yearOptions"
               class="w-full"
