@@ -15,32 +15,32 @@
     "types:server": "tsc --noEmit"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1037.0",
-    "@aws-sdk/s3-request-presigner": "^3.1037.0",
-    "@hono/zod-validator": "^0.7.6",
+    "@aws-sdk/client-s3": "^3.1074.0",
+    "@aws-sdk/s3-request-presigner": "^3.1074.0",
+    "@hono/zod-validator": "0.8.0",
     "@xmldom/xmldom": "0.9.10",
-    "google-auth-library": "10.6.2",
-    "hono": "^4.12.15",
-    "jose": "^6.2.2",
+    "google-auth-library": "10.7.0",
+    "hono": "^4.12.26",
+    "jose": "^6.2.3",
     "radash": "^12.1.1",
-    "zod": "4.3.6"
+    "zod": "4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260426.1",
+    "@cloudflare/workers-types": "^4.20260621.1",
     "@eslint/js": "10.0.1",
     "@tsconfig/node22": "^22.0.5",
     "@tsconfig/strictest": "^2.0.8",
-    "@types/node": "25.6.0",
-    "@vitest/coverage-v8": "^4.1.5",
+    "@types/node": "26.0.0",
+    "@vitest/coverage-v8": "^4.1.9",
     "aws-sdk-client-mock": "^4.1.0",
-    "eslint": "10.2.1",
+    "eslint": "10.5.0",
     "eslint-config-prettier": "^10.1.8",
-    "globals": "17.5.0",
-    "prettier": "^3.8.3",
+    "globals": "17.7.0",
+    "prettier": "^3.8.4",
     "prettier-plugin-organize-imports": "^4.3.0",
     "typescript": "6.0.3",
-    "typescript-eslint": "^8.59.0",
-    "vitest": "4.1.5"
+    "typescript-eslint": "^8.62.0",
+    "vitest": "4.1.9"
   },
   "engines": {
     "node": "^22",
