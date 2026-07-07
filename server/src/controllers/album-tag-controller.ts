@@ -56,12 +56,10 @@ export default class AlbumTagController extends BaseController {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   findOne = async (_c: Context) => {
     throw new Error('Method not implemented.');
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   update = async (_c: Context) => {
     throw new Error('Method not implemented.');
   };

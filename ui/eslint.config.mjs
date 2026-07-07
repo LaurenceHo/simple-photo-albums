@@ -37,5 +37,16 @@ export default defineConfigWithVueTs(
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],
   },
+  {
+    // `@vitest/eslint-plugin` 1.6.21 (latest) added chai-chain support that registers
+    // `any` as a chai flag property, causing `valid-expect` to misclassify the standard
+    // `expect.any(...)` asymmetric matcher as an "unknown modifier". Until upstream fixes
+    // this false positive, disable the rule for test files. See classifyExpectChain in the
+    // plugin: `any` lives in chaiFlagChainProperties.
+    files: ['src/**/__tests__/*'],
+    rules: {
+      'vitest/valid-expect': 'off',
+    },
+  },
   prettierSkipFormatting,
 );

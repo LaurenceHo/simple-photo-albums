@@ -108,7 +108,7 @@ export default class AlbumService extends D1Service<Album> {
     if (item.tags && typeof item.tags === 'string') {
       try {
         item.tags = JSON.parse(item.tags);
-      } catch (e) {
+      } catch {
         item.tags = [];
       }
     } else if (!item.tags) {

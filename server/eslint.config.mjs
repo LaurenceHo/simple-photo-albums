@@ -32,7 +32,17 @@ export default tsEslint.config(
         },
       ],
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          // Honor the leading-underscore convention already used across the
+          // controllers (e.g. `_c: Context`) to mark intentionally-unused
+          // parameters, variables, and caught errors.
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
   {

@@ -2,7 +2,7 @@ import { AlbumSchema } from '@/schema/album';
 import { PhotoSchema } from '@/schema/photo';
 import { z } from 'zod';
 
-const PhotoResponseSchema = z.object({
+export const PhotoResponseSchema = z.object({
   photos: z.array(PhotoSchema),
   album: AlbumSchema,
 });
@@ -13,7 +13,7 @@ const ResponseStatusSchema = z.object({
   message: z.string().optional(),
 });
 
-const ApiResponseSchema = ResponseStatusSchema.extend({
+export const ApiResponseSchema = ResponseStatusSchema.extend({
   data: z.unknown().optional(),
 });
 

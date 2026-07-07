@@ -1,6 +1,17 @@
 <template>
   <Card
-    :class="`file-drop-zone h-[calc(80vh-80px)] w-full max-w-7xl overflow-auto ${active ? 'border-2 border-dashed shadow-md' : ''} ${isValidDrag ? 'border-blue-500' : 'border-red-500'} ${isUploading ? 'bg-gray-100 dark:bg-zinc-800' : ''}`"
+    :class="[
+      'dark:bg-surface-800/50',
+      'file-drop-zone',
+      'h-[calc(80vh-80px)]',
+      'w-full',
+      'max-w-7xl',
+      'overflow-auto',
+      { 'border-2 border-dashed shadow-md': active },
+      { 'border-blue-500': isValidDrag },
+      { 'border-red-500': !isValidDrag },
+      { 'bg-gray-100 dark:bg-zinc-800': isUploading }
+    ]"
     :pt="{
       body: {
         style: {

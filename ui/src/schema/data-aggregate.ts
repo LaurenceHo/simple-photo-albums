@@ -14,7 +14,7 @@ export const AggregateTypeSchema = z.enum([
   'featured-albums',
 ]);
 
-const DataAggregateValueMapSchema = z.object({
+export const DataAggregateValueMapSchema = z.object({
   'albums-with-location': z.array(AlbumSchema),
   'count-albums-by-year': AlbumsByYearSchema,
   'featured-albums': z.array(AlbumSchema),
